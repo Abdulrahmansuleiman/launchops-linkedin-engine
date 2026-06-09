@@ -388,9 +388,24 @@ export default function Leads() {
                       <select
                         className="cursor-pointer rounded-md px-2 py-1.5 text-xs font-medium transition-colors w-full"
                         style={{
-                          color: "var(--foreground)",
-                          background: "var(--badge-bg)",
+                          color: {
+                            MEETING_BOOKED: "#15803d", DEMO_SENT: "#15803d",
+                            RESPONDED: "#1d4ed8", CONNECTED: "#1d4ed8",
+                            DM_SENT: "#a16207",
+                            CLIENT_WON: "#15803d",
+                            CLIENT_LOST: "#b91c1c",
+                            NEW: "#6b7280",
+                          }[lead.status] || "var(--foreground)",
+                          background: {
+                            MEETING_BOOKED: "#dcfce7", DEMO_SENT: "#dcfce7",
+                            RESPONDED: "#dbeafe", CONNECTED: "#dbeafe",
+                            DM_SENT: "#fef9c3",
+                            CLIENT_WON: "#dcfce7",
+                            CLIENT_LOST: "#fee2e2",
+                            NEW: "#f3f4f6",
+                          }[lead.status] || "var(--badge-bg)",
                           border: "1px solid var(--card-border)",
+                          fontWeight: lead.status === "CLIENT_WON" || lead.status === "MEETING_BOOKED" ? 600 : 500,
                         }}
                         value={lead.status}
                         onChange={(e) => {
