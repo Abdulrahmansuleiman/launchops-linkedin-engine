@@ -76,3 +76,25 @@ export async function POST(req: Request) {
   });
   return NextResponse.json(lead, { status: 201 });
 }
+
+export async function PATCH(req: Request) {
+  const body = await req.json();
+
+  if (body.action === "markConnected") {
+    const updated = await prisma.lead.update({
+      where: { id: body.leadId },
+      data: { status: "CONNECTED", connectedAt: new Date() },
+    });
+    return NextResponse.json(updated);
+  }
+
+  if (body.action === "updateStatus") {
+    const updated = await prisma.lead.update({
+      where: { id: body.leadId },
+      data: { status: body.status },
+    });
+    return NextResponse.json(updated);
+  }
+
+  return NextResponse.json({ error: "Unknown action" }, { status: 400 });
+}

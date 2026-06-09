@@ -92,7 +92,7 @@ const CONTENT_SKILL = `# LaunchOps LinkedIn Content System
 - Paint a picture — make them see the before and after
 - Shift a belief — every post must change how they think about something
 - Never explain the technology — always explain the outcome
-- Post length: medium, never too long
+- Post length: substantial — 150-300 words. Write with depth. Raymon writes like he talks — full thoughts, real detail, natural rhythm. Never short or abrupt.
 
 ### CTA Rules
 - Never use a split audience CTA
@@ -155,6 +155,7 @@ CRITICAL RULES:
 - Arrow lists (→) for scannable breakdowns
 - CTA speaks to the reader's situation, not Raymon's desire to talk to them
 - End with a P.S. line that is intentional and human
+- POST LENGTH: Write substantial posts — 150 to 300 words. Raymon writes like he speaks: full thoughts, real detail, never abrupt. A post should have meat on it.
 
 ${params.pastFeedback ? `Learn from past performance: ${params.pastFeedback}` : ""}
 

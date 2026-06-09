@@ -14,10 +14,12 @@ export interface Lead {
   name: string | null;
   headline: string | null;
   company: string | null;
+  linkedinUrl: string | null;
   followerCount: number | null;
   score: number;
   status: string;
   notes: string | null;
+  connectedAt: string | null;
   lastContactedAt: string | null;
   createdAt: string;
 }
@@ -135,6 +137,20 @@ export async function createLead(data: { linkedinUrl: string; name: string; comp
   return fetchJSON<Lead>("/api/leads", {
     method: "POST",
     body: JSON.stringify({ ...data, score: 50 }),
+  });
+}
+
+export async function markLeadConnected(leadId: string) {
+  return fetchJSON<Lead>("/api/leads", {
+    method: "PATCH",
+    body: JSON.stringify({ action: "markConnected", leadId }),
+  });
+}
+
+export async function updateLeadStatus(leadId: string, status: string) {
+  return fetchJSON<Lead>("/api/leads", {
+    method: "PATCH",
+    body: JSON.stringify({ action: "updateStatus", leadId, status }),
   });
 }
 

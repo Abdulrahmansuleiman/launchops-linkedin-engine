@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { Search, Filter, MessageCircle, Send, MoreHorizontal, Target, Loader2 } from "lucide-react";
-import { getLeads, importLeads, type Lead } from "@/lib/api";
+import {
+  Search, Filter, MessageCircle, Send, MoreHorizontal, Target,
+  Loader2, Link2, CheckCircle, XCircle
+} from "lucide-react";
+import { getLeads, importLeads, markLeadConnected, updateLeadStatus, type Lead } from "@/lib/api";
 
 const statusColor = (status: string) => {
   switch (status) {
@@ -16,6 +19,8 @@ const statusColor = (status: string) => {
     case "RESPONDED": case "CONNECTED": return "info" as const;
     case "DM_SENT": return "warning" as const;
     case "CLIENT_WON": return "success" as const;
+    case "NEW": return "default" as const;
+    case "CLIENT_LOST": return "danger" as const;
     default: return "default" as const;
   }
 };
@@ -24,11 +29,17 @@ const statusLabel = (status: string) => {
   return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
+const statusOptions = [
+  "NEW", "CONNECTED", "DM_SENT", "RESPONDED",
+  "MEETING_BOOKED", "DEMO_SENT", "CLIENT_WON", "CLIENT_LOST"
+];
+
 export default function Leads() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [importing, setImporting] = useState(false);
   const [importMsg, setImportMsg] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { data: allLeads = [] } = useQuery({
@@ -48,7 +59,49 @@ export default function Leads() {
     },
   });
 
-  const filtered = filterStatus === "all" && !search ? (allLeads || []) : (allLeads || []);
+  const handleImport = async () => {
+    setImporting(true);
+    setImportMsg(null);
+    try {
+      const urls = prompt("Enter LinkedIn profile URLs (one per line):");
+      if (!urls) { setImporting(false); return; }
+      const profileUrls = urls.split("\n").map((u) => u.trim()).filter(Boolean);
+      const result = await importLeads(profileUrls);
+      setImportMsg(`Imported ${result.imported} new leads`);
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+    } catch (e: any) {
+      setImportMsg("Import failed: " + (e.message || "Unknown error"));
+    } finally {
+      setImporting(false);
+      setTimeout(() => setImportMsg(null), 4000);
+    }
+  };
+
+  const handleMarkConnected = async (leadId: string) => {
+    setUpdatingId(leadId);
+    try {
+      await markLeadConnected(leadId);
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+    } catch (e: any) {
+      console.error("Mark connected failed:", e);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleStatusChange = async (leadId: string, newStatus: string) => {
+    setUpdatingId(leadId);
+    try {
+      await updateLeadStatus(leadId, newStatus);
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+    } catch (e: any) {
+      console.error("Status update failed:", e);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const filtered = allLeads;
 
   return (
     <div className="space-y-5 max-w-7xl">
@@ -58,35 +111,19 @@ export default function Leads() {
             Leads
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Find high value prospects, score them, and move them through your pipeline
+            Import real LinkedIn profiles. Mark when you connect. Track every stage.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={async () => {
-            setImporting(true);
-            setImportMsg(null);
-            try {
-              const urls = prompt("Enter LinkedIn profile URLs (one per line):");
-              if (!urls) { setImporting(false); return; }
-              const profileUrls = urls.split("\n").map((u) => u.trim()).filter(Boolean);
-              const result = await importLeads(profileUrls);
-              setImportMsg(`Imported ${result.imported} new leads`);
-              queryClient.invalidateQueries({ queryKey: ["leads"] });
-            } catch (e: any) {
-              setImportMsg("Import failed: " + (e.message || "Unknown error"));
-            } finally {
-              setImporting(false);
-              setTimeout(() => setImportMsg(null), 4000);
-            }
-          }} disabled={importing}>
-            {importing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Target className="w-4 h-4 mr-1.5" />}
-            {importing ? "Importing..." : "Import from LinkedIn"}
-          </Button>
           {importMsg && (
             <span className="text-xs" style={{ color: importMsg.includes("failed") ? "#f87171" : "#4ade80" }}>
               {importMsg}
             </span>
           )}
+          <Button onClick={handleImport} disabled={importing}>
+            {importing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Target className="w-4 h-4 mr-1.5" />}
+            {importing ? "Importing..." : "Import from LinkedIn"}
+          </Button>
         </div>
       </div>
 
@@ -100,26 +137,27 @@ export default function Leads() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="w-36">
+        <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="w-44">
           <option value="all">All Status</option>
-          <option value="NEW">New</option>
-          <option value="CONNECTED">Connected</option>
-          <option value="DM_SENT">DM Sent</option>
-          <option value="RESPONDED">Responded</option>
-          <option value="MEETING_BOOKED">Meeting Booked</option>
-          <option value="DEMO_SENT">Demo Sent</option>
-          <option value="CLIENT_WON">Client Won</option>
+          {statusOptions.map((s) => (
+            <option key={s} value={s}>{statusLabel(s)}</option>
+          ))}
         </Select>
-        <Button variant="secondary" size="sm" onClick={() => {
-          setFilterStatus(filterStatus === "all" ? "NEW" : "all");
-        }}>
-          <Filter className="w-3.5 h-3.5 mr-1" /> {filterStatus === "all" ? "Filters" : "Clear Filter"}
+        <Button variant="secondary" size="sm" onClick={() => setFilterStatus("all")}>
+          <Filter className="w-3.5 h-3.5 mr-1" /> Clear
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Pipeline ({filtered.length})</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Pipeline ({filtered.length})</CardTitle>
+            {filtered.length === 0 && !importing && (
+              <span className="text-xs" style={{ color: "var(--muted)" }}>
+                Import leads above to get started
+              </span>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -127,7 +165,7 @@ export default function Leads() {
               <thead>
                 <tr style={{ color: "var(--muted)" }}>
                   <th className="text-left font-medium pb-3 pr-4">Name</th>
-                  <th className="text-left font-medium pb-3 pr-4 hidden sm:table-cell">Followers</th>
+                  <th className="text-left font-medium pb-3 pr-4 hidden sm:table-cell">LinkedIn</th>
                   <th className="text-left font-medium pb-3 pr-4 hidden md:table-cell">Status</th>
                   <th className="text-left font-medium pb-3 pr-4">Score</th>
                   <th className="text-right font-medium pb-3">Actions</th>
@@ -141,46 +179,107 @@ export default function Leads() {
                     style={{ borderColor: "var(--card-border)" }}
                   >
                     <td className="py-3 pr-4">
-                      <p className="font-medium" style={{ color: "var(--foreground)" }}>{lead.name || "Unknown"}</p>
-                      <p className="text-xs" style={{ color: "var(--muted)" }}>{lead.headline || lead.company || ""}</p>
+                      <p className="font-medium" style={{ color: "var(--foreground)" }}>
+                        {lead.name || "Unknown"}
+                      </p>
+                      <p className="text-xs truncate max-w-[200px]" style={{ color: "var(--muted)" }}>
+                        {lead.headline || lead.company || ""}
+                      </p>
                     </td>
-                    <td className="py-3 pr-4 hidden sm:table-cell" style={{ color: "var(--muted)" }}>
-                      {lead.followerCount ? `${(lead.followerCount / 1000).toFixed(1)}K` : "0"}
+                    <td className="py-3 pr-4 hidden sm:table-cell">
+                      {lead.linkedinUrl ? (
+                        <a
+                          href={lead.linkedinUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs"
+                          style={{ color: "#60a5fa" }}
+                        >
+                          <Link2 className="w-3 h-3" /> Profile
+                        </a>
+                      ) : (
+                        <span className="text-xs" style={{ color: "var(--muted)" }}>—</span>
+                      )}
                     </td>
                     <td className="py-3 pr-4 hidden md:table-cell">
                       <Badge variant={statusColor(lead.status)}>{statusLabel(lead.status)}</Badge>
                     </td>
                     <td className="py-3 pr-4">
-                      <span className={lead.score >= 80 ? "text-green-400" : lead.score >= 50 ? "text-yellow-400" : ""}>
+                      <span className={
+                        lead.score >= 80 ? "text-green-400 font-medium" :
+                        lead.score >= 50 ? "text-yellow-400" :
+                        "text-gray-400"
+                      }>
                         {lead.score}
                       </span>
                     </td>
                     <td className="py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="sm" className="!p-1.5" onClick={() => window.location.href = "/outreach"}>
-                          <MessageCircle className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="!p-1.5" onClick={() => window.location.href = "/outreach"}>
-                          <Send className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="!p-1.5" onClick={() => {
-                          const newStatus = prompt("Change status: NEW, CONNECTED, DM_SENT, RESPONDED, MEETING_BOOKED, DEMO_SENT, CLIENT_WON, CLIENT_LOST");
-                          if (newStatus) window.location.href = `/leads`;
-                        }}>
-                          <MoreHorizontal className="w-4 h-4" />
-        </Button>
-        {importMsg && (
-          <span className="text-xs" style={{ color: importMsg.includes("failed") ? "#f87171" : "#4ade80" }}>
-            {importMsg}
-          </span>
-        )}
-      </div>
+                        {lead.linkedinUrl && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="!p-1.5"
+                            title="Open LinkedIn"
+                            onClick={() => window.open(lead.linkedinUrl!, "_blank")}
+                          >
+                            <Link2 className="w-3.5 h-3.5" style={{ color: "#60a5fa" }} />
+                          </Button>
+                        )}
+                        {lead.status === "NEW" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="!p-1.5"
+                            title="Mark Connected"
+                            disabled={updatingId === lead.id}
+                            onClick={() => handleMarkConnected(lead.id)}
+                          >
+                            {updatingId === lead.id
+                              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              : <CheckCircle className="w-3.5 h-3.5" style={{ color: "#4ade80" }} />
+                            }
+                          </Button>
+                        )}
+                        {lead.status !== "NEW" && lead.status !== "CLIENT_LOST" && lead.status !== "ARCHIVED" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="!p-1.5"
+                            title="Next stage"
+                            onClick={() => {
+                              const idx = statusOptions.indexOf(lead.status);
+                              const next = statusOptions[Math.min(idx + 1, statusOptions.length - 1)];
+                              if (next && next !== lead.status) handleStatusChange(lead.id, next);
+                            }}
+                          >
+                            <Send className="w-3.5 h-3.5" style={{ color: "#fbbf24" }} />
+                          </Button>
+                        )}
+                        <div className="relative inline-block">
+                          <select
+                            className="appearance-none bg-transparent p-1.5 text-xs cursor-pointer rounded"
+                            style={{ color: "var(--muted)", border: "1px solid transparent" }}
+                            value=""
+                            onChange={(e) => {
+                              if (e.target.value) handleStatusChange(lead.id, e.target.value);
+                              e.target.value = "";
+                            }}
+                          >
+                            <option value="" disabled>Set...</option>
+                            {statusOptions.filter(s => s !== lead.status).map((s) => (
+                              <option key={s} value={s}>{statusLabel(s)}</option>
+                            ))}
+                          </select>
+                          <MoreHorizontal className="w-3.5 h-3.5 pointer-events-none absolute right-1 top-1/2 -translate-y-1/2" style={{ color: "var(--muted)" }} />
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 )) : (
                   <tr>
                     <td colSpan={5} className="text-center py-8 text-sm" style={{ color: "var(--muted)" }}>
-                      No leads found. Import from LinkedIn or adjust filters.
+                      {importing ? "Importing leads from LinkedIn..." : "No leads yet. Import from LinkedIn to start building your pipeline."}
                     </td>
                   </tr>
                 )}
@@ -192,14 +291,14 @@ export default function Leads() {
 
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Total Leads", value: stats?.total ?? "0" },
-          { label: "Hot (score 80+)", value: stats?.hot ?? "0" },
-          { label: "Engaged", value: stats?.engaged ?? "0" },
+          { label: "Total Leads", value: stats?.total ?? "0", color: "var(--foreground)" },
+          { label: "Hot (score 80+)", value: stats?.hot ?? "0", color: "#4ade80" },
+          { label: "Engaged", value: stats?.engaged ?? "0", color: "#60a5fa" },
         ].map((s) => (
           <Card key={s.label}>
             <CardContent className="p-4">
               <p className="text-xs" style={{ color: "var(--muted)" }}>{s.label}</p>
-              <p className="text-xl font-bold" style={{ color: "var(--foreground)" }}>{s.value}</p>
+              <p className="text-xl font-bold" style={{ color: s.color }}>{s.value}</p>
             </CardContent>
           </Card>
         ))}

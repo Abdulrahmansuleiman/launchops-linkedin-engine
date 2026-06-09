@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/input";
-import { Send, Plus, MessageCircle, CheckCircle, Clock, Zap, Target, Loader2 } from "lucide-react";
+import { Send, MessageCircle, CheckCircle, Clock, Zap, Target, Loader2, Copy, ExternalLink, Check } from "lucide-react";
 import { getLeads, generateMessage, sendOutreachMessage, getSequences, createLead } from "@/lib/api";
+import type { Lead } from "@/lib/api";
 
 const openerTemplate = [
   "Hey [Name]",
@@ -36,14 +37,6 @@ const objections = [
   { them: '"Not now / too busy"', reply: '"No worries at all drop me a message whenever the time is right" then wait 2-3 weeks.' },
 ];
 
-const activeConversations = [
-  { name: "Jordan Blake", company: "Apex Ventures", stage: "Surface Pain", nextAction: "Ask about follow-up speed", status: "hot", city: "Manchester", messages: 4 },
-  { name: "Marcus Webb", company: "ScaleUp Labs", stage: "Drop the Frame", nextAction: "Send demo video", status: "hot", city: "London", messages: 7 },
-  { name: "Priya Sharma", company: "GrowthStack", stage: "Opener Sent", nextAction: "Bump in 2 days", status: "warm", city: "Dubai", messages: 1 },
-  { name: "Kim Davies", company: "LeadGen Labs", stage: "Objection", nextAction: "Pivot on VA angle", status: "warm", city: "Birmingham", messages: 3 },
-  { name: "Carlos Mendez", company: "Pulse Solar", stage: "Book Call", nextAction: "Send Calendly link", status: "hot", city: "Texas", messages: 9 },
-];
-
 const followUpSequence = [
   { day: "Day 1", action: "Send opener (line by line)", done: true },
   { day: "Day 4", action: "Bump: just bumping this up in case it got buried", done: false },
@@ -51,10 +44,37 @@ const followUpSequence = [
   { day: "Day 14", action: "Move on. Mark for 30-60 day re-engage", done: false },
 ];
 
+function getStage(lead: Lead): string {
+  switch (lead.status) {
+    case "NEW": return "Opener Ready";
+    case "CONNECTED": return "Connected";
+    case "DM_SENT": return "Waiting Reply";
+    case "RESPONDED": return "Surface Pain";
+    case "MEETING_BOOKED": return "Meeting Booked";
+    case "DEMO_SENT": return "Demo Sent";
+    case "CLIENT_WON": return "Client Won";
+    default: return lead.status;
+  }
+}
+
+function getNextAction(lead: Lead): string {
+  switch (lead.status) {
+    case "NEW": return "Send opener";
+    case "CONNECTED": return "Surface the pain";
+    case "DM_SENT": return "Wait for reply";
+    case "RESPONDED": return "Drop the frame";
+    case "MEETING_BOOKED": return "Send demo";
+    case "DEMO_SENT": return "Follow up";
+    case "CLIENT_WON": return "Onboard";
+    default: return "Review";
+  }
+}
+
 export default function Outreach() {
   const [selectedProspect, setSelectedProspect] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [sending, setSending] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [messageContent, setMessageContent] = useState("");
   const [showCustomize, setShowCustomize] = useState(false);
   const [customTemplate, setCustomTemplate] = useState(openerTemplate.join("\n"));
@@ -62,6 +82,10 @@ export default function Outreach() {
 
   const { data: leads = [] } = useQuery({ queryKey: ["leads"], queryFn: () => getLeads() });
   const { data: sequences = [] } = useQuery({ queryKey: ["sequences"], queryFn: () => getSequences() });
+
+  const activeLeads = leads.filter((l) => l.linkedinUrl && l.status !== "CLIENT_LOST" && l.status !== "ARCHIVED");
+
+  const selectedLead = leads.find((l) => l.name === selectedProspect);
 
   const handleNewProspect = async () => {
     const url = prompt("Enter LinkedIn profile URL:");
@@ -79,11 +103,10 @@ export default function Outreach() {
     if (!selectedProspect) return;
     setGenerating(true);
     try {
-      const conv = activeConversations.find((c) => c.name === selectedProspect);
+      const lead = leads.find((l) => l.name === selectedProspect);
       const result = await generateMessage({
         prospectName: selectedProspect,
-        prospectCompany: conv?.company,
-        prospectDetail: conv?.city,
+        prospectCompany: lead?.company || undefined,
         step: "opener",
       });
       const messages = result.message?.messages || [];
@@ -99,11 +122,9 @@ export default function Outreach() {
     if (!selectedProspect || !messageContent.trim()) return;
     setGenerating(true);
     try {
-      const conv = activeConversations.find((c) => c.name === selectedProspect);
       const result = await generateMessage({
         prospectName: selectedProspect,
-        prospectCompany: conv?.company,
-        step: conv?.stage?.toLowerCase().includes("surface") ? "surface" : "opener",
+        step: "opener",
         context: messageContent,
       });
       setMessageContent(result.message?.message || result.message?.messages?.join("\n") || "");
@@ -114,24 +135,42 @@ export default function Outreach() {
     }
   };
 
-  const handleSend = async () => {
-    if (!selectedProspect || !messageContent.trim()) return;
+  const handleSendOnLinkedIn = async () => {
+    if (!selectedProspect || !messageContent.trim() || !selectedLead) return;
     setSending(true);
     try {
       const defaultSeq = sequences[0];
-      const lead = leads.find((l) => l.name === selectedProspect);
       await sendOutreachMessage({
         sequenceId: defaultSeq?.id || "default",
-        leadId: lead?.id || "default",
+        leadId: selectedLead.id,
         stepNumber: 1,
         content: messageContent,
       });
-      setMessageContent("");
+
+      await navigator.clipboard.writeText(messageContent);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+
+      const linkedinUrl = selectedLead.linkedinUrl || `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(selectedLead.name || selectedProspect)}`;
+      window.open(linkedinUrl, "_blank");
+
       queryClient.invalidateQueries({ queryKey: ["sequences"] });
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
     } catch (e: any) {
       console.error("Send failed:", e);
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleCopyMessage = async () => {
+    if (!messageContent.trim()) return;
+    try {
+      await navigator.clipboard.writeText(messageContent);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch (e: any) {
+      console.error("Copy failed:", e);
     }
   };
 
@@ -250,48 +289,54 @@ export default function Outreach() {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>Active Conversations</CardTitle>
-                <Badge variant="success">{activeConversations.length}</Badge>
+                <Badge variant="success">{activeLeads.length}</Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
-              {activeConversations.map((c) => (
+              {activeLeads.length > 0 ? activeLeads.map((lead) => (
                 <div
-                  key={c.name}
+                  key={lead.id}
                   className="p-3 rounded-lg cursor-pointer transition-all"
                   style={{
-                    background: selectedProspect === c.name ? "var(--nav-active)" : "var(--badge-bg)",
-                    border: selectedProspect === c.name ? "1px solid var(--nav-active-border)" : "1px solid transparent",
+                    background: selectedProspect === lead.name ? "var(--nav-active)" : "var(--badge-bg)",
+                    border: selectedProspect === lead.name ? "1px solid var(--nav-active-border)" : "1px solid transparent",
                   }}
                   onClick={() => {
-                    setSelectedProspect(c.name);
+                    setSelectedProspect(lead.name);
                     setMessageContent("");
+                    setCopied(false);
                   }}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2 min-w-0">
                       <div className="w-6 h-6 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center shrink-0 font-medium">
-                        {c.name[0]}
+                        {(lead.name || "?")[0]}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium truncate" style={{ color: "var(--foreground)" }}>{c.name}</p>
-                        <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{c.company} &middot; {c.city}</p>
+                        <p className="text-sm font-medium truncate" style={{ color: "var(--foreground)" }}>{lead.name}</p>
+                        <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{lead.company || lead.headline || ""}</p>
                       </div>
                     </div>
                     <Badge
-                      variant={c.status === "hot" ? "warning" : "info"}
+                      variant={lead.score >= 80 ? "warning" : "info"}
                       className="ml-2 shrink-0 text-[10px]"
                     >
-                      {c.status === "hot" ? "Hot" : "Warm"}
+                      {lead.score >= 80 ? "Hot" : "Warm"}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="info" className="text-[10px]">{c.stage}</Badge>
-                    <span className="text-[11px]" style={{ color: "var(--muted)" }}>{c.messages} msgs</span>
+                    <Badge variant="info" className="text-[10px]">{getStage(lead)}</Badge>
+                    <span className="text-[11px]" style={{ color: "var(--muted)" }}>Score: {lead.score}</span>
                   </div>
-                  <p className="text-xs mt-1" style={{ color: "#60a5fa" }}>Next: {c.nextAction}</p>
+                  <p className="text-xs mt-1" style={{ color: "#60a5fa" }}>Next: {getNextAction(lead)}</p>
                 </div>
-              ))}
-              <Button variant="ghost" size="sm" className="w-full text-xs" onClick={() => window.location.href = "/leads"}>View All Conversations</Button>
+              )) : (
+                <div className="text-center py-4">
+                  <p className="text-sm" style={{ color: "var(--muted)" }}>No active conversations yet</p>
+                  <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>Import leads from LinkedIn to get started</p>
+                </div>
+              )}
+              <Button variant="ghost" size="sm" className="w-full text-xs" onClick={() => window.location.href = "/leads"}>View All Leads</Button>
             </CardContent>
           </Card>
 
@@ -306,7 +351,17 @@ export default function Outreach() {
                 <>
                   <div className="mb-3 p-3 rounded-lg" style={{ background: "var(--badge-bg)" }}>
                     <p className="text-xs font-medium" style={{ color: "var(--foreground)" }}>Sending to: {selectedProspect}</p>
-                    <p className="text-xs" style={{ color: "var(--muted)" }}>Stage: {activeConversations.find(c => c.name === selectedProspect)?.stage}</p>
+                    {selectedLead?.linkedinUrl && (
+                      <a
+                        href={selectedLead.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs flex items-center gap-1 mt-1"
+                        style={{ color: "#60a5fa" }}
+                      >
+                        <ExternalLink className="w-3 h-3" /> Open LinkedIn Profile
+                      </a>
+                    )}
                   </div>
                   <Textarea
                     value={messageContent}
@@ -324,15 +379,29 @@ export default function Outreach() {
                       AI Optimize
                     </Button>
                     <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCopyMessage}
+                      disabled={!messageContent.trim()}
+                      title="Copy message to clipboard"
+                    >
+                      {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    </Button>
+                    <Button
                       variant="secondary"
                       size="sm"
-                      onClick={handleSend}
+                      onClick={handleSendOnLinkedIn}
                       disabled={sending || !messageContent.trim()}
                     >
                       {sending ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Send className="w-3.5 h-3.5 mr-1" />}
-                      Send
+                      Send on LinkedIn
                     </Button>
                   </div>
+                  {copied && (
+                    <p className="text-xs mt-2" style={{ color: "#4ade80" }}>
+                      Message copied. LinkedIn opens in a new tab. Paste and send.
+                    </p>
+                  )}
                 </>
               ) : (
                 <div className="text-center py-6">
@@ -368,10 +437,10 @@ export default function Outreach() {
 
       <div className="grid grid-cols-4 gap-3">
         {[
-          { label: "Active Convos", value: "5", sub: "5 in pipeline", icon: MessageCircle, color: "#60a5fa" },
-          { label: "Opens This Week", value: "12", sub: "+3 from last week", icon: Send, color: "#4ade80" },
-          { label: "Reply Rate", value: "62%", sub: "Industry avg: 28%", icon: CheckCircle, color: "#c084fc" },
-          { label: "Calls Booked", value: "3", sub: "This month", icon: Clock, color: "#fbbf24" },
+          { label: "Active Conversations", value: `${activeLeads.length}`, sub: `${leads.filter(l => l.status === "DM_SENT" || l.status === "RESPONDED").length} in progress`, icon: MessageCircle, color: "#60a5fa" },
+          { label: "Total Leads", value: `${leads.length}`, sub: `${leads.filter(l => l.linkedinUrl).length} with LinkedIn`, icon: Send, color: "#4ade80" },
+          { label: "Hot Leads", value: `${leads.filter(l => l.score >= 80).length}`, sub: "Need action", icon: CheckCircle, color: "#c084fc" },
+          { label: "Reply Rate", value: "62%", sub: "Industry avg: 28%", icon: Clock, color: "#fbbf24" },
         ].map((s) => {
           const Icon = s.icon;
           return (
