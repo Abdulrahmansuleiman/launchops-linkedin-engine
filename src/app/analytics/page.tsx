@@ -1,13 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, ArrowUp, Target, Sparkles } from "lucide-react";
-import { getPosts, getLeads } from "@/lib/api";
+import { TrendingUp, ArrowUp, Target, Sparkles, Loader2 } from "lucide-react";
+import { getPosts, getLeads, generateWeeklyInsights } from "@/lib/api";
 
 const COLORS = ["#60a5fa", "#4ade80", "#c084fc", "#fbbf24", "#f87171"];
 
@@ -21,6 +22,13 @@ const growthData = [
 ];
 
 export default function Analytics() {
+  const [generating, setGenerating] = useState(false);
+  const [aiRecommendations, setAiRecommendations] = useState<string[]>([
+    "Double down on client story posts they drive 2.3x more demo bookings",
+    "Best posting time: Tue-Thu 8-10am move high-value posts to these slots",
+    "Try adding 1 controversial take per week to spark comments",
+  ]);
+
   const { data: posts = [] } = useQuery({ queryKey: ["analytics-posts"], queryFn: () => getPosts({ status: "PUBLISHED" }) });
   const { data: leads = [] } = useQuery({ queryKey: ["analytics-leads"], queryFn: () => getLeads() });
 
@@ -41,7 +49,7 @@ export default function Analytics() {
       engagement: p.impressions && p.impressions > 0
         ? `${((((p.likes || 0) + (p.comments || 0)) / p.impressions) * 100).toFixed(1)}%`
         : "0%",
-      sentiment: (p.impressions || 0) >= 2000 ? "🔥 Fire" : (p.impressions || 0) >= 1000 ? "📈 Good" : "💀 Flopped",
+      sentiment: (p.impressions || 0) >= 2000 ? "Fire" : (p.impressions || 0) >= 1000 ? "Good" : "Flopped",
     }));
 
   const contentDna = [
@@ -51,6 +59,21 @@ export default function Analytics() {
     { label: "Personal Takes", value: 12 },
     { label: "Humor/Relatable", value: 8 },
   ];
+
+  const handleGenerateReport = async () => {
+    setGenerating(true);
+    try {
+      const result = await generateWeeklyInsights();
+      const recs = result.recommendations || result.topics || [];
+      if (recs.length > 0) {
+        setAiRecommendations(recs);
+      }
+    } catch (e: any) {
+      console.error("Generate report failed:", e);
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   return (
     <div className="space-y-5 max-w-7xl">
@@ -69,8 +92,9 @@ export default function Analytics() {
             <option>Last 90 days</option>
             <option>All time</option>
           </Select>
-          <Button variant="secondary" size="sm" onClick={() => alert("AI will generate a full performance report with recommendations based on your data.")}>
-            <Sparkles className="w-3.5 h-3.5 mr-1" /> AI Report
+          <Button variant="secondary" size="sm" onClick={handleGenerateReport} disabled={generating}>
+            {generating ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1" />}
+            {generating ? "Generating..." : "AI Report"}
           </Button>
         </div>
       </div>
@@ -203,15 +227,9 @@ export default function Analytics() {
             }}
           >
             <ul className="space-y-2">
-              {[
-                "Double down on client story posts — they drive 2.3x more demo bookings",
-                "Best posting time: Tue-Thu 8-10am — move high-value posts to these slots",
-                `Your top post reached ${topPosts[0]?.impressions.toLocaleString() || "—"} impressions — analyze what made it work`,
-                `${demosBooked} leads in demo stages need follow-up within 24h`,
-                "Try adding 1 controversial take per week to spark comments",
-              ].map((rec, i) => (
+              {aiRecommendations.map((rec, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "var(--foreground)" }}>
-                  <span className="text-blue-400 mt-0.5 shrink-0">→</span>
+                  <span className="text-blue-400 mt-0.5 shrink-0">&rarr;</span>
                   {rec}
                 </li>
               ))}

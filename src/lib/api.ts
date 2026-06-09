@@ -96,16 +96,44 @@ export async function getPosts(params?: { weekLabel?: string; status?: string })
   return fetchJSON<Post[]>(`/api/content${qs ? `?${qs}` : ""}`);
 }
 
-export async function generateDrafts(topic: string) {
+export async function generateDrafts(topic: string, weekLabel?: string) {
   return fetchJSON<{ drafts: Post[] }>("/api/content", {
     method: "POST",
-    body: JSON.stringify({ action: "generate", topic }),
+    body: JSON.stringify({ action: "generate", topic, weekLabel }),
+  });
+}
+
+export async function publishPost(id: string) {
+  return fetchJSON<Post>("/api/content", {
+    method: "PATCH",
+    body: JSON.stringify({ id, status: "PUBLISHED", publishedAt: new Date().toISOString() }),
+  });
+}
+
+export async function submitPostFeedback(id: string, feedbackRating: string, feedbackNotes: string) {
+  return fetchJSON<Post>("/api/content", {
+    method: "PATCH",
+    body: JSON.stringify({ id, feedbackRating, feedbackNotes }),
+  });
+}
+
+export async function polishPost(content: string) {
+  return fetchJSON<any>("/api/openai", {
+    method: "POST",
+    body: JSON.stringify({ action: "analyzePost", content }),
   });
 }
 
 // === Outreach ===
 export async function getSequences() {
   return fetchJSON<OutreachSequence[]>("/api/outreach");
+}
+
+export async function createLead(data: { linkedinUrl: string; name: string; company: string; headline: string; location: string }) {
+  return fetchJSON<Lead>("/api/leads", {
+    method: "POST",
+    body: JSON.stringify({ ...data, score: 50 }),
+  });
 }
 
 export async function generateMessage(params: {
@@ -115,13 +143,32 @@ export async function generateMessage(params: {
   step: string;
   context?: string;
 }) {
-  return fetchJSON<{ message: any }>("/api/outreach", {
+  return fetchJSON<{ message: any }>("/api/openai", {
     method: "POST",
-    body: JSON.stringify({ action: "generate", ...params }),
+    body: JSON.stringify({ action: "generateOutreach", ...params }),
+  });
+}
+
+export async function sendOutreachMessage(data: {
+  sequenceId: string;
+  leadId: string;
+  stepNumber: number;
+  content: string;
+}) {
+  return fetchJSON<any>("/api/outreach", {
+    method: "POST",
+    body: JSON.stringify({ action: "send", ...data }),
   });
 }
 
 // === Analytics ===
 export async function getWeeklyReports() {
   return fetchJSON<WeeklyReport[]>("/api/content?status=PUBLISHED");
+}
+
+export async function generateWeeklyInsights() {
+  return fetchJSON<any>("/api/openai", {
+    method: "POST",
+    body: JSON.stringify({ action: "weeklyInsights", weekPosts: [] }),
+  });
 }

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { TrendingUp, Users, DollarSign, Eye, ArrowRight, Sparkles, RefreshCw, ThumbsUp, ThumbsDown } from "lucide-react";
-import { getLeads, getPosts } from "@/lib/api";
+import { TrendingUp, Users, DollarSign, Eye, ArrowRight, Sparkles, RefreshCw, ThumbsUp, ThumbsDown, Loader2 } from "lucide-react";
+import { getLeads, getPosts, generateDrafts } from "@/lib/api";
 
 const weeklyData = [
   { day: "Mon", impressions: 1200, likes: 45 },
@@ -19,8 +19,12 @@ const weeklyData = [
   { day: "Sun", impressions: 2100, likes: 71 },
 ];
 
+const TOPICS = ["AI agents for business", "Lead follow-up automation", "Sales outreach that works"];
+
 export default function Dashboard() {
   const [insightFeedback, setInsightFeedback] = useState<"helpful" | "not-helpful" | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: leads = [] } = useQuery({ queryKey: ["leads"], queryFn: () => getLeads() });
   const { data: posts = [] } = useQuery({ queryKey: ["posts"], queryFn: () => getPosts({ status: "PUBLISHED" }) });
@@ -47,16 +51,27 @@ export default function Dashboard() {
     { label: "New Leads", value: `${leads.length || 18}`, change: "+5 new this week", icon: Users, color: "yellow" as const },
   ];
 
-  const handleGenerate = useCallback(() => {
-    alert("This will generate this week's content drafts using AI. Coming soon with the full AI integration.");
-  }, []);
+  const handleGenerate = useCallback(async () => {
+    setGenerating(true);
+    try {
+      const topic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
+      await generateDrafts(topic);
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    } catch (e: any) {
+      console.error("Generate failed:", e);
+    } finally {
+      setGenerating(false);
+    }
+  }, [queryClient]);
 
   const handleInsightFeedback = useCallback((type: "helpful" | "not-helpful") => {
     setInsightFeedback(type);
-    if (type === "not-helpful") {
-      alert("Thanks for the feedback. The AI will adjust its recommendations based on what you tell it.");
-    }
   }, []);
+
+  const handleRefreshInsight = useCallback(async () => {
+    setInsightFeedback(null);
+    queryClient.invalidateQueries({ queryKey: ["stats"] });
+  }, [queryClient]);
 
   return (
     <div className="space-y-5 max-w-7xl">
@@ -69,9 +84,9 @@ export default function Dashboard() {
             How your LinkedIn is growing this week
           </p>
         </div>
-        <Button onClick={handleGenerate}>
-          <Sparkles className="w-4 h-4 mr-1.5" />
-          Generate This Week
+        <Button onClick={handleGenerate} disabled={generating}>
+          {generating ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Sparkles className="w-4 h-4 mr-1.5" />}
+          {generating ? "Generating..." : "Generate This Week"}
         </Button>
       </div>
 
@@ -203,10 +218,7 @@ export default function Dashboard() {
             <RefreshCw
               className="w-4 h-4 cursor-pointer hover:opacity-70 transition-opacity"
               style={{ color: "var(--muted)" }}
-              onClick={() => {
-                setInsightFeedback(null);
-                alert("Fresh insight coming from the AI based on your latest data.");
-              }}
+              onClick={handleRefreshInsight}
             />
           </div>
         </CardHeader>

@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/input";
-import { Send, Plus, MessageCircle, CheckCircle, Clock, Zap, ChevronRight, Target, User, Building2 } from "lucide-react";
+import { Send, Plus, MessageCircle, CheckCircle, Clock, Zap, Target, Loader2 } from "lucide-react";
+import { getLeads, generateMessage, sendOutreachMessage, getSequences, createLead } from "@/lib/api";
 
 const openerTemplate = [
   "Hey [Name]",
@@ -13,25 +15,25 @@ const openerTemplate = [
   "That's all you? Or you have a team",
   "You guys do [what they do] right?",
   "How long you been running it?",
-  "Gotta visit [city] btw — [genuine local line]",
+  "Gotta visit [city] btw [genuine local line]",
 ];
 
 const flowSteps = [
   { step: 1, name: "Opener", desc: "Line by line, one per send. No pitch. No AI mention.", status: "active" },
-  { step: 2, name: "Reply → Warm", desc: "Match energy. One casual line + ONE question about their business.", status: "active" },
+  { step: 2, name: "Reply to Warm", desc: "Match energy. One casual line plus ONE question about their business.", status: "active" },
   { step: 3, name: "Surface Pain", desc: "Ask about lead follow-up speed. Pick the right angle for their industry.", status: "active" },
-  { step: 4, name: "Pain Pivot", desc: "If slow → cold facts. If fast → volume angle. If auto → conversion rate.", status: "active" },
-  { step: 5, name: "Drop the Frame", desc: "Sell outcome, not build. Offer demo video or 20-min call.", status: "active" },
+  { step: 4, name: "Pain Pivot", desc: "If slow use cold facts. If fast try the volume angle. If auto talk conversion rate.", status: "active" },
+  { step: 5, name: "Drop the Frame", desc: "Sell outcome not build. Offer demo video or 20 min call.", status: "active" },
   { step: 6, name: "Book Call", desc: "Calendly link. No pitch. No deck. Just map out where leads are lost.", status: "active" },
 ];
 
 const objections = [
-  { them: '"We\'re doing fine"', reply: '"That\'s the best position to be in — you already have demand. Quick question: what\'s your lead-to-booked-call rate right now?"' },
+  { them: '"We\'re doing fine"', reply: '"That\'s the best position to be in you already have demand. Quick question: what\'s your lead-to-booked-call rate right now?"' },
   { them: '"We use a VA"', reply: '"How fast can your VA respond when a lead comes in at 9pm on a Friday? That\'s where the system breaks."' },
-  { them: '"Not interested in AI"', reply: '"I get that — most people that say that have seen chatbots that feel robotic. What I build is conversational. Your leads don\'t know it\'s automated."' },
-  { them: '"What does it cost?"', reply: '"Depends on what you need — that\'s what the call is for. But bigger question: how much are slow responses costing you right now?"' },
-  { them: 'Gone quiet 1-2 messages', reply: '"Hey — no pressure. Curious though: what does your current lead follow-up actually look like end to end?"' },
-  { them: '"Not now / too busy"', reply: '"No worries at all — drop me a message whenever the time is right 👊" — wait 2-3 weeks.' },
+  { them: '"Not interested in AI"', reply: '"I get that most people that say that have seen chatbots that feel robotic. What I build is conversational. Your leads don\'t know it\'s automated."' },
+  { them: '"What does it cost?"', reply: '"Depends on what you need that\'s what the call is for. But bigger question: how much are slow responses costing you right now?"' },
+  { them: 'Gone quiet 1-2 messages', reply: '"Hey no pressure. Curious though: what does your current lead follow-up actually look like end to end?"' },
+  { them: '"Not now / too busy"', reply: '"No worries at all drop me a message whenever the time is right" then wait 2-3 weeks.' },
 ];
 
 const activeConversations = [
@@ -44,13 +46,94 @@ const activeConversations = [
 
 const followUpSequence = [
   { day: "Day 1", action: "Send opener (line by line)", done: true },
-  { day: "Day 4", action: "Bump: 'just bumping this up in case it got buried 👋'", done: false },
+  { day: "Day 4", action: "Bump: just bumping this up in case it got buried", done: false },
   { day: "Day 8", action: "New angle: ask about follow-up process directly", done: false },
   { day: "Day 14", action: "Move on. Mark for 30-60 day re-engage", done: false },
 ];
 
 export default function Outreach() {
   const [selectedProspect, setSelectedProspect] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [messageContent, setMessageContent] = useState("");
+  const [showCustomize, setShowCustomize] = useState(false);
+  const [customTemplate, setCustomTemplate] = useState(openerTemplate.join("\n"));
+  const queryClient = useQueryClient();
+
+  const { data: leads = [] } = useQuery({ queryKey: ["leads"], queryFn: () => getLeads() });
+  const { data: sequences = [] } = useQuery({ queryKey: ["sequences"], queryFn: () => getSequences() });
+
+  const handleNewProspect = async () => {
+    const url = prompt("Enter LinkedIn profile URL:");
+    if (!url) return;
+    const name = prompt("Prospect name:") || "Unknown";
+    try {
+      await createLead({ linkedinUrl: url, name, company: "", headline: "", location: "" });
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+    } catch (e: any) {
+      console.error("Create lead failed:", e);
+    }
+  };
+
+  const handleGenerateOpener = async () => {
+    if (!selectedProspect) return;
+    setGenerating(true);
+    try {
+      const conv = activeConversations.find((c) => c.name === selectedProspect);
+      const result = await generateMessage({
+        prospectName: selectedProspect,
+        prospectCompany: conv?.company,
+        prospectDetail: conv?.city,
+        step: "opener",
+      });
+      const messages = result.message?.messages || [];
+      setMessageContent(messages.join("\n") || result.message?.message || "");
+    } catch (e: any) {
+      console.error("Generate opener failed:", e);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleAIOptimize = async () => {
+    if (!selectedProspect || !messageContent.trim()) return;
+    setGenerating(true);
+    try {
+      const conv = activeConversations.find((c) => c.name === selectedProspect);
+      const result = await generateMessage({
+        prospectName: selectedProspect,
+        prospectCompany: conv?.company,
+        step: conv?.stage?.toLowerCase().includes("surface") ? "surface" : "opener",
+        context: messageContent,
+      });
+      setMessageContent(result.message?.message || result.message?.messages?.join("\n") || "");
+    } catch (e: any) {
+      console.error("AI optimize failed:", e);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleSend = async () => {
+    if (!selectedProspect || !messageContent.trim()) return;
+    setSending(true);
+    try {
+      const defaultSeq = sequences[0];
+      const lead = leads.find((l) => l.name === selectedProspect);
+      await sendOutreachMessage({
+        sequenceId: defaultSeq?.id || "default",
+        leadId: lead?.id || "default",
+        stepNumber: 1,
+        content: messageContent,
+      });
+      setMessageContent("");
+      queryClient.invalidateQueries({ queryKey: ["sequences"] });
+    } catch (e: any) {
+      console.error("Send failed:", e);
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <div className="space-y-5 max-w-7xl">
@@ -63,7 +146,7 @@ export default function Outreach() {
             Casual, brotherly, research heavy. Never pitch in the opener
           </p>
         </div>
-        <Button onClick={() => alert("Enter a LinkedIn profile URL or paste a screenshot to start a new outreach conversation.")}>
+        <Button onClick={handleNewProspect}>
           <Target className="w-4 h-4 mr-1.5" />
           New Prospect
         </Button>
@@ -110,21 +193,33 @@ export default function Outreach() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-1.5 p-4 rounded-lg font-mono text-sm leading-relaxed" style={{ background: "var(--badge-bg)", color: "var(--foreground)" }}>
-                {openerTemplate.map((line, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <span className="text-blue-400 shrink-0">→</span>
-                    <span>{line}</span>
-                  </div>
-                ))}
-              </div>
+              {showCustomize ? (
+                <Textarea
+                  value={customTemplate}
+                  onChange={(e) => setCustomTemplate(e.target.value)}
+                  rows={8}
+                />
+              ) : (
+                <div className="space-y-1.5 p-4 rounded-lg font-mono text-sm leading-relaxed" style={{ background: "var(--badge-bg)", color: "var(--foreground)" }}>
+                  {openerTemplate.map((line, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <span className="text-blue-400 shrink-0">&rarr;</span>
+                      <span>{line}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="mt-3 flex gap-2 flex-wrap">
-                <Button size="sm" onClick={() => alert("AI will generate a personalized Ty Frankel style opener for this prospect.")}>
-                  <Zap className="w-3.5 h-3.5 mr-1" />
+                <Button
+                  size="sm"
+                  onClick={handleGenerateOpener}
+                  disabled={generating || !selectedProspect}
+                >
+                  {generating ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Zap className="w-3.5 h-3.5 mr-1" />}
                   Generate Opener
                 </Button>
-                <Button variant="secondary" size="sm" onClick={() => alert("Edit the opener template to match your personal style.")}>
-                  Customize
+                <Button variant="secondary" size="sm" onClick={() => setShowCustomize(!showCustomize)}>
+                  {showCustomize ? "Done" : "Customize"}
                 </Button>
               </div>
             </CardContent>
@@ -167,7 +262,10 @@ export default function Outreach() {
                     background: selectedProspect === c.name ? "var(--nav-active)" : "var(--badge-bg)",
                     border: selectedProspect === c.name ? "1px solid var(--nav-active-border)" : "1px solid transparent",
                   }}
-                  onClick={() => setSelectedProspect(c.name)}
+                  onClick={() => {
+                    setSelectedProspect(c.name);
+                    setMessageContent("");
+                  }}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2 min-w-0">
@@ -176,14 +274,14 @@ export default function Outreach() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate" style={{ color: "var(--foreground)" }}>{c.name}</p>
-                        <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{c.company} · {c.city}</p>
+                        <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{c.company} &middot; {c.city}</p>
                       </div>
                     </div>
                     <Badge
                       variant={c.status === "hot" ? "warning" : "info"}
                       className="ml-2 shrink-0 text-[10px]"
                     >
-                      {c.status === "hot" ? "🔥 Hot" : "Warm"}
+                      {c.status === "hot" ? "Hot" : "Warm"}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
@@ -193,7 +291,7 @@ export default function Outreach() {
                   <p className="text-xs mt-1" style={{ color: "#60a5fa" }}>Next: {c.nextAction}</p>
                 </div>
               ))}
-              <Button variant="ghost" size="sm" className="w-full text-xs" onClick={() => alert("Full conversation list coming soon with search and filtering.")}>View All Conversations</Button>
+              <Button variant="ghost" size="sm" className="w-full text-xs" onClick={() => window.location.href = "/leads"}>View All Conversations</Button>
             </CardContent>
           </Card>
 
@@ -211,22 +309,27 @@ export default function Outreach() {
                     <p className="text-xs" style={{ color: "var(--muted)" }}>Stage: {activeConversations.find(c => c.name === selectedProspect)?.stage}</p>
                   </div>
                   <Textarea
-                    defaultValue={`
-Hey [Name]
-[Company] looks interesting
-That's all you? Or you have a team
-You guys do [what they do] right?
-How long you been running it?
-Gotta visit [city] btw — [genuine local line]`.trim()}
+                    value={messageContent}
+                    onChange={(e) => setMessageContent(e.target.value)}
+                    placeholder="Type your message here or generate an opener..."
                     rows={6}
                   />
                   <div className="mt-3 flex gap-2 flex-wrap">
-                    <Button size="sm" onClick={() => alert("AI will rewrite this message in Ty Frankel style: casual, one thought per line, no pitch.")}>
-                      <Zap className="w-3.5 h-3.5 mr-1" />
+                    <Button
+                      size="sm"
+                      onClick={handleAIOptimize}
+                      disabled={generating || !messageContent.trim()}
+                    >
+                      {generating ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Zap className="w-3.5 h-3.5 mr-1" />}
                       AI Optimize
                     </Button>
-                    <Button variant="secondary" size="sm" onClick={() => alert("Message sent via LinkedIn DM simulator. In production this opens a LinkedIn chat window.")}>
-                      <Send className="w-3.5 h-3.5 mr-1" />
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleSend}
+                      disabled={sending || !messageContent.trim()}
+                    >
+                      {sending ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Send className="w-3.5 h-3.5 mr-1" />}
                       Send
                     </Button>
                   </div>
@@ -291,7 +394,7 @@ Gotta visit [city] btw — [genuine local line]`.trim()}
       <Card>
         <CardHeader>
           <CardTitle>Real Conversation Example</CardTitle>
-          <Badge variant="success">Muaaz · Agency Owner · Karachi</Badge>
+          <Badge variant="success">Muaaz &middot; Agency Owner &middot; Karachi</Badge>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -302,19 +405,19 @@ Gotta visit [city] btw — [genuine local line]`.trim()}
               { sender: "You", text: "You guys do lead gen and follow-up systems for real estate brands right?" },
               { sender: "You", text: "How long you been running it?" },
               { sender: "You", text: "Gotta visit Karachi btw, heard the food scene there is absolutely insane, especially the BBQ" },
-              { sender: "Lead", text: "Yeah I run NovaReach... been refining systems... And trust me 😂 Karachi BBQ won't disappoint." },
-              { sender: "You", text: "haha I'm holding you to that Karachi BBQ 😂" },
+              { sender: "Lead", text: "Yeah I run NovaReach... been refining systems... And trust me Karachi BBQ won't disappoint." },
+              { sender: "You", text: "haha I'm holding you to that Karachi BBQ" },
               { sender: "You", text: "So when your real estate clients get leads from ads, how fast is someone actually following up on those?" },
               { sender: "Lead", text: "Honestly, the faster the follow-up, the better... I've been exploring more automation and follow-up systems lately" },
-              { sender: "You", text: "that's exactly it — the follow-up gap is where most leads die" },
+              { sender: "You", text: "that's exactly it the follow-up gap is where most leads die" },
               { sender: "You", text: "are your real estate clients handling that part themselves or is that something you're building out for them too?" },
               { sender: "Lead", text: "Mostly clients handling it themselves... I've been looking more into automation" },
-              { sender: "You", text: "that's the gap right there — clients getting leads but losing them on the follow up" },
-              { sender: "You", text: "that's actually exactly what I build — automated follow up systems that respond in under 60 seconds, qualify the lead and book the call without any manual work" },
+              { sender: "You", text: "that's the gap right there clients getting leads but losing them on the follow up" },
+              { sender: "You", text: "that's actually exactly what I build automated follow up systems that respond in under 60 seconds, qualify the lead and book the call without any manual work" },
               { sender: "You", text: "would make a lot of sense for your real estate clients honestly" },
               { sender: "You", text: "want me to show you what that looks like?" },
               { sender: "Lead", text: "Yeah that actually sounds really interesting... Definitely open to seeing how your system works" },
-              { sender: "You", text: "perfect — easiest is just a quick 20 mins on a call" },
+              { sender: "You", text: "perfect easiest is just a quick 20 mins on a call" },
               { sender: "You", text: "I'll walk you through exactly how it works and we can see if it makes sense for your clients" },
             ].map((msg, i) => (
               <div

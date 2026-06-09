@@ -1,19 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/input";
-import { Sparkles, Check, RefreshCw, ThumbsUp, ThumbsDown } from "lucide-react";
-import { getPosts } from "@/lib/api";
+import { Sparkles, Check, RefreshCw, Loader2 } from "lucide-react";
+import { getPosts, generateDrafts, publishPost, submitPostFeedback, polishPost } from "@/lib/api";
 
 export default function ContentStudio() {
   const [selectedDay, setSelectedDay] = useState("Monday");
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [feedbackRating, setFeedbackRating] = useState<"great" | "average" | "flopped" | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [publishing, setPublishing] = useState<string | null>(null);
+  const [polishing, setPolishing] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: posts = [] } = useQuery({
     queryKey: ["content-posts"],
@@ -26,17 +30,60 @@ export default function ContentStudio() {
     return d.toLocaleDateString("en", { weekday: "long" }) === selectedDay;
   });
 
-  const handleFeedbackSubmit = () => {
-    if (!feedbackText.trim()) return;
+  const handleGenerate = async (topic?: string) => {
+    setGenerating(true);
+    try {
+      await generateDrafts(topic || "AI agents for business lead follow-up");
+      queryClient.invalidateQueries({ queryKey: ["content-posts"] });
+    } catch (e: any) {
+      console.error("Generate failed:", e);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handlePublish = async (postId: string) => {
+    setPublishing(postId);
+    try {
+      await publishPost(postId);
+      queryClient.invalidateQueries({ queryKey: ["content-posts"] });
+    } catch (e: any) {
+      console.error("Publish failed:", e);
+    } finally {
+      setPublishing(null);
+    }
+  };
+
+  const handlePolish = async (postId: string) => {
+    setPolishing(postId);
+    try {
+      const post = posts.find((p) => p.id === postId);
+      if (post) {
+        await polishPost(post.content);
+      }
+      queryClient.invalidateQueries({ queryKey: ["content-posts"] });
+    } catch (e: any) {
+      console.error("Polish failed:", e);
+    } finally {
+      setPolishing(null);
+    }
+  };
+
+  const handleFeedbackSubmit = async () => {
+    if (!feedbackText.trim() || !feedbackRating) return;
     setFeedbackSent(true);
-    alert("Thanks for the feedback. The AI will learn from this and improve next week's drafts.");
+    try {
+      const latestPost = dayPosts[0];
+      if (latestPost) {
+        await submitPostFeedback(latestPost.id, feedbackRating, feedbackText);
+      }
+    } catch (e: any) {
+      console.error("Feedback submit failed:", e);
+    }
   };
 
   const handleRating = (rating: "great" | "average" | "flopped") => {
     setFeedbackRating(rating);
-    if (rating === "flopped") {
-      alert("Noted. Tell me what went wrong in the feedback box below so I can improve.");
-    }
   };
 
   return (
@@ -50,9 +97,9 @@ export default function ContentStudio() {
             Pick the best draft, publish it, and get better every week
           </p>
         </div>
-        <Button onClick={() => alert("This will refresh the AI generated drafts for this week.")}>
-          <RefreshCw className="w-4 h-4 mr-1.5" />
-          Refresh Drafts
+        <Button onClick={() => handleGenerate()} disabled={generating}>
+          {generating ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-1.5" />}
+          {generating ? "Generating..." : "Refresh Drafts"}
         </Button>
       </div>
 
@@ -112,11 +159,22 @@ export default function ContentStudio() {
                 </div>
               )}
               <div className="flex gap-2 flex-wrap">
-                <Button size="sm" onClick={() => alert("Post published to LinkedIn!")}>
-                  <Check className="w-3.5 h-3.5 mr-1" /> Publish
+                <Button
+                  size="sm"
+                  onClick={() => handlePublish(post.id)}
+                  disabled={publishing === post.id || post.status === "PUBLISHED"}
+                >
+                  {publishing === post.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Check className="w-3.5 h-3.5 mr-1" />}
+                  {post.status === "PUBLISHED" ? "Published" : "Publish"}
                 </Button>
-                <Button variant="secondary" size="sm" onClick={() => alert("AI will rewrite this post to improve engagement.")}>
-                  <Sparkles className="w-3.5 h-3.5 mr-1" /> Polish with AI
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handlePolish(post.id)}
+                  disabled={polishing === post.id}
+                >
+                  {polishing === post.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1" />}
+                  Polish with AI
                 </Button>
               </div>
             </CardContent>
@@ -125,8 +183,14 @@ export default function ContentStudio() {
           <Card>
             <CardContent className="text-center py-8">
               <p className="text-sm" style={{ color: "var(--muted)" }}>No posts for {selectedDay}. Generate some drafts</p>
-              <Button className="mt-3" size="sm" onClick={() => alert("AI will generate 3 new drafts for this day.")}>
-                <Sparkles className="w-3.5 h-3.5 mr-1" /> Generate Draft
+              <Button
+                className="mt-3"
+                size="sm"
+                onClick={() => handleGenerate("AI agents for business lead follow-up")}
+                disabled={generating}
+              >
+                {generating ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1" />}
+                Generate Draft
               </Button>
             </CardContent>
           </Card>
@@ -147,7 +211,7 @@ export default function ContentStudio() {
               size="sm"
               onClick={() => handleRating("great")}
             >
-              <ThumbsUp className="w-3.5 h-3.5 mr-1" /> Great
+              Great
             </Button>
             <Button
               variant={feedbackRating === "average" ? "primary" : "secondary"}
@@ -161,7 +225,7 @@ export default function ContentStudio() {
               size="sm"
               onClick={() => handleRating("flopped")}
             >
-              <ThumbsDown className="w-3.5 h-3.5 mr-1" /> Flopped
+              Flopped
             </Button>
           </div>
           <Textarea
@@ -177,7 +241,7 @@ export default function ContentStudio() {
             className="mt-2"
             size="sm"
             onClick={handleFeedbackSubmit}
-            disabled={!feedbackText.trim() || feedbackSent}
+            disabled={!feedbackText.trim() || !feedbackRating || feedbackSent}
           >
             {feedbackSent ? "Thanks for the feedback" : "Submit Feedback"}
           </Button>

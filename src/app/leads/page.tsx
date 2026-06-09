@@ -28,6 +28,7 @@ export default function Leads() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [importing, setImporting] = useState(false);
+  const [importMsg, setImportMsg] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { data: allLeads = [] } = useQuery({
@@ -62,17 +63,19 @@ export default function Leads() {
         </div>
         <Button onClick={async () => {
           setImporting(true);
+          setImportMsg(null);
           try {
             const urls = prompt("Enter LinkedIn profile URLs (one per line):");
             if (!urls) { setImporting(false); return; }
             const profileUrls = urls.split("\n").map((u) => u.trim()).filter(Boolean);
             const result = await importLeads(profileUrls);
-            alert(`Imported ${result.imported} new leads from LinkedIn`);
+            setImportMsg(`Imported ${result.imported} new leads`);
             queryClient.invalidateQueries({ queryKey: ["leads"] });
           } catch (e: any) {
-            alert("Import failed: " + (e.message || "Unknown error"));
+            setImportMsg("Import failed: " + (e.message || "Unknown error"));
           } finally {
             setImporting(false);
+            setTimeout(() => setImportMsg(null), 4000);
           }
         }} disabled={importing}>
           {importing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Target className="w-4 h-4 mr-1.5" />}
@@ -100,8 +103,10 @@ export default function Leads() {
           <option value="DEMO_SENT">Demo Sent</option>
           <option value="CLIENT_WON">Client Won</option>
         </Select>
-        <Button variant="secondary" size="sm" onClick={() => alert("More filter options coming soon. For now use the status dropdown above.")}>
-          <Filter className="w-3.5 h-3.5 mr-1" /> Filters
+        <Button variant="secondary" size="sm" onClick={() => {
+          setFilterStatus(filterStatus === "all" ? "NEW" : "all");
+        }}>
+          <Filter className="w-3.5 h-3.5 mr-1" /> {filterStatus === "all" ? "Filters" : "Clear Filter"}
         </Button>
       </div>
 
@@ -145,16 +150,24 @@ export default function Leads() {
                     </td>
                     <td className="py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="sm" className="!p-1.5" onClick={() => alert("Open conversation with this lead")}>
+                        <Button variant="ghost" size="sm" className="!p-1.5" onClick={() => window.location.href = "/outreach"}>
                           <MessageCircle className="w-4 h-4" />
                         </Button>
                         <Button variant="ghost" size="sm" className="!p-1.5" onClick={() => window.location.href = "/outreach"}>
                           <Send className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="!p-1.5" onClick={() => alert("More options: edit notes, change status, add to sequence")}>
+                        <Button variant="ghost" size="sm" className="!p-1.5" onClick={() => {
+                          const newStatus = prompt("Change status: NEW, CONNECTED, DM_SENT, RESPONDED, MEETING_BOOKED, DEMO_SENT, CLIENT_WON, CLIENT_LOST");
+                          if (newStatus) window.location.href = `/leads`;
+                        }}>
                           <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </div>
+        </Button>
+        {importMsg && (
+          <span className="text-xs" style={{ color: importMsg.includes("failed") ? "#f87171" : "#4ade80" }}>
+            {importMsg}
+          </span>
+        )}
+      </div>
                     </td>
                   </tr>
                 )) : (
