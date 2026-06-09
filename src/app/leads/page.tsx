@@ -140,9 +140,9 @@ export default function Leads() {
 
   const modalBox: React.CSSProperties = {
     width: "100%", maxWidth: "480px",
-    background: "var(--card-bg)", borderRadius: "12px",
+    background: "var(--card)", borderRadius: "12px",
     border: "1px solid var(--card-border)",
-    padding: "24px",
+    padding: "24px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
   };
 
   return (
