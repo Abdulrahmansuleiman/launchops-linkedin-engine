@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import {
   Search, Filter, MessageCircle, Send, MoreHorizontal, Target,
-  Loader2, Link2, CheckCircle, XCircle
+  Loader2, Link2, CheckCircle, XCircle, Plus
 } from "lucide-react";
-import { getLeads, importLeads, markLeadConnected, updateLeadStatus, type Lead } from "@/lib/api";
+import { getLeads, importLeads, markLeadConnected, updateLeadStatus, createLead, type Lead } from "@/lib/api";
 
 const statusColor = (status: string) => {
   switch (status) {
@@ -77,6 +77,23 @@ export default function Leads() {
     }
   };
 
+  const handleAddManually = async () => {
+    const name = prompt("Lead name:")?.trim();
+    if (!name) return;
+    const linkedinUrl = prompt("LinkedIn profile URL (optional):")?.trim() || "";
+    const company = prompt("Company (optional):")?.trim() || "";
+    const headline = prompt("Headline / title (optional):")?.trim() || "";
+    try {
+      await createLead({ linkedinUrl, name, company, headline, location: "" });
+      setImportMsg(`Added ${name} to leads`);
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+    } catch (e: any) {
+      setImportMsg("Failed to add lead: " + (e.message || "Error"));
+    } finally {
+      setTimeout(() => setImportMsg(null), 4000);
+    }
+  };
+
   const handleMarkConnected = async (leadId: string) => {
     setUpdatingId(leadId);
     try {
@@ -123,6 +140,9 @@ export default function Leads() {
           <Button onClick={handleImport} disabled={importing}>
             {importing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Target className="w-4 h-4 mr-1.5" />}
             {importing ? "Importing..." : "Import from LinkedIn"}
+          </Button>
+          <Button variant="secondary" onClick={handleAddManually}>
+            <Plus className="w-4 h-4 mr-1.5" /> Add Lead
           </Button>
         </div>
       </div>
