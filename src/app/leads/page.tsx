@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import {
-  Search, Filter, MessageCircle, Send, MoreHorizontal, Target,
-  Loader2, Link2, CheckCircle, XCircle, Plus
+  Search, Filter, MoreHorizontal, Target,
+  Loader2, Link2, CheckCircle, Send, Plus, X
 } from "lucide-react";
 import { getLeads, importLeads, markLeadConnected, updateLeadStatus, createLead, type Lead } from "@/lib/api";
 
@@ -40,6 +40,11 @@ export default function Leads() {
   const [importing, setImporting] = useState(false);
   const [importMsg, setImportMsg] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showImportForm, setShowImportForm] = useState(false);
+  const [form, setForm] = useState({ name: "", linkedinUrl: "", company: "", headline: "", location: "" });
+  const [importUrls, setImportUrls] = useState("");
+  const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: allLeads = [] } = useQuery({
@@ -63,12 +68,13 @@ export default function Leads() {
     setImporting(true);
     setImportMsg(null);
     try {
-      const urls = prompt("Enter LinkedIn profile URLs (one per line):");
-      if (!urls) { setImporting(false); return; }
-      const profileUrls = urls.split("\n").map((u) => u.trim()).filter(Boolean);
+      const profileUrls = importUrls.split("\n").map((u) => u.trim()).filter(Boolean);
+      if (!profileUrls.length) { setImporting(false); return; }
       const result = await importLeads(profileUrls);
       setImportMsg(`Imported ${result.imported} new leads`);
       queryClient.invalidateQueries({ queryKey: ["leads"] });
+      setShowImportForm(false);
+      setImportUrls("");
     } catch (e: any) {
       setImportMsg("Import failed: " + (e.message || "Unknown error"));
     } finally {
@@ -78,18 +84,24 @@ export default function Leads() {
   };
 
   const handleAddManually = async () => {
-    const name = prompt("Lead name:")?.trim();
-    if (!name) return;
-    const linkedinUrl = prompt("LinkedIn profile URL (optional):")?.trim() || "";
-    const company = prompt("Company (optional):")?.trim() || "";
-    const headline = prompt("Headline / title (optional):")?.trim() || "";
+    if (!form.name.trim()) return;
+    setSaving(true);
     try {
-      await createLead({ linkedinUrl, name, company, headline, location: "" });
-      setImportMsg(`Added ${name} to leads`);
+      await createLead({
+        linkedinUrl: form.linkedinUrl.trim(),
+        name: form.name.trim(),
+        company: form.company.trim(),
+        headline: form.headline.trim(),
+        location: form.location.trim(),
+      });
+      setImportMsg(`Added ${form.name.trim()} to leads`);
       queryClient.invalidateQueries({ queryKey: ["leads"] });
+      setShowAddForm(false);
+      setForm({ name: "", linkedinUrl: "", company: "", headline: "", location: "" });
     } catch (e: any) {
       setImportMsg("Failed to add lead: " + (e.message || "Error"));
     } finally {
+      setSaving(false);
       setTimeout(() => setImportMsg(null), 4000);
     }
   };
@@ -120,8 +132,122 @@ export default function Leads() {
 
   const filtered = allLeads;
 
+  const modalOverlay: React.CSSProperties = {
+    position: "fixed", inset: 0, zIndex: 50,
+    display: "flex", alignItems: "center", justifyContent: "center",
+    background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
+  };
+
+  const modalBox: React.CSSProperties = {
+    width: "100%", maxWidth: "480px",
+    background: "var(--card-bg)", borderRadius: "12px",
+    border: "1px solid var(--card-border)",
+    padding: "24px",
+  };
+
   return (
     <div className="space-y-5 max-w-7xl">
+      {showAddForm && (
+        <div style={modalOverlay} onClick={() => setShowAddForm(false)}>
+          <div style={modalBox} onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Add Lead</h2>
+              <button onClick={() => setShowAddForm(false)} className="p-1 rounded hover:opacity-70">
+                <X className="w-5 h-5" style={{ color: "var(--muted)" }} />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>Name *</label>
+                <Input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="Full name"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>LinkedIn URL</label>
+                <Input
+                  value={form.linkedinUrl}
+                  onChange={(e) => setForm({ ...form, linkedinUrl: e.target.value })}
+                  placeholder="https://linkedin.com/in/..."
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>Company</label>
+                <Input
+                  value={form.company}
+                  onChange={(e) => setForm({ ...form, company: e.target.value })}
+                  placeholder="Company name"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>Headline / Title</label>
+                <Input
+                  value={form.headline}
+                  onChange={(e) => setForm({ ...form, headline: e.target.value })}
+                  placeholder="e.g. Founder at Company"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>Location</label>
+                <Input
+                  value={form.location}
+                  onChange={(e) => setForm({ ...form, location: e.target.value })}
+                  placeholder="City, Country"
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button onClick={handleAddManually} disabled={saving || !form.name.trim()}>
+                  {saving ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Plus className="w-4 h-4 mr-1.5" />}
+                  {saving ? "Saving..." : "Add Lead"}
+                </Button>
+                <Button variant="secondary" onClick={() => setShowAddForm(false)}>Cancel</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showImportForm && (
+        <div style={modalOverlay} onClick={() => setShowImportForm(false)}>
+          <div style={modalBox} onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Import from LinkedIn</h2>
+              <button onClick={() => setShowImportForm(false)} className="p-1 rounded hover:opacity-70">
+                <X className="w-5 h-5" style={{ color: "var(--muted)" }} />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>Profile URLs (one per line)</label>
+                <textarea
+                  className="w-full rounded-lg p-3 text-sm min-h-[120px] resize-none focus:outline-none focus:ring-2"
+                  style={{
+                    background: "var(--badge-bg)", color: "var(--foreground)",
+                    border: "1px solid var(--card-border)"
+                  }}
+                  value={importUrls}
+                  onChange={(e) => setImportUrls(e.target.value)}
+                  placeholder="https://www.linkedin.com/in/...&#10;https://www.linkedin.com/in/..."
+                />
+              </div>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>
+                Apify scrapepilot actor required. Rent at <a href="https://console.apify.com/actors/J3zhh32m1J1uacIb6" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: "#60a5fa" }}>console.apify.com</a>
+              </p>
+              <div className="flex gap-2">
+                <Button onClick={handleImport} disabled={importing || !importUrls.trim()}>
+                  {importing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Target className="w-4 h-4 mr-1.5" />}
+                  {importing ? "Importing..." : "Import"}
+                </Button>
+                <Button variant="secondary" onClick={() => setShowImportForm(false)}>Cancel</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-bold" style={{ color: "var(--foreground)" }}>
@@ -137,11 +263,11 @@ export default function Leads() {
               {importMsg}
             </span>
           )}
-          <Button onClick={handleImport} disabled={importing}>
+          <Button onClick={() => setShowImportForm(true)} disabled={importing}>
             {importing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Target className="w-4 h-4 mr-1.5" />}
             {importing ? "Importing..." : "Import from LinkedIn"}
           </Button>
-          <Button variant="secondary" onClick={handleAddManually}>
+          <Button variant="secondary" onClick={() => setShowAddForm(true)}>
             <Plus className="w-4 h-4 mr-1.5" /> Add Lead
           </Button>
         </div>
