@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { scrapeAndWait } from "@/lib/apify";
+import { qualifyLead } from "@/lib/ai";
 
 async function getDefaultAccountId() {
   const account = await prisma.account.findFirst({ orderBy: { createdAt: "asc" } });
@@ -81,6 +82,34 @@ export async function POST(req: Request) {
   }
 
   const accountId = await getDefaultAccountId();
+
+  let score = body.score || 0;
+  let scoreReason = null;
+  let scoreComponents = null;
+
+  if (body.linkedinUrl || body.headline || body.company) {
+    try {
+      const qualification = await qualifyLead({
+        name: body.name || "Unknown",
+        headline: body.headline,
+        company: body.company,
+        location: body.location,
+        linkedinUrl: body.linkedinUrl,
+      });
+      if (qualification && typeof qualification.score === "number") {
+        score = qualification.score;
+        scoreReason = qualification.scoreReason || null;
+        scoreComponents = {
+          strengths: qualification.strengths || [],
+          concerns: qualification.concerns || [],
+          verdict: qualification.verdict || "warm",
+        };
+      }
+    } catch (e) {
+      console.error("Lead qualification failed:", e);
+    }
+  }
+
   const lead = await prisma.lead.create({
     data: {
       accountId,
@@ -88,7 +117,11 @@ export async function POST(req: Request) {
       name: body.name,
       headline: body.headline,
       company: body.company,
-      score: body.score || 0,
+      location: body.location,
+      profilePicture: body.profilePicture,
+      score,
+      scoreReason,
+      ...(scoreComponents ? { scoreComponents } : {}),
       status: "NEW",
     },
   });

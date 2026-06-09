@@ -42,7 +42,7 @@ export default function Leads() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showImportForm, setShowImportForm] = useState(false);
-  const [form, setForm] = useState({ name: "", linkedinUrl: "", company: "", headline: "", location: "" });
+  const [form, setForm] = useState({ name: "", linkedinUrl: "", company: "", headline: "", location: "", profilePicture: "" });
   const [importUrls, setImportUrls] = useState("");
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
@@ -93,11 +93,12 @@ export default function Leads() {
         company: form.company.trim(),
         headline: form.headline.trim(),
         location: form.location.trim(),
+        profilePicture: form.profilePicture.trim() || undefined,
       });
       setImportMsg(`Added ${form.name.trim()} to leads`);
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       setShowAddForm(false);
-      setForm({ name: "", linkedinUrl: "", company: "", headline: "", location: "" });
+      setForm({ name: "", linkedinUrl: "", company: "", headline: "", location: "", profilePicture: "" });
     } catch (e: any) {
       setImportMsg("Failed to add lead: " + (e.message || "Error"));
     } finally {
@@ -196,6 +197,14 @@ export default function Leads() {
                   value={form.location}
                   onChange={(e) => setForm({ ...form, location: e.target.value })}
                   placeholder="City, Country"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>Profile Picture URL</label>
+                <Input
+                  value={form.profilePicture}
+                  onChange={(e) => setForm({ ...form, profilePicture: e.target.value })}
+                  placeholder="https://media.licdn.com/..."
                 />
               </div>
               <div className="flex gap-2 pt-2">
@@ -325,12 +334,30 @@ export default function Leads() {
                     style={{ borderColor: "var(--card-border)" }}
                   >
                     <td className="py-3 pr-4">
-                      <p className="font-medium" style={{ color: "var(--foreground)" }}>
-                        {lead.name || "Unknown"}
-                      </p>
-                      <p className="text-xs truncate max-w-[200px]" style={{ color: "var(--muted)" }}>
-                        {lead.headline || lead.company || ""}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        {lead.profilePicture ? (
+                          <img
+                            src={lead.profilePicture}
+                            alt={lead.name || ""}
+                            className="w-8 h-8 rounded-full object-cover shrink-0"
+                            style={{ border: "1px solid var(--card-border)" }}
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-medium"
+                            style={{ background: "var(--badge-bg)", color: "var(--muted)" }}>
+                            {(lead.name || "?")[0]}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="font-medium" style={{ color: "var(--foreground)" }}>
+                            {lead.name || "Unknown"}
+                          </p>
+                          <p className="text-xs truncate max-w-[180px]" style={{ color: "var(--muted)" }}>
+                            {lead.headline || lead.company || ""}
+                          </p>
+                        </div>
+                      </div>
                     </td>
                     <td className="py-3 pr-4 hidden sm:table-cell">
                       {lead.linkedinUrl ? (

@@ -373,9 +373,19 @@ export default function Outreach() {
                 >
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-6 h-6 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center shrink-0 font-medium">
-                        {(lead.name || "?")[0]}
-                      </div>
+                      {lead.profilePicture ? (
+                        <img
+                          src={lead.profilePicture}
+                          alt={lead.name || ""}
+                          className="w-6 h-6 rounded-full object-cover shrink-0"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                        />
+                      ) : (
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-medium"
+                          style={{ background: "var(--badge-bg)", color: "var(--muted)" }}>
+                          {(lead.name || "?")[0]}
+                        </div>
+                      )}
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate" style={{ color: "var(--foreground)" }}>{lead.name}</p>
                         <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{lead.company || lead.headline || ""}</p>

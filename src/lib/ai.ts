@@ -366,3 +366,62 @@ ${params.previousWeeks ? `Previous trends: ${params.previousWeeks}` : ""}`;
 
   return JSON.parse(res.choices[0].message.content || "{}");
 }
+
+export async function qualifyLead(params: {
+  name: string;
+  headline?: string;
+  company?: string;
+  location?: string;
+  linkedinUrl?: string;
+  followerCount?: number;
+}) {
+  const prompt = `You are a lead qualification AI for LaunchOps AI. Your job is to score a prospect on how well they fit Raymon's ICP and how likely they are to convert.
+
+## ICP Criteria
+1. Agency owners / marketing agencies — Done-for-you AI pipeline build (HIGHEST priority)
+2. Local business owners (solar, HVAC, dental, clinics, finance, mortgage, real estate) — Direct build
+3. Freelancers / consultants — White-label resell model
+
+## Scoring Rubric (0-100)
+- 90-100: Perfect ICP fit, clear decision maker, strong signal
+- 70-89: Good fit, likely decision maker or strong influence
+- 50-69: Moderate fit, some signals present
+- 30-49: Weak fit, unlikely decision maker or wrong industry
+- 0-29: Poor fit, not target audience
+
+## What to evaluate
+1. Role seniority (founder, CEO, owner = high; intern, assistant = low)
+2. Industry match to ICP (agency, solar, HVAC, dental, real estate, finance = high)
+3. Company relevance
+4. Location (UK-based is a slight bonus)
+5. Follower count (higher = more influential, but not a primary signal)
+
+## Prospect Data
+Name: ${params.name}
+${params.headline ? `Headline: ${params.headline}` : ""}
+${params.company ? `Company: ${params.company}` : ""}
+${params.location ? `Location: ${params.location}` : ""}
+${params.linkedinUrl ? `LinkedIn URL: ${params.linkedinUrl}` : ""}
+${params.followerCount ? `Followers: ${params.followerCount}` : ""}
+
+Return a JSON object with:
+1. "score": number 0-100
+2. "scoreReason": A 2-3 sentence explanation of the score
+3. "strengths": array of 1-3 strengths
+4. "concerns": array of 0-2 concerns or weaknesses
+5. "verdict": One of "hot", "warm", "cold"`;
+
+  const res = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "system",
+        content: `You are LaunchOps AI's lead qualification agent. You score leads honestly and critically based on ICP fit. Never inflate scores. Be specific about why a score was given.`,
+      },
+      { role: "user", content: prompt },
+    ],
+    response_format: { type: "json_object" },
+  });
+
+  return JSON.parse(res.choices[0].message.content || "{}");
+}

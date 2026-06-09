@@ -23,8 +23,11 @@ export interface Lead {
   headline: string | null;
   company: string | null;
   linkedinUrl: string | null;
+  profilePicture: string | null;
   followerCount: number | null;
   score: number;
+  scoreReason: string | null;
+  scoreComponents: any;
   status: string;
   notes: string | null;
   connectedAt: string | null;
@@ -141,10 +144,10 @@ export async function getSequences() {
   return fetchJSON<OutreachSequence[]>("/api/outreach");
 }
 
-export async function createLead(data: { linkedinUrl: string; name: string; company: string; headline: string; location: string }) {
+export async function createLead(data: { linkedinUrl: string; name: string; company: string; headline: string; location: string; profilePicture?: string }) {
   return fetchJSON<Lead>("/api/leads", {
     method: "POST",
-    body: JSON.stringify({ ...data, score: 50 }),
+    body: JSON.stringify(data),
   });
 }
 

@@ -64,6 +64,7 @@ model Lead {
   email     String?
   phone     String?
   score     Int      @default(0)
+  scoreReason String?
   scoreComponents Json?
   enrichmentData Json?
   notes     String?
