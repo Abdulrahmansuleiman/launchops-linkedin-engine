@@ -1,40 +1,51 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Search, Filter, MessageCircle, Send, MoreHorizontal, Target } from "lucide-react";
+import { getLeads, type Lead } from "@/lib/api";
 
-const leads = [
-  { name: "Jordan Blake", title: "CEO at Apex Ventures", followers: "12.5K", status: "hot", stage: "Demo Booked", last: "2h ago" },
-  { name: "Priya Sharma", title: "Founder at GrowthStack", followers: "8.2K", status: "warm", stage: "Connected", last: "1d ago" },
-  { name: "Marcus Webb", title: "Director at ScaleUp Labs", followers: "15.1K", status: "hot", stage: "DM Sent", last: "30m ago" },
-  { name: "Emily Rowe", title: "COO at LeadFlow Inc.", followers: "6.8K", status: "cold", stage: "New Lead", last: "3d ago" },
-  { name: "David Kim", title: "Partner at Ninja Agency", followers: "21.4K", status: "warm", stage: "DM Replied", last: "5h ago" },
-  { name: "Nina Patel", title: "CRO at ConvertPro", followers: "9.3K", status: "hot", stage: "Demo Done", last: "1h ago" },
-];
+const statusColor = (status: string) => {
+  switch (status) {
+    case "MEETING_BOOKED": case "DEMO_SENT": return "success" as const;
+    case "RESPONDED": case "CONNECTED": return "info" as const;
+    case "DM_SENT": return "warning" as const;
+    case "CLIENT_WON": return "success" as const;
+    default: return "default" as const;
+  }
+};
+
+const statusLabel = (status: string) => {
+  return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+};
 
 export default function Leads() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
-  const filtered = leads.filter((l) => {
-    const matchSearch = l.name.toLowerCase().includes(search.toLowerCase()) || l.title.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = filterStatus === "all" || l.status === filterStatus;
-    return matchSearch && matchStatus;
+  const { data: allLeads = [] } = useQuery({
+    queryKey: ["leads", filterStatus, search],
+    queryFn: () => getLeads({ status: filterStatus, search }),
   });
 
-  const statusColor = (status: string) => {
-    switch (status) {
-      case "hot": return "success";
-      case "warm": return "info";
-      case "cold": return "default";
-      default: return "default" as const;
-    }
-  };
+  const { data: stats } = useQuery({
+    queryKey: ["leads-stats"],
+    queryFn: async () => {
+      const all = await getLeads();
+      return {
+        total: all.length,
+        hot: all.filter((l) => l.score >= 80).length,
+        engaged: all.filter((l) => ["RESPONDED", "CONNECTED", "DM_SENT"].includes(l.status)).length,
+      };
+    },
+  });
+
+  const filtered = filterStatus === "all" && !search ? (allLeads || []) : (allLeads || []);
 
   return (
     <div className="space-y-5 max-w-7xl">
@@ -63,11 +74,15 @@ export default function Leads() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="w-32">
+        <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="w-36">
           <option value="all">All Status</option>
-          <option value="hot">Hot</option>
-          <option value="warm">Warm</option>
-          <option value="cold">Cold</option>
+          <option value="NEW">New</option>
+          <option value="CONNECTED">Connected</option>
+          <option value="DM_SENT">DM Sent</option>
+          <option value="RESPONDED">Responded</option>
+          <option value="MEETING_BOOKED">Meeting Booked</option>
+          <option value="DEMO_SENT">Demo Sent</option>
+          <option value="CLIENT_WON">Client Won</option>
         </Select>
         <Button variant="secondary" size="sm">
           <Filter className="w-3.5 h-3.5 mr-1" /> Filters
@@ -86,33 +101,31 @@ export default function Leads() {
                   <th className="text-left font-medium pb-3 pr-4">Name</th>
                   <th className="text-left font-medium pb-3 pr-4 hidden sm:table-cell">Followers</th>
                   <th className="text-left font-medium pb-3 pr-4 hidden md:table-cell">Status</th>
-                  <th className="text-left font-medium pb-3 pr-4 hidden lg:table-cell">Stage</th>
-                  <th className="text-left font-medium pb-3 pr-4 hidden lg:table-cell">Updated</th>
+                  <th className="text-left font-medium pb-3 pr-4">Score</th>
                   <th className="text-right font-medium pb-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((lead) => (
+                {filtered.length > 0 ? filtered.map((lead) => (
                   <tr
-                    key={lead.name}
+                    key={lead.id}
                     className="border-t transition-colors"
                     style={{ borderColor: "var(--card-border)" }}
                   >
                     <td className="py-3 pr-4">
-                      <p className="font-medium" style={{ color: "var(--foreground)" }}>{lead.name}</p>
-                      <p className="text-xs" style={{ color: "var(--muted)" }}>{lead.title}</p>
+                      <p className="font-medium" style={{ color: "var(--foreground)" }}>{lead.name || "Unknown"}</p>
+                      <p className="text-xs" style={{ color: "var(--muted)" }}>{lead.headline || lead.company || ""}</p>
                     </td>
                     <td className="py-3 pr-4 hidden sm:table-cell" style={{ color: "var(--muted)" }}>
-                      {lead.followers}
+                      {lead.followerCount ? `${(lead.followerCount / 1000).toFixed(1)}K` : "—"}
                     </td>
                     <td className="py-3 pr-4 hidden md:table-cell">
-                      <Badge variant={statusColor(lead.status)} className="capitalize">{lead.status}</Badge>
+                      <Badge variant={statusColor(lead.status)}>{statusLabel(lead.status)}</Badge>
                     </td>
-                    <td className="py-3 pr-4 hidden lg:table-cell" style={{ color: "var(--muted)" }}>
-                      {lead.stage}
-                    </td>
-                    <td className="py-3 pr-4 hidden lg:table-cell" style={{ color: "var(--muted)" }}>
-                      {lead.last}
+                    <td className="py-3 pr-4">
+                      <span className={lead.score >= 80 ? "text-green-400" : lead.score >= 50 ? "text-yellow-400" : ""}>
+                        {lead.score}
+                      </span>
                     </td>
                     <td className="py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
@@ -128,7 +141,13 @@ export default function Leads() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan={5} className="text-center py-8 text-sm" style={{ color: "var(--muted)" }}>
+                      No leads found. Import from LinkedIn or adjust filters.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -137,9 +156,9 @@ export default function Leads() {
 
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Total Leads", value: "47" },
-          { label: "Hot (ready to pitch)", value: "8" },
-          { label: "Engaged (reply rate >50%)", value: "14" },
+          { label: "Total Leads", value: stats?.total || "—" },
+          { label: "Hot (score 80+)", value: stats?.hot || "—" },
+          { label: "Engaged", value: stats?.engaged || "—" },
         ].map((s) => (
           <Card key={s.label}>
             <CardContent className="p-4">

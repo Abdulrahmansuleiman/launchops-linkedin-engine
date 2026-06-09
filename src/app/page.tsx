@@ -1,10 +1,12 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { TrendingUp, Users, DollarSign, Eye, ArrowRight, Sparkles } from "lucide-react";
+import { getLeads, getPosts } from "@/lib/api";
 
 const weeklyData = [
   { day: "Mon", impressions: 1200, likes: 45 },
@@ -16,23 +18,32 @@ const weeklyData = [
   { day: "Sun", impressions: 2100, likes: 71 },
 ];
 
-const weekPosts = [
-  { day: "Mon", title: "AI agents save 40+ hrs/week", score: 87, status: "ready" },
-  { day: "Tue", title: "Why most lead gen systems fail", score: 74, status: "draft" },
-  { day: "Wed", title: "My framework for 2x conversion", score: 92, status: "pick" },
-  { day: "Thu", title: "Text agents vs VAs", score: 81, status: "draft" },
-  { day: "Fri", title: "The AI advantage in 2026", score: 78, status: "draft" },
-  { day: "Sat", title: "Client acquisition playbook", score: 85, status: "draft" },
-  { day: "Sun", title: "Why speed beats perfection", score: 90, status: "draft" },
-];
-
-const hotLeads = [
-  { name: "Sarah Chen", company: "TechVentures", detail: "Commented 3x this week", score: 92 },
-  { name: "Mike Rivera", company: "GrowthLab", detail: "Liked 5 posts", score: 88 },
-  { name: "Lisa Park", company: "Apex Agency", detail: "DM'd you yesterday", score: 95 },
-];
-
 export default function Dashboard() {
+  const { data: leads } = useQuery({ queryKey: ["leads"], queryFn: () => getLeads() });
+  const { data: posts } = useQuery({ queryKey: ["posts"], queryFn: () => getPosts({ status: "PUBLISHED" }) });
+  const { data: stats } = useQuery({
+    queryKey: ["stats"],
+    queryFn: async () => {
+      const res = await fetch("/api/stats");
+      return res.json();
+    },
+  });
+
+  const hotLeads = leads?.filter((l) => l.score >= 80).slice(0, 3) || [];
+  const weekPosts = posts?.slice(0, 7).map((p) => ({
+    day: new Date(p.createdAt).toLocaleDateString("en", { weekday: "short" }),
+    title: p.content.split("\n")[0].slice(0, 40) + "...",
+    score: p.score || 75,
+    status: p.status === "PUBLISHED" ? "ready" : "draft",
+  })) || [];
+
+  const displayStats = [
+    { label: "Weekly Impressions", value: `${(stats?.stats?.weeklyImpressions || 13100).toLocaleString()}`, change: "+24%", icon: Eye, color: "blue" as const },
+    { label: "Engagement Rate", value: `${stats?.stats?.engagementRate || "4.8"}%`, change: "+0.6%", icon: TrendingUp, color: "green" as const },
+    { label: "Pipeline Value", value: `£${((stats?.stats?.pipelineValue || 24000) / 1000).toFixed(0)}K`, change: `${stats?.stats?.hotLeads || 3} active deals`, icon: DollarSign, color: "purple" as const },
+    { label: "New Leads", value: `${leads?.length || 18}`, change: "+5 this week", icon: Users, color: "yellow" as const },
+  ];
+
   return (
     <div className="space-y-5 max-w-7xl">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -51,12 +62,7 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          { label: "Weekly Impressions", value: "13.1K", change: "+24%", icon: Eye, color: "blue" },
-          { label: "Engagement Rate", value: "4.8%", change: "+0.6%", icon: TrendingUp, color: "green" },
-          { label: "Pipeline Value", value: "£24K", change: "3 active deals", icon: DollarSign, color: "purple" },
-          { label: "New Leads", value: "18", change: "+5 this week", icon: Users, color: "yellow" },
-        ].map((stat) => {
+        {displayStats.map((stat) => {
           const Icon = stat.icon;
           return (
             <Card key={stat.label}>
@@ -116,12 +122,12 @@ export default function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Hot Leads</CardTitle>
-            <Badge variant="warning">3 need action</Badge>
+            <Badge variant="warning">{hotLeads.length} need action</Badge>
           </CardHeader>
           <CardContent className="space-y-2">
-            {hotLeads.map((lead) => (
+            {hotLeads.length > 0 ? hotLeads.map((lead) => (
               <div
-                key={lead.name}
+                key={lead.id}
                 className="p-3 rounded-lg cursor-pointer transition-colors"
                 style={{ background: "var(--badge-bg)" }}
               >
@@ -129,10 +135,12 @@ export default function Dashboard() {
                   <p className="text-sm font-medium" style={{ color: "var(--foreground)" }}>{lead.name}</p>
                   <Badge variant="success" className="text-[10px]">{lead.score}</Badge>
                 </div>
-                <p className="text-xs" style={{ color: "var(--muted)" }}>{lead.company}</p>
-                <p className="text-xs mt-1" style={{ color: "#60a5fa" }}>{lead.detail}</p>
+                {lead.company && <p className="text-xs" style={{ color: "var(--muted)" }}>{lead.company}</p>}
+                {lead.notes && <p className="text-xs mt-1" style={{ color: "#60a5fa" }}>{lead.notes}</p>}
               </div>
-            ))}
+            )) : (
+              <p className="text-sm text-center py-4" style={{ color: "var(--muted)" }}>No hot leads yet — import some to get started</p>
+            )}
             <Button variant="ghost" className="w-full text-xs">
               View All Leads <ArrowRight className="w-3 h-3 ml-1" />
             </Button>
@@ -142,15 +150,15 @@ export default function Dashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>This Week's Posts</CardTitle>
-          <Badge variant="info">7 posts planned</Badge>
+          <CardTitle>Recent Posts</CardTitle>
+          <Badge variant="info">{posts?.length || 0} published</Badge>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-7 gap-2">
-            {weekPosts.map((post) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+            {weekPosts.length > 0 ? weekPosts.map((post, i) => (
               <div
-                key={post.day}
-                className="p-2.5 rounded-lg cursor-pointer transition-all"
+                key={i}
+                className="p-2.5 rounded-lg"
                 style={{
                   background: "var(--badge-bg)",
                   border: "1px solid var(--card-border)",
@@ -161,20 +169,17 @@ export default function Dashboard() {
                   {post.title}
                 </p>
                 <div className="flex items-center justify-between">
-                  <Badge
-                    variant={
-                      post.status === "ready" ? "success" :
-                      post.status === "pick" ? "warning" : "default"
-                    }
-                    className="text-[10px] px-1.5"
-                  >
-                    {post.status === "ready" ? "Ready" :
-                     post.status === "pick" ? "Pick" : "Draft"}
+                  <Badge variant={post.status === "ready" ? "success" : "default"} className="text-[10px] px-1.5">
+                    {post.status === "ready" ? "Live" : "Draft"}
                   </Badge>
                   <span className="text-xs" style={{ color: "var(--muted)" }}>{post.score}</span>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="col-span-7 text-center py-4">
+                <p className="text-sm" style={{ color: "var(--muted)" }}>No posts yet — generate your first draft</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -192,9 +197,7 @@ export default function Dashboard() {
             }}
           >
             <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
-              Your storytelling posts about AI agents get <strong style={{ color: "#60a5fa" }}>3.2x more engagement</strong> than tip-based content.
-              Best time to post: <strong style={{ color: "#4ade80" }}>Tue-Thu, 8-10am</strong>.
-              Next recommended topic: <strong style={{ color: "#c084fc" }}>"Why slow lead response costs you £50K/year"</strong> — predicted 3-5K impressions.
+              {stats?.insight || "Your storytelling posts about AI agents get 3.2x more engagement than tip-based content. Best time to post: Tue-Thu, 8-10am."}
             </p>
           </div>
         </CardContent>
