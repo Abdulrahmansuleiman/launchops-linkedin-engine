@@ -223,7 +223,7 @@ export async function generateOutreachMessage(params: {
   conversationHistory?: string;
 }) {
   const stepPrompts: Record<string, string> = {
-    opener: `Write a Ty Frankel style opener for ${params.prospectName}${params.prospectCompany ? ` at ${params.prospectCompany}` : ""}${params.prospectTitle ? ` (${params.prospectTitle})` : ""}${params.prospectLocation ? ` based in ${params.prospectLocation}` : ""}.
+    opener: `${params.context ? `The user has drafted this message and wants it rewritten/improved in the Ty Frankel style while keeping the same intent:\n\n${params.context}\n\n` : ""}Write a Ty Frankel style opener for ${params.prospectName}${params.prospectCompany ? ` at ${params.prospectCompany}` : ""}${params.prospectTitle ? ` (${params.prospectTitle})` : ""}${params.prospectLocation ? ` based in ${params.prospectLocation}` : ""}.
 
 Use the opener template format — one line per send, like real-time typing:
 1. "Hey [Name]"

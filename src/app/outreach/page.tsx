@@ -111,6 +111,16 @@ export default function Outreach() {
     }
   };
 
+  const extractMessage = (result: any): string => {
+    if (!result) return "";
+    return (
+      (Array.isArray(result.messages) ? result.messages.join("\n") : "") ||
+      result.message?.message ||
+      (Array.isArray(result.message?.messages) ? result.message.messages.join("\n") : "") ||
+      typeof result.message === "string" ? result.message : ""
+    );
+  };
+
   const handleGenerateOpener = async () => {
     if (!selectedProspect) return;
     setGenerating(true);
@@ -121,8 +131,7 @@ export default function Outreach() {
         prospectCompany: lead?.company || undefined,
         step: "opener",
       });
-      const messages = result.message?.messages || [];
-      setMessageContent(messages.join("\n") || result.message?.message || "");
+      setMessageContent(extractMessage(result));
     } catch (e: any) {
       console.error("Generate opener failed:", e);
     } finally {
@@ -139,7 +148,7 @@ export default function Outreach() {
         step: "opener",
         context: messageContent,
       });
-      setMessageContent(result.message?.message || result.message?.messages?.join("\n") || "");
+      setMessageContent(extractMessage(result));
     } catch (e: any) {
       console.error("AI optimize failed:", e);
     } finally {
