@@ -320,8 +320,9 @@ export default function Leads() {
               <thead>
                 <tr style={{ color: "var(--muted)" }}>
                   <th className="text-left font-medium pb-3 pr-4">Name</th>
+                  <th className="text-left font-medium pb-3 pr-4 hidden sm:table-cell">Followers</th>
                   <th className="text-left font-medium pb-3 pr-4 hidden sm:table-cell">LinkedIn</th>
-                  <th className="text-left font-medium pb-3 pr-4 hidden md:table-cell">Status</th>
+                  <th className="text-left font-medium pb-3 pr-4 hidden md:table-cell">Pipeline Stage</th>
                   <th className="text-left font-medium pb-3 pr-4">Score</th>
                   <th className="text-right font-medium pb-3">Actions</th>
                 </tr>
@@ -360,6 +361,15 @@ export default function Leads() {
                       </div>
                     </td>
                     <td className="py-3 pr-4 hidden sm:table-cell">
+                      {lead.followerCount ? (
+                        <span className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
+                          {(lead.followerCount / 1000).toFixed(1)}K
+                        </span>
+                      ) : (
+                        <span className="text-xs" style={{ color: "var(--muted)" }}>—</span>
+                      )}
+                    </td>
+                    <td className="py-3 pr-4 hidden sm:table-cell">
                       {lead.linkedinUrl ? (
                         <a
                           href={lead.linkedinUrl}
@@ -375,7 +385,22 @@ export default function Leads() {
                       )}
                     </td>
                     <td className="py-3 pr-4 hidden md:table-cell">
-                      <Badge variant={statusColor(lead.status)}>{statusLabel(lead.status)}</Badge>
+                      <select
+                        className="cursor-pointer rounded-md px-2 py-1.5 text-xs font-medium transition-colors w-full"
+                        style={{
+                          color: "var(--foreground)",
+                          background: "var(--badge-bg)",
+                          border: "1px solid var(--card-border)",
+                        }}
+                        value={lead.status}
+                        onChange={(e) => {
+                          if (e.target.value !== lead.status) handleStatusChange(lead.id, e.target.value);
+                        }}
+                      >
+                        {statusOptions.map((s) => (
+                          <option key={s} value={s}>{statusLabel(s)}</option>
+                        ))}
+                      </select>
                     </td>
                     <td className="py-3 pr-4">
                       <span className={
@@ -429,29 +454,12 @@ export default function Leads() {
                             <Send className="w-3.5 h-3.5" style={{ color: "#fbbf24" }} />
                           </Button>
                         )}
-                        <div className="relative inline-block">
-                          <select
-                            className="appearance-none bg-transparent p-1.5 text-xs cursor-pointer rounded"
-                            style={{ color: "var(--muted)", border: "1px solid transparent" }}
-                            value=""
-                            onChange={(e) => {
-                              if (e.target.value) handleStatusChange(lead.id, e.target.value);
-                              e.target.value = "";
-                            }}
-                          >
-                            <option value="" disabled>Set...</option>
-                            {statusOptions.filter(s => s !== lead.status).map((s) => (
-                              <option key={s} value={s}>{statusLabel(s)}</option>
-                            ))}
-                          </select>
-                          <MoreHorizontal className="w-3.5 h-3.5 pointer-events-none absolute right-1 top-1/2 -translate-y-1/2" style={{ color: "var(--muted)" }} />
-                        </div>
                       </div>
                     </td>
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan={5} className="text-center py-8 text-sm" style={{ color: "var(--muted)" }}>
+                    <td colSpan={6} className="text-center py-8 text-sm" style={{ color: "var(--muted)" }}>
                       {importing ? "Importing leads from LinkedIn..." : "No leads yet. Import from LinkedIn to start building your pipeline."}
                     </td>
                   </tr>
