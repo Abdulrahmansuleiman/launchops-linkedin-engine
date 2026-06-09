@@ -5,8 +5,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/input";
-import { Send, MessageCircle, CheckCircle, Clock, Zap, Target, Loader2, Copy, ExternalLink, Check } from "lucide-react";
+import { Input, Textarea } from "@/components/ui/input";
+import { Send, MessageCircle, CheckCircle, Clock, Zap, Target, Loader2, Copy, ExternalLink, Check, X } from "lucide-react";
 import { getLeads, generateMessage, sendOutreachMessage, getSequences, createLead } from "@/lib/api";
 import type { Lead } from "@/lib/api";
 
@@ -77,6 +77,9 @@ export default function Outreach() {
   const [copied, setCopied] = useState(false);
   const [messageContent, setMessageContent] = useState("");
   const [showCustomize, setShowCustomize] = useState(false);
+  const [showProspectForm, setShowProspectForm] = useState(false);
+  const [prospectForm, setProspectForm] = useState({ name: "", linkedinUrl: "" });
+  const [saving, setSaving] = useState(false);
   const [customTemplate, setCustomTemplate] = useState(openerTemplate.join("\n"));
   const queryClient = useQueryClient();
 
@@ -88,14 +91,23 @@ export default function Outreach() {
   const selectedLead = leads.find((l) => l.name === selectedProspect);
 
   const handleNewProspect = async () => {
-    const url = prompt("Enter LinkedIn profile URL:");
-    if (!url) return;
-    const name = prompt("Prospect name:") || "Unknown";
+    if (!prospectForm.name.trim()) return;
+    setSaving(true);
     try {
-      await createLead({ linkedinUrl: url, name, company: "", headline: "", location: "" });
+      await createLead({
+        linkedinUrl: prospectForm.linkedinUrl.trim(),
+        name: prospectForm.name.trim(),
+        company: "",
+        headline: "",
+        location: ""
+      });
       queryClient.invalidateQueries({ queryKey: ["leads"] });
+      setShowProspectForm(false);
+      setProspectForm({ name: "", linkedinUrl: "" });
     } catch (e: any) {
       console.error("Create lead failed:", e);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -174,8 +186,60 @@ export default function Outreach() {
     }
   };
 
+  const modalOverlay: React.CSSProperties = {
+    position: "fixed", inset: 0, zIndex: 50,
+    display: "flex", alignItems: "center", justifyContent: "center",
+    background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
+  };
+
+  const modalBox: React.CSSProperties = {
+    width: "100%", maxWidth: "440px",
+    background: "var(--card-bg)", borderRadius: "12px",
+    border: "1px solid var(--card-border)",
+    padding: "24px",
+  };
+
   return (
-    <div className="space-y-5 max-w-7xl">
+    <>
+      {showProspectForm && (
+        <div style={modalOverlay} onClick={() => setShowProspectForm(false)}>
+          <div style={modalBox} onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>New Prospect</h2>
+              <button onClick={() => setShowProspectForm(false)} className="p-1 rounded hover:opacity-70">
+                <X className="w-5 h-5" style={{ color: "var(--muted)" }} />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>Name *</label>
+                <Input
+                  value={prospectForm.name}
+                  onChange={(e) => setProspectForm({ ...prospectForm, name: e.target.value })}
+                  placeholder="Full name"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>LinkedIn Profile URL</label>
+                <Input
+                  value={prospectForm.linkedinUrl}
+                  onChange={(e) => setProspectForm({ ...prospectForm, linkedinUrl: e.target.value })}
+                  placeholder="https://linkedin.com/in/..."
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button onClick={handleNewProspect} disabled={saving || !prospectForm.name.trim()}>
+                  {saving ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Target className="w-4 h-4 mr-1.5" />}
+                  {saving ? "Saving..." : "Add Prospect"}
+                </Button>
+                <Button variant="secondary" onClick={() => setShowProspectForm(false)}>Cancel</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="space-y-5 max-w-7xl">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-bold" style={{ color: "var(--foreground)" }}>
@@ -185,7 +249,7 @@ export default function Outreach() {
             Casual, brotherly, research heavy. Never pitch in the opener
           </p>
         </div>
-        <Button onClick={handleNewProspect}>
+        <Button onClick={() => setShowProspectForm(true)}>
           <Target className="w-4 h-4 mr-1.5" />
           New Prospect
         </Button>
@@ -507,5 +571,6 @@ export default function Outreach() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }
