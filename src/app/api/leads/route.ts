@@ -119,6 +119,7 @@ export async function POST(req: Request) {
       company: body.company,
       location: body.location,
       profilePicture: body.profilePicture,
+      followerCount: body.followerCount ? parseInt(body.followerCount) : undefined,
       score,
       scoreReason,
       ...(scoreComponents ? { scoreComponents } : {}),

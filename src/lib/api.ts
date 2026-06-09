@@ -144,7 +144,7 @@ export async function getSequences() {
   return fetchJSON<OutreachSequence[]>("/api/outreach");
 }
 
-export async function createLead(data: { linkedinUrl: string; name: string; company: string; headline: string; location: string; profilePicture?: string }) {
+export async function createLead(data: { linkedinUrl: string; name: string; company: string; headline: string; location: string; profilePicture?: string; followerCount?: number }) {
   return fetchJSON<Lead>("/api/leads", {
     method: "POST",
     body: JSON.stringify(data),

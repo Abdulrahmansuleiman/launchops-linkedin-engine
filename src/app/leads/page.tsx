@@ -54,7 +54,7 @@ export default function Leads() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showImportForm, setShowImportForm] = useState(false);
-  const [form, setForm] = useState({ name: "", linkedinUrl: "", company: "", headline: "", location: "", profilePicture: "" });
+  const [form, setForm] = useState({ name: "", linkedinUrl: "", company: "", headline: "", location: "", profilePicture: "", followerCount: "" });
   const [importUrls, setImportUrls] = useState("");
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
@@ -106,11 +106,12 @@ export default function Leads() {
         headline: form.headline.trim(),
         location: form.location.trim(),
         profilePicture: form.profilePicture.trim() || undefined,
+        followerCount: form.followerCount ? parseInt(form.followerCount) : undefined,
       });
       setImportMsg(`Added ${form.name.trim()} to leads`);
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       setShowAddForm(false);
-      setForm({ name: "", linkedinUrl: "", company: "", headline: "", location: "", profilePicture: "" });
+      setForm({ name: "", linkedinUrl: "", company: "", headline: "", location: "", profilePicture: "", followerCount: "" });
     } catch (e: any) {
       setImportMsg("Failed to add lead: " + (e.message || "Error"));
     } finally {
@@ -209,6 +210,15 @@ export default function Leads() {
                   value={form.location}
                   onChange={(e) => setForm({ ...form, location: e.target.value })}
                   placeholder="City, Country"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>Follower Count</label>
+                <Input
+                  type="number"
+                  value={form.followerCount}
+                  onChange={(e) => setForm({ ...form, followerCount: e.target.value })}
+                  placeholder="e.g. 5000"
                 />
               </div>
               <div>
