@@ -63,6 +63,13 @@ export interface WeeklyReport {
 }
 
 // === Leads ===
+export async function importLeads(profileUrls: string[]) {
+  return fetchJSON<{ imported: number; leads: Lead[] }>("/api/leads", {
+    method: "POST",
+    body: JSON.stringify({ action: "import", profileUrls }),
+  });
+}
+
 export async function getLeads(params?: { status?: string; search?: string }) {
   const query = new URLSearchParams();
   if (params?.status && params.status !== "all") query.set("status", params.status);

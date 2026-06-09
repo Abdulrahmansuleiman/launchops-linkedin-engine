@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { Search, Filter, MessageCircle, Send, MoreHorizontal, Target } from "lucide-react";
-import { getLeads, type Lead } from "@/lib/api";
+import { Search, Filter, MessageCircle, Send, MoreHorizontal, Target, Loader2 } from "lucide-react";
+import { getLeads, importLeads, type Lead } from "@/lib/api";
 
 const statusColor = (status: string) => {
   switch (status) {
@@ -27,6 +27,8 @@ const statusLabel = (status: string) => {
 export default function Leads() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [importing, setImporting] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: allLeads = [] } = useQuery({
     queryKey: ["leads", filterStatus, search],
@@ -58,9 +60,23 @@ export default function Leads() {
             Find high value prospects, score them, and move them through your pipeline
           </p>
         </div>
-        <Button onClick={() => alert("This will open a LinkedIn scraper to find prospects. You need an Apify API key configured.")}>
-          <Target className="w-4 h-4 mr-1.5" />
-          Import from LinkedIn
+        <Button onClick={async () => {
+          setImporting(true);
+          try {
+            const urls = prompt("Enter LinkedIn profile URLs (one per line):");
+            if (!urls) { setImporting(false); return; }
+            const profileUrls = urls.split("\n").map((u) => u.trim()).filter(Boolean);
+            const result = await importLeads(profileUrls);
+            alert(`Imported ${result.imported} new leads from LinkedIn`);
+            queryClient.invalidateQueries({ queryKey: ["leads"] });
+          } catch (e: any) {
+            alert("Import failed: " + (e.message || "Unknown error"));
+          } finally {
+            setImporting(false);
+          }
+        }} disabled={importing}>
+          {importing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Target className="w-4 h-4 mr-1.5" />}
+          {importing ? "Importing..." : "Import from LinkedIn"}
         </Button>
       </div>
 

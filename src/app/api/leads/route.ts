@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { scrapeAndWait } from "@/lib/apify";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -26,6 +27,42 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const body = await req.json();
+
+  if (body.action === "import") {
+    const profileUrls: string[] = body.profileUrls || [];
+
+    if (!profileUrls.length) {
+      return NextResponse.json({ error: "No profile URLs provided" }, { status: 400 });
+    }
+
+    const scraped = await scrapeAndWait(profileUrls);
+    const created = [];
+
+    for (const profile of scraped) {
+      const existing = await prisma.lead.findFirst({
+        where: { linkedinUrl: profile.profileUrl },
+      });
+      if (existing) continue;
+
+      const lead = await prisma.lead.create({
+        data: {
+          accountId: "default",
+          linkedinUrl: profile.profileUrl,
+          name: profile.name,
+          headline: profile.headline,
+          company: profile.company,
+          location: profile.location,
+          followerCount: profile.followerCount,
+          score: 50,
+          status: "NEW",
+        },
+      });
+      created.push(lead);
+    }
+
+    return NextResponse.json({ imported: created.length, leads: created }, { status: 201 });
+  }
+
   const lead = await prisma.lead.create({
     data: {
       accountId: body.accountId || "default",
