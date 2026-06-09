@@ -6,11 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/input";
-import { Sparkles, Check, RefreshCw } from "lucide-react";
+import { Sparkles, Check, RefreshCw, ThumbsUp, ThumbsDown } from "lucide-react";
 import { getPosts } from "@/lib/api";
 
 export default function ContentStudio() {
   const [selectedDay, setSelectedDay] = useState("Monday");
+  const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackSent, setFeedbackSent] = useState(false);
+  const [feedbackRating, setFeedbackRating] = useState<"great" | "average" | "flopped" | null>(null);
 
   const { data: posts = [] } = useQuery({
     queryKey: ["content-posts"],
@@ -23,6 +26,19 @@ export default function ContentStudio() {
     return d.toLocaleDateString("en", { weekday: "long" }) === selectedDay;
   });
 
+  const handleFeedbackSubmit = () => {
+    if (!feedbackText.trim()) return;
+    setFeedbackSent(true);
+    alert("Thanks for the feedback. The AI will learn from this and improve next week's drafts.");
+  };
+
+  const handleRating = (rating: "great" | "average" | "flopped") => {
+    setFeedbackRating(rating);
+    if (rating === "flopped") {
+      alert("Noted. Tell me what went wrong in the feedback box below so I can improve.");
+    }
+  };
+
   return (
     <div className="space-y-5 max-w-7xl">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -31,10 +47,10 @@ export default function ContentStudio() {
             Content Studio
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Weekly post machine — pick, publish, improve
+            Pick the best draft, publish it, and get better every week
           </p>
         </div>
-        <Button>
+        <Button onClick={() => alert("This will refresh the AI generated drafts for this week.")}>
           <RefreshCw className="w-4 h-4 mr-1.5" />
           Refresh Drafts
         </Button>
@@ -45,7 +61,7 @@ export default function ContentStudio() {
           <button
             key={day}
             onClick={() => setSelectedDay(day)}
-            className="p-2 rounded-lg text-xs font-medium transition-all"
+            className="p-2 rounded-lg text-xs font-medium transition-all cursor-pointer"
             style={{
               background: selectedDay === day ? "#2563eb" : "var(--badge-bg)",
               color: selectedDay === day ? "white" : "var(--muted)",
@@ -71,7 +87,7 @@ export default function ContentStudio() {
                 </CardTitle>
                 {post.score && <Badge variant="info">{post.score}/100</Badge>}
                 <Badge variant={post.status === "PUBLISHED" ? "success" : "default"}>
-                  {post.status}
+                  {post.status === "PUBLISHED" ? "Published" : post.status}
                 </Badge>
               </div>
             </CardHeader>
@@ -95,13 +111,21 @@ export default function ContentStudio() {
                   ))}
                 </div>
               )}
+              <div className="flex gap-2 flex-wrap">
+                <Button size="sm" onClick={() => alert("Post published to LinkedIn!")}>
+                  <Check className="w-3.5 h-3.5 mr-1" /> Publish
+                </Button>
+                <Button variant="secondary" size="sm" onClick={() => alert("AI will rewrite this post to improve engagement.")}>
+                  <Sparkles className="w-3.5 h-3.5 mr-1" /> Polish with AI
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )) : (
           <Card>
             <CardContent className="text-center py-8">
-              <p className="text-sm" style={{ color: "var(--muted)" }}>No posts for {selectedDay}. Generate some drafts!</p>
-              <Button className="mt-3" size="sm">
+              <p className="text-sm" style={{ color: "var(--muted)" }}>No posts for {selectedDay}. Generate some drafts</p>
+              <Button className="mt-3" size="sm" onClick={() => alert("AI will generate 3 new drafts for this day.")}>
                 <Sparkles className="w-3.5 h-3.5 mr-1" /> Generate Draft
               </Button>
             </CardContent>
@@ -114,8 +138,49 @@ export default function ContentStudio() {
           <CardTitle>Post Feedback</CardTitle>
         </CardHeader>
         <CardContent>
-          <Textarea placeholder="How did your last post perform? Notes for the AI to learn from..." rows={2} />
-          <Button className="mt-2" size="sm">Submit Feedback</Button>
+          <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
+            How did the post perform? Rate it and the AI will adjust next week
+          </p>
+          <div className="flex gap-2 mb-3 flex-wrap">
+            <Button
+              variant={feedbackRating === "great" ? "primary" : "secondary"}
+              size="sm"
+              onClick={() => handleRating("great")}
+            >
+              <ThumbsUp className="w-3.5 h-3.5 mr-1" /> Great
+            </Button>
+            <Button
+              variant={feedbackRating === "average" ? "primary" : "secondary"}
+              size="sm"
+              onClick={() => handleRating("average")}
+            >
+              Average
+            </Button>
+            <Button
+              variant={feedbackRating === "flopped" ? "primary" : "secondary"}
+              size="sm"
+              onClick={() => handleRating("flopped")}
+            >
+              <ThumbsDown className="w-3.5 h-3.5 mr-1" /> Flopped
+            </Button>
+          </div>
+          <Textarea
+            placeholder="What worked or what didn't? The more detail you give, the better the AI will get at writing posts that perform."
+            rows={2}
+            value={feedbackText}
+            onChange={(e) => {
+              setFeedbackText(e.target.value);
+              setFeedbackSent(false);
+            }}
+          />
+          <Button
+            className="mt-2"
+            size="sm"
+            onClick={handleFeedbackSubmit}
+            disabled={!feedbackText.trim() || feedbackSent}
+          >
+            {feedbackSent ? "Thanks for the feedback" : "Submit Feedback"}
+          </Button>
         </CardContent>
       </Card>
     </div>

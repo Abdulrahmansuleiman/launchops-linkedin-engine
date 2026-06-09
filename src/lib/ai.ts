@@ -57,13 +57,11 @@ CRITICAL RULES:
 
 export async function generatePostDrafts(params: {
   topic: string;
-  tone?: string;
   competitorPosts?: string[];
   pastFeedback?: string;
   count?: number;
 }) {
   const prompt = `Generate ${params.count || 3} LinkedIn post drafts about "${params.topic}".
-Tone: ${params.tone || "conversational, insightful, authority-building"}
 ${params.competitorPosts?.length ? `Reference competitor insights: ${params.competitorPosts.join("\n")}` : ""}
 ${params.pastFeedback ? `Learn from past performance: ${params.pastFeedback}` : ""}
 

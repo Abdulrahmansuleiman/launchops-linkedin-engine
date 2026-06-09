@@ -60,7 +60,7 @@ export default function Analytics() {
             Analytics
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Performance and AI recommendations
+            See what's working and what needs to change
           </p>
         </div>
         <div className="flex gap-2">
@@ -69,7 +69,7 @@ export default function Analytics() {
             <option>Last 90 days</option>
             <option>All time</option>
           </Select>
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size="sm" onClick={() => alert("AI will generate a full performance report with recommendations based on your data.")}>
             <Sparkles className="w-3.5 h-3.5 mr-1" /> AI Report
           </Button>
         </div>

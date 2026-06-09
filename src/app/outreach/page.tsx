@@ -60,10 +60,10 @@ export default function Outreach() {
             Outreach Engine
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Ty Frankel style — casual, brotherly, research-heavy, no pitch
+            Casual, brotherly, research heavy. Never pitch in the opener
           </p>
         </div>
-        <Button>
+        <Button onClick={() => alert("Enter a LinkedIn profile URL or paste a screenshot to start a new outreach conversation.")}>
           <Target className="w-4 h-4 mr-1.5" />
           New Prospect
         </Button>
@@ -106,7 +106,7 @@ export default function Outreach() {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>Opener Template</CardTitle>
-                <Badge variant="warning">Line by line — one per send</Badge>
+                  <Badge variant="warning">One line per send, like real time typing</Badge>
               </div>
             </CardHeader>
             <CardContent>
@@ -119,11 +119,11 @@ export default function Outreach() {
                 ))}
               </div>
               <div className="mt-3 flex gap-2 flex-wrap">
-                <Button size="sm">
+                <Button size="sm" onClick={() => alert("AI will generate a personalized Ty Frankel style opener for this prospect.")}>
                   <Zap className="w-3.5 h-3.5 mr-1" />
                   Generate Opener
                 </Button>
-                <Button variant="secondary" size="sm">
+                <Button variant="secondary" size="sm" onClick={() => alert("Edit the opener template to match your personal style.")}>
                   Customize
                 </Button>
               </div>
@@ -193,7 +193,7 @@ export default function Outreach() {
                   <p className="text-xs mt-1" style={{ color: "#60a5fa" }}>Next: {c.nextAction}</p>
                 </div>
               ))}
-              <Button variant="ghost" size="sm" className="w-full text-xs">View All Conversations</Button>
+              <Button variant="ghost" size="sm" className="w-full text-xs" onClick={() => alert("Full conversation list coming soon with search and filtering.")}>View All Conversations</Button>
             </CardContent>
           </Card>
 
@@ -221,11 +221,11 @@ Gotta visit [city] btw — [genuine local line]`.trim()}
                     rows={6}
                   />
                   <div className="mt-3 flex gap-2 flex-wrap">
-                    <Button size="sm">
+                    <Button size="sm" onClick={() => alert("AI will rewrite this message in Ty Frankel style: casual, one thought per line, no pitch.")}>
                       <Zap className="w-3.5 h-3.5 mr-1" />
                       AI Optimize
                     </Button>
-                    <Button variant="secondary" size="sm">
+                    <Button variant="secondary" size="sm" onClick={() => alert("Message sent via LinkedIn DM simulator. In production this opens a LinkedIn chat window.")}>
                       <Send className="w-3.5 h-3.5 mr-1" />
                       Send
                     </Button>

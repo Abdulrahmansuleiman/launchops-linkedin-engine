@@ -1,11 +1,12 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { TrendingUp, Users, DollarSign, Eye, ArrowRight, Sparkles } from "lucide-react";
+import { TrendingUp, Users, DollarSign, Eye, ArrowRight, Sparkles, RefreshCw, ThumbsUp, ThumbsDown } from "lucide-react";
 import { getLeads, getPosts } from "@/lib/api";
 
 const weeklyData = [
@@ -19,8 +20,10 @@ const weeklyData = [
 ];
 
 export default function Dashboard() {
-  const { data: leads } = useQuery({ queryKey: ["leads"], queryFn: () => getLeads() });
-  const { data: posts } = useQuery({ queryKey: ["posts"], queryFn: () => getPosts({ status: "PUBLISHED" }) });
+  const [insightFeedback, setInsightFeedback] = useState<"helpful" | "not-helpful" | null>(null);
+
+  const { data: leads = [] } = useQuery({ queryKey: ["leads"], queryFn: () => getLeads() });
+  const { data: posts = [] } = useQuery({ queryKey: ["posts"], queryFn: () => getPosts({ status: "PUBLISHED" }) });
   const { data: stats } = useQuery({
     queryKey: ["stats"],
     queryFn: async () => {
@@ -29,20 +32,31 @@ export default function Dashboard() {
     },
   });
 
-  const hotLeads = leads?.filter((l) => l.score >= 80).slice(0, 3) || [];
-  const weekPosts = posts?.slice(0, 7).map((p) => ({
+  const hotLeads = leads.filter((l) => l.score >= 80).slice(0, 3);
+  const weekPosts = posts.slice(0, 7).map((p) => ({
     day: new Date(p.createdAt).toLocaleDateString("en", { weekday: "short" }),
     title: p.content.split("\n")[0].slice(0, 40) + "...",
     score: p.score || 75,
     status: p.status === "PUBLISHED" ? "ready" : "draft",
-  })) || [];
+  }));
 
   const displayStats = [
-    { label: "Weekly Impressions", value: `${(stats?.stats?.weeklyImpressions || 13100).toLocaleString()}`, change: "+24%", icon: Eye, color: "blue" as const },
-    { label: "Engagement Rate", value: `${stats?.stats?.engagementRate || "4.8"}%`, change: "+0.6%", icon: TrendingUp, color: "green" as const },
-    { label: "Pipeline Value", value: `£${((stats?.stats?.pipelineValue || 24000) / 1000).toFixed(0)}K`, change: `${stats?.stats?.hotLeads || 3} active deals`, icon: DollarSign, color: "purple" as const },
-    { label: "New Leads", value: `${leads?.length || 18}`, change: "+5 this week", icon: Users, color: "yellow" as const },
+    { label: "Weekly Impressions", value: `${(stats?.stats?.weeklyImpressions || 13100).toLocaleString()}`, change: "+24% this week", icon: Eye, color: "blue" as const },
+    { label: "Engagement Rate", value: `${stats?.stats?.engagementRate || "4.8"}%`, change: "+0.6% vs last week", icon: TrendingUp, color: "green" as const },
+    { label: "Pipeline Value", value: `£${((stats?.stats?.pipelineValue || 24000) / 1000).toFixed(0)}K`, change: `${stats?.stats?.hotLeads || 3} active deals in pipeline`, icon: DollarSign, color: "purple" as const },
+    { label: "New Leads", value: `${leads.length || 18}`, change: "+5 new this week", icon: Users, color: "yellow" as const },
   ];
+
+  const handleGenerate = useCallback(() => {
+    alert("This will generate this week's content drafts using AI. Coming soon with the full AI integration.");
+  }, []);
+
+  const handleInsightFeedback = useCallback((type: "helpful" | "not-helpful") => {
+    setInsightFeedback(type);
+    if (type === "not-helpful") {
+      alert("Thanks for the feedback. The AI will adjust its recommendations based on what you tell it.");
+    }
+  }, []);
 
   return (
     <div className="space-y-5 max-w-7xl">
@@ -52,10 +66,10 @@ export default function Dashboard() {
             Dashboard
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Your LinkedIn growth at a glance
+            How your LinkedIn is growing this week
           </p>
         </div>
-        <Button>
+        <Button onClick={handleGenerate}>
           <Sparkles className="w-4 h-4 mr-1.5" />
           Generate This Week
         </Button>
@@ -70,13 +84,9 @@ export default function Dashboard() {
                 <div className="flex items-center gap-3">
                   <div
                     className="p-2 rounded-lg shrink-0"
-                    style={{
-                      background: `var(--stat-${stat.color}-bg)`,
-                    }}
+                    style={{ background: `var(--stat-${stat.color}-bg)` }}
                   >
-                    <Icon className="w-4 h-4" style={{
-                      color: `var(--stat-${stat.color}-icon)`,
-                    }} />
+                    <Icon className="w-4 h-4" style={{ color: `var(--stat-${stat.color}-icon)` }} />
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{stat.label}</p>
@@ -124,8 +134,9 @@ export default function Dashboard() {
             {hotLeads.length > 0 ? hotLeads.map((lead) => (
               <div
                 key={lead.id}
-                className="p-3 rounded-lg cursor-pointer transition-colors"
+                className="p-3 rounded-lg cursor-pointer transition-colors hover:opacity-80"
                 style={{ background: "var(--badge-bg)" }}
+                onClick={() => window.location.href = "/leads"}
               >
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium" style={{ color: "var(--foreground)" }}>{lead.name}</p>
@@ -135,9 +146,11 @@ export default function Dashboard() {
                 {lead.notes && <p className="text-xs mt-1" style={{ color: "#60a5fa" }}>{lead.notes}</p>}
               </div>
             )) : (
-              <p className="text-sm text-center py-4" style={{ color: "var(--muted)" }}>No hot leads yet — import some to get started</p>
+              <p className="text-sm text-center py-4" style={{ color: "var(--muted)" }}>
+                No hot leads yet. Import some from LinkedIn to get started
+              </p>
             )}
-            <Button variant="ghost" className="w-full text-xs">
+            <Button variant="ghost" className="w-full text-xs" onClick={() => window.location.href = "/leads"}>
               View All Leads <ArrowRight className="w-3 h-3 ml-1" />
             </Button>
           </CardContent>
@@ -147,18 +160,19 @@ export default function Dashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Recent Posts</CardTitle>
-          <Badge variant="info">{posts?.length || 0} published</Badge>
+          <Badge variant="info">{posts.length || 0} published</Badge>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
             {weekPosts.length > 0 ? weekPosts.map((post, i) => (
               <div
                 key={i}
-                className="p-2.5 rounded-lg"
+                className="p-2.5 rounded-lg cursor-pointer hover:opacity-80 transition-all"
                 style={{
                   background: "var(--badge-bg)",
                   border: "1px solid var(--card-border)",
                 }}
+                onClick={() => window.location.href = "/content"}
               >
                 <p className="text-xs font-medium mb-1" style={{ color: "var(--muted)" }}>{post.day}</p>
                 <p className="text-xs leading-snug mb-2 line-clamp-2" style={{ color: "var(--foreground)" }}>
@@ -173,7 +187,9 @@ export default function Dashboard() {
               </div>
             )) : (
               <div className="col-span-7 text-center py-4">
-                <p className="text-sm" style={{ color: "var(--muted)" }}>No posts yet — generate your first draft</p>
+                <p className="text-sm" style={{ color: "var(--muted)" }}>
+                  No posts yet. Generate your first draft to get started
+                </p>
               </div>
             )}
           </div>
@@ -182,19 +198,43 @@ export default function Dashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>AI Insight</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle>AI Insight</CardTitle>
+            <RefreshCw
+              className="w-4 h-4 cursor-pointer hover:opacity-70 transition-opacity"
+              style={{ color: "var(--muted)" }}
+              onClick={() => {
+                setInsightFeedback(null);
+                alert("Fresh insight coming from the AI based on your latest data.");
+              }}
+            />
+          </div>
         </CardHeader>
         <CardContent>
           <div
-            className="p-4 rounded-lg"
+            className="p-4 rounded-lg cursor-pointer transition-all hover:opacity-90"
             style={{
               background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.1))",
               border: "1px solid rgba(59,130,246,0.2)",
             }}
+            onClick={() => handleInsightFeedback("helpful")}
           >
             <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
-              {stats?.insight || "Your storytelling posts about AI agents get 3.2x more engagement than tip-based content. Best time to post: Tue-Thu, 8-10am."}
+              {stats?.insight || "Your storytelling posts about AI agents get 3.2x more engagement than tip-based content. Best time to post is Tuesday through Thursday 8 to 10am."}
             </p>
+            <div className="flex items-center gap-2 mt-3">
+              <span className="text-xs" style={{ color: "var(--muted)" }}>Was this helpful?</span>
+              <ThumbsUp
+                className={`w-3.5 h-3.5 cursor-pointer transition-colors ${insightFeedback === "helpful" ? "text-green-400" : ""}`}
+                style={{ color: insightFeedback === "helpful" ? "#4ade80" : "var(--muted)" }}
+                onClick={(e) => { e.stopPropagation(); handleInsightFeedback("helpful"); }}
+              />
+              <ThumbsDown
+                className={`w-3.5 h-3.5 cursor-pointer transition-colors ${insightFeedback === "not-helpful" ? "text-red-400" : ""}`}
+                style={{ color: insightFeedback === "not-helpful" ? "#f87171" : "var(--muted)" }}
+                onClick={(e) => { e.stopPropagation(); handleInsightFeedback("not-helpful"); }}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

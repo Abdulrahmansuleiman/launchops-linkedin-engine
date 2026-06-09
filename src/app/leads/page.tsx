@@ -55,10 +55,10 @@ export default function Leads() {
             Leads
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Discover, score, and pipeline LinkedIn prospects
+            Find high value prospects, score them, and move them through your pipeline
           </p>
         </div>
-        <Button>
+        <Button onClick={() => alert("This will open a LinkedIn scraper to find prospects. You need an Apify API key configured.")}>
           <Target className="w-4 h-4 mr-1.5" />
           Import from LinkedIn
         </Button>
@@ -84,7 +84,7 @@ export default function Leads() {
           <option value="DEMO_SENT">Demo Sent</option>
           <option value="CLIENT_WON">Client Won</option>
         </Select>
-        <Button variant="secondary" size="sm">
+        <Button variant="secondary" size="sm" onClick={() => alert("More filter options coming soon. For now use the status dropdown above.")}>
           <Filter className="w-3.5 h-3.5 mr-1" /> Filters
         </Button>
       </div>
@@ -117,7 +117,7 @@ export default function Leads() {
                       <p className="text-xs" style={{ color: "var(--muted)" }}>{lead.headline || lead.company || ""}</p>
                     </td>
                     <td className="py-3 pr-4 hidden sm:table-cell" style={{ color: "var(--muted)" }}>
-                      {lead.followerCount ? `${(lead.followerCount / 1000).toFixed(1)}K` : "—"}
+                      {lead.followerCount ? `${(lead.followerCount / 1000).toFixed(1)}K` : "0"}
                     </td>
                     <td className="py-3 pr-4 hidden md:table-cell">
                       <Badge variant={statusColor(lead.status)}>{statusLabel(lead.status)}</Badge>
@@ -129,13 +129,13 @@ export default function Leads() {
                     </td>
                     <td className="py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="sm" className="!p-1.5">
+                        <Button variant="ghost" size="sm" className="!p-1.5" onClick={() => alert("Open conversation with this lead")}>
                           <MessageCircle className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="!p-1.5">
+                        <Button variant="ghost" size="sm" className="!p-1.5" onClick={() => window.location.href = "/outreach"}>
                           <Send className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="!p-1.5">
+                        <Button variant="ghost" size="sm" className="!p-1.5" onClick={() => alert("More options: edit notes, change status, add to sequence")}>
                           <MoreHorizontal className="w-4 h-4" />
                         </Button>
                       </div>
@@ -156,9 +156,9 @@ export default function Leads() {
 
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Total Leads", value: stats?.total || "—" },
-          { label: "Hot (score 80+)", value: stats?.hot || "—" },
-          { label: "Engaged", value: stats?.engaged || "—" },
+          { label: "Total Leads", value: stats?.total ?? "0" },
+          { label: "Hot (score 80+)", value: stats?.hot ?? "0" },
+          { label: "Engaged", value: stats?.engaged ?? "0" },
         ].map((s) => (
           <Card key={s.label}>
             <CardContent className="p-4">

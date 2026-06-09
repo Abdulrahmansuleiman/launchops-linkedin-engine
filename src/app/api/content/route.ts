@@ -26,7 +26,6 @@ export async function POST(req: Request) {
   if (body.action === "generate") {
     const drafts = await generatePostDrafts({
       topic: body.topic,
-      tone: body.tone,
       count: body.count || 3,
     });
 

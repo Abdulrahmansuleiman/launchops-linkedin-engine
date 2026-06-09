@@ -9,7 +9,6 @@ export async function POST(req: Request) {
       case "generatePosts": {
         const result = await generatePostDrafts({
           topic: body.topic,
-          tone: body.tone,
           competitorPosts: body.competitorPosts,
           pastFeedback: body.pastFeedback,
           count: body.count || 3,

@@ -8,7 +8,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "LaunchOps — LinkedIn Growth Engine",
+  title: "LaunchOps | LinkedIn Growth Engine",
   description: "AI-powered LinkedIn lead gen, content, and outreach for business owners",
 };
 
