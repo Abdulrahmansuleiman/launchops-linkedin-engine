@@ -61,26 +61,33 @@ export default function Leads() {
             Find high value prospects, score them, and move them through your pipeline
           </p>
         </div>
-        <Button onClick={async () => {
-          setImporting(true);
-          setImportMsg(null);
-          try {
-            const urls = prompt("Enter LinkedIn profile URLs (one per line):");
-            if (!urls) { setImporting(false); return; }
-            const profileUrls = urls.split("\n").map((u) => u.trim()).filter(Boolean);
-            const result = await importLeads(profileUrls);
-            setImportMsg(`Imported ${result.imported} new leads`);
-            queryClient.invalidateQueries({ queryKey: ["leads"] });
-          } catch (e: any) {
-            setImportMsg("Import failed: " + (e.message || "Unknown error"));
-          } finally {
-            setImporting(false);
-            setTimeout(() => setImportMsg(null), 4000);
-          }
-        }} disabled={importing}>
-          {importing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Target className="w-4 h-4 mr-1.5" />}
-          {importing ? "Importing..." : "Import from LinkedIn"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={async () => {
+            setImporting(true);
+            setImportMsg(null);
+            try {
+              const urls = prompt("Enter LinkedIn profile URLs (one per line):");
+              if (!urls) { setImporting(false); return; }
+              const profileUrls = urls.split("\n").map((u) => u.trim()).filter(Boolean);
+              const result = await importLeads(profileUrls);
+              setImportMsg(`Imported ${result.imported} new leads`);
+              queryClient.invalidateQueries({ queryKey: ["leads"] });
+            } catch (e: any) {
+              setImportMsg("Import failed: " + (e.message || "Unknown error"));
+            } finally {
+              setImporting(false);
+              setTimeout(() => setImportMsg(null), 4000);
+            }
+          }} disabled={importing}>
+            {importing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Target className="w-4 h-4 mr-1.5" />}
+            {importing ? "Importing..." : "Import from LinkedIn"}
+          </Button>
+          {importMsg && (
+            <span className="text-xs" style={{ color: importMsg.includes("failed") ? "#f87171" : "#4ade80" }}>
+              {importMsg}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex gap-3 flex-wrap">
