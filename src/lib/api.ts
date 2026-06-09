@@ -5,7 +5,15 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
     headers: { "Content-Type": "application/json" },
     ...options,
   });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  if (!res.ok) {
+    let detail = `API error: ${res.status}`;
+    try {
+      const body = await res.json();
+      if (body.error) detail = body.error;
+      if (body.detail) detail += ` — ${body.detail}`;
+    } catch {}
+    throw new Error(detail);
+  }
   return res.json();
 }
 

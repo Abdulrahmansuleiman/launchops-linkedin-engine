@@ -35,7 +35,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No profile URLs provided" }, { status: 400 });
     }
 
-    const scraped = await scrapeAndWait(profileUrls);
+    let scraped: any[];
+    try {
+      scraped = await scrapeAndWait(profileUrls);
+    } catch (e: any) {
+      return NextResponse.json({
+        error: "LinkedIn scraping failed",
+        detail: e.message || "Unknown Apify error",
+        hint: "Check that APIFY_API_KEY is set correctly on Vercel and Apify credits are available"
+      }, { status: 502 });
+    }
+
     const created = [];
 
     for (const profile of scraped) {
