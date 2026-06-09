@@ -288,17 +288,17 @@ export default function Leads() {
             Import real LinkedIn profiles. Mark when you connect. Track every stage.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {importMsg && (
             <span className="text-xs" style={{ color: importMsg.includes("failed") ? "#f87171" : "#4ade80" }}>
               {importMsg}
             </span>
           )}
-          <Button onClick={() => setShowImportForm(true)} disabled={importing}>
+          <Button onClick={() => setShowImportForm(true)} disabled={importing} className="!text-xs !px-3">
             {importing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Target className="w-4 h-4 mr-1.5" />}
-            {importing ? "Importing..." : "Import from LinkedIn"}
+            {importing ? "Importing..." : "Import"}
           </Button>
-          <Button variant="secondary" onClick={() => setShowAddForm(true)}>
+          <Button variant="secondary" onClick={() => setShowAddForm(true)} className="!text-xs !px-3">
             <Plus className="w-4 h-4 mr-1.5" /> Add Lead
           </Button>
         </div>
@@ -510,7 +510,7 @@ export default function Leads() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: "Total Leads", value: stats?.total ?? "0", color: "var(--foreground)" },
           { label: "Hot (score 80+)", value: stats?.hot ?? "0", color: "#4ade80" },

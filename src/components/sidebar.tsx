@@ -11,6 +11,7 @@ import {
   BarChart3,
   Sun,
   Moon,
+  X,
 } from "lucide-react";
 
 const navItems = [
@@ -21,20 +22,29 @@ const navItems = [
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
-export function Sidebar() {
+export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
   const { theme, toggle } = useTheme();
 
   return (
-    <aside
-      className="fixed left-0 top-0 h-full w-64 flex flex-col z-50"
-      style={{
-        background: "var(--sidebar)",
-        borderRight: "1px solid var(--sidebar-border)",
-      }}
-    >
+    <>
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={onClose}
+        />
+      )}
+      <aside
+        className={`fixed left-0 top-0 h-full w-64 flex flex-col z-50 transition-transform duration-300 ease-in-out ${
+          open ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0`}
+        style={{
+          background: "var(--sidebar)",
+          borderRight: "1px solid var(--sidebar-border)",
+        }}
+      >
       <div
-        className="p-6 border-b"
+        className="p-6 border-b flex items-center justify-between"
         style={{ borderColor: "var(--sidebar-border)" }}
       >
         <div className="flex items-center gap-2">
@@ -45,9 +55,13 @@ export function Sidebar() {
             LaunchOps
           </span>
         </div>
-        <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>
-          LinkedIn Growth Engine
-        </p>
+        <button
+          className="md:hidden p-1 rounded hover:opacity-70"
+          onClick={onClose}
+          aria-label="Close menu"
+        >
+          <X className="w-5 h-5" style={{ color: "var(--muted)" }} />
+        </button>
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
@@ -120,5 +134,6 @@ export function Sidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }

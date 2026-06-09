@@ -134,28 +134,28 @@ export default function ContentStudio() {
             Pick the best draft and publish it
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <input
             type="text"
-            placeholder="Topic or leave blank for random..."
+            placeholder="Topic or leave blank..."
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            className="h-9 px-3 rounded-lg text-sm w-48"
+            className="h-9 px-3 rounded-lg text-sm w-full sm:w-48"
             style={{ background: "var(--input-bg)", color: "var(--foreground)", border: "1px solid var(--input-border)" }}
           />
-          <Button onClick={handleGenerate} disabled={generating}>
+          <Button onClick={handleGenerate} disabled={generating} className="whitespace-nowrap !text-xs !px-3">
             {generating ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-1.5" />}
-            {generating ? "Generating..." : "Refresh Drafts"}
+            {generating ? "Generating..." : "Refresh"}
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-1.5">
+      <div className="grid grid-cols-7 gap-1">
         {days.map((day) => (
           <button
             key={day}
             onClick={() => { setSelectedDay(day); setSelectedPost(null); }}
-            className="p-2 rounded-lg text-xs font-medium transition-all cursor-pointer"
+            className="p-1.5 md:p-2 rounded-lg text-[11px] md:text-xs font-medium transition-all cursor-pointer"
             style={{
               background: selectedDay === day ? "#2563eb" : "var(--badge-bg)",
               color: selectedDay === day ? "white" : "var(--muted)",

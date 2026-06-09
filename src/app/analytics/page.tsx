@@ -99,7 +99,7 @@ export default function Analytics() {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: "Total Leads", value: leads.length.toString(), sub: "All time", icon: TrendingUp, color: "#4ade80" },
           { label: "Total Impressions", value: totalImpressions.toLocaleString(), sub: "Across all posts", icon: Target, color: "#60a5fa" },

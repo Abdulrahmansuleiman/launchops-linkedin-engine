@@ -255,7 +255,7 @@ export default function Outreach() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5">
         <div className="lg:col-span-2 space-y-5">
           <Card>
             <CardHeader>
@@ -509,7 +509,7 @@ export default function Outreach() {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: "Active Conversations", value: `${activeLeads.length}`, sub: `${leads.filter(l => l.status === "DM_SENT" || l.status === "RESPONDED").length} in progress`, icon: MessageCircle, color: "#60a5fa" },
           { label: "Total Leads", value: `${leads.length}`, sub: `${leads.filter(l => l.linkedinUrl).length} with LinkedIn`, icon: Send, color: "#4ade80" },
