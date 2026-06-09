@@ -1,0 +1,225 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LeadStatus {
+  NEW
+  CONNECTED
+  DM_SENT
+  RESPONDED
+  MEETING_BOOKED
+  DEMO_SENT
+  CLIENT_WON
+  CLIENT_LOST
+  ARCHIVED
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+}
+
+enum FeedbackRating {
+  GREAT
+  GOOD
+  AVERAGE
+  FLOOPED
+}
+
+model Account {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leads    Lead[]
+  posts    Post[]
+  ideas    ContentIdea[]
+  sequences OutreachSequence[]
+  competitorPosts CompetitorPost[]
+  weeklyReports WeeklyReport[]
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  accountId String
+  linkedinUrl String?
+  name      String?
+  headline  String?
+  company   String?
+  location  String?
+  industry  String?
+  profilePicture String?
+  followerCount Int?
+  mutualConnections Int?
+  email     String?
+  phone     String?
+  score     Int      @default(0)
+  scoreComponents Json?
+  enrichmentData Json?
+  notes     String?
+  status    LeadStatus @default(NEW)
+  lastContactedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  account Account @relation(fields: [accountId], references: [id])
+  activities LeadActivity[]
+  pipelineEntries PipelineEntry[]
+  outreachMessages OutreachMessage[]
+
+  @@index([accountId])
+  @@index([status])
+  @@index([score])
+}
+
+model LeadActivity {
+  id        String   @id @default(cuid())
+  leadId    String
+  type      String
+  content   String?
+  metadata  Json?
+  timestamp DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+}
+
+model PipelineEntry {
+  id        String   @id @default(cuid())
+  leadId    String
+  stage     String
+  value     Float?
+  probability Int?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@index([stage])
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  accountId String
+  content   String
+  topic     String?
+  tone      String?
+  status    PostStatus @default(DRAFT)
+  score     Int?
+  scoreReason String?
+  scheduledFor DateTime?
+  publishedAt DateTime?
+  linkedinUrl String?
+  aiGenerated Boolean @default(false)
+  feedbackRating FeedbackRating?
+  feedbackNotes String?
+  impressions Int?
+  reach     Int?
+  likes     Int?
+  comments  Int?
+  shares    Int?
+  saves     Int?
+  weekLabel String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+  @@index([status])
+  @@index([weekLabel])
+}
+
+model ContentIdea {
+  id        String   @id @default(cuid())
+  accountId String
+  topic     String
+  angle     String?
+  source    String?
+  sourceUrl String?
+  score     Int?
+  aiGenerated Boolean @default(true)
+  status    String @default("saved")
+  createdAt DateTime @default(now())
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+}
+
+model OutreachSequence {
+  id        String   @id @default(cuid())
+  accountId String
+  name      String
+  steps     Json
+  isActive  Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  account Account @relation(fields: [accountId], references: [id])
+  messages OutreachMessage[]
+
+  @@index([accountId])
+}
+
+model OutreachMessage {
+  id         String   @id @default(cuid())
+  sequenceId String
+  leadId     String?
+  stepNumber Int
+  content    String
+  sentAt     DateTime?
+  openedAt   DateTime?
+  repliedAt  DateTime?
+  status     String @default("draft")
+  createdAt  DateTime @default(now())
+
+  sequence OutreachSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  lead     Lead?             @relation(fields: [leadId], references: [id])
+
+  @@index([sequenceId])
+  @@index([leadId])
+}
+
+model CompetitorPost {
+  id        String   @id @default(cuid())
+  accountId String
+  authorName String
+  authorUrl String?
+  content   String
+  topic     String?
+  engagement Json?
+  analysis  Json?
+  scrapedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+}
+
+model WeeklyReport {
+  id        String   @id @default(cuid())
+  accountId String
+  weekLabel String
+  report    Json
+  createdAt DateTime @default(now())
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+  @@index([weekLabel])
+}
