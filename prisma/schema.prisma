@@ -120,6 +120,8 @@ model Post {
   status    PostStatus @default(DRAFT)
   score     Int?
   scoreReason String?
+  impressionPrediction String?
+  scoreAnalysis String?
   scheduledFor DateTime?
   publishedAt DateTime?
   linkedinUrl String?

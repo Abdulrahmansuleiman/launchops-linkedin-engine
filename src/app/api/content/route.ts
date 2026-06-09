@@ -29,7 +29,6 @@ export async function POST(req: Request) {
       count: body.count || 3,
     });
 
-    // Save drafts to database
     const posts = [];
     for (const draft of drafts.drafts || []) {
       const post = await prisma.post.create({
@@ -37,10 +36,10 @@ export async function POST(req: Request) {
           accountId: body.accountId || "default",
           content: draft.content,
           topic: body.topic,
-          tone: body.tone,
           status: "DRAFT",
-          score: draft.hookScore || draft.score,
-          scoreReason: draft.whyThisWorks,
+          score: draft.score,
+          scoreReason: draft.scoreAnalysis,
+          impressionPrediction: draft.impressionPrediction,
           weekLabel: body.weekLabel,
           aiGenerated: true,
         },
@@ -56,7 +55,6 @@ export async function POST(req: Request) {
       accountId: body.accountId || "default",
       content: body.content,
       topic: body.topic,
-      tone: body.tone,
       status: body.status || "DRAFT",
       score: body.score,
       weekLabel: body.weekLabel,

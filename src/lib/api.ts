@@ -27,6 +27,8 @@ export interface Post {
   content: string;
   topic: string | null;
   score: number | null;
+  scoreReason: string | null;
+  impressionPrediction: string | null;
   status: string;
   impressions: number | null;
   likes: number | null;
@@ -120,7 +122,7 @@ export async function submitPostFeedback(id: string, feedbackRating: string, fee
 export async function polishPost(content: string) {
   return fetchJSON<any>("/api/openai", {
     method: "POST",
-    body: JSON.stringify({ action: "analyzePost", content }),
+    body: JSON.stringify({ action: "polishPost", content }),
   });
 }
 
