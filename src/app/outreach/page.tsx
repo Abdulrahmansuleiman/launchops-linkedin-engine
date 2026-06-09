@@ -113,12 +113,14 @@ export default function Outreach() {
 
   const extractMessage = (result: any): string => {
     if (!result) return "";
-    return (
-      (Array.isArray(result.messages) ? result.messages.join("\n") : "") ||
-      result.message?.message ||
-      (Array.isArray(result.message?.messages) ? result.message.messages.join("\n") : "") ||
-      typeof result.message === "string" ? result.message : ""
-    );
+    const arr = result.messages;
+    if (Array.isArray(arr) && arr.length) return arr.join("\n");
+    const msg = result.message;
+    if (!msg) return "";
+    if (typeof msg === "string") return msg;
+    if (msg.message) return msg.message;
+    if (Array.isArray(msg.messages)) return msg.messages.join("\n");
+    return "";
   };
 
   const handleGenerateOpener = async () => {
