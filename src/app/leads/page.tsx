@@ -34,12 +34,24 @@ const statusOptions = [
   "MEETING_BOOKED", "DEMO_SENT", "CLIENT_WON", "CLIENT_LOST"
 ];
 
+const stageColors: Record<string, { text: string; bg: string }> = {
+  NEW: { text: "#6b7280", bg: "#f3f4f6" },
+  CONNECTED: { text: "#1d4ed8", bg: "#dbeafe" },
+  DM_SENT: { text: "#a16207", bg: "#fef9c3" },
+  RESPONDED: { text: "#1d4ed8", bg: "#dbeafe" },
+  MEETING_BOOKED: { text: "#15803d", bg: "#dcfce7" },
+  DEMO_SENT: { text: "#15803d", bg: "#dcfce7" },
+  CLIENT_WON: { text: "#15803d", bg: "#dcfce7" },
+  CLIENT_LOST: { text: "#b91c1c", bg: "#fee2e2" },
+};
+
 export default function Leads() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [importing, setImporting] = useState(false);
   const [importMsg, setImportMsg] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showImportForm, setShowImportForm] = useState(false);
   const [form, setForm] = useState({ name: "", linkedinUrl: "", company: "", headline: "", location: "", profilePicture: "" });
@@ -384,38 +396,41 @@ export default function Leads() {
                         <span className="text-xs" style={{ color: "var(--muted)" }}>—</span>
                       )}
                     </td>
-                    <td className="py-3 pr-4 hidden md:table-cell">
-                      <select
-                        className="cursor-pointer rounded-md px-2 py-1.5 text-xs font-medium transition-colors w-full"
+                    <td className="py-3 pr-4 hidden md:table-cell relative">
+                      <button
+                        className="w-full text-left rounded-md px-2 py-1.5 text-xs font-medium transition-colors"
                         style={{
-                          color: {
-                            MEETING_BOOKED: "#15803d", DEMO_SENT: "#15803d",
-                            RESPONDED: "#1d4ed8", CONNECTED: "#1d4ed8",
-                            DM_SENT: "#a16207",
-                            CLIENT_WON: "#15803d",
-                            CLIENT_LOST: "#b91c1c",
-                            NEW: "#6b7280",
-                          }[lead.status] || "var(--foreground)",
-                          background: {
-                            MEETING_BOOKED: "#dcfce7", DEMO_SENT: "#dcfce7",
-                            RESPONDED: "#dbeafe", CONNECTED: "#dbeafe",
-                            DM_SENT: "#fef9c3",
-                            CLIENT_WON: "#dcfce7",
-                            CLIENT_LOST: "#fee2e2",
-                            NEW: "#f3f4f6",
-                          }[lead.status] || "var(--badge-bg)",
+                          color: stageColors[lead.status]?.text || "var(--foreground)",
+                          background: stageColors[lead.status]?.bg || "var(--badge-bg)",
                           border: "1px solid var(--card-border)",
-                          fontWeight: lead.status === "CLIENT_WON" || lead.status === "MEETING_BOOKED" ? 600 : 500,
                         }}
-                        value={lead.status}
-                        onChange={(e) => {
-                          if (e.target.value !== lead.status) handleStatusChange(lead.id, e.target.value);
-                        }}
+                        onClick={() => setOpenDropdown(openDropdown === lead.id ? null : lead.id)}
                       >
-                        {statusOptions.map((s) => (
-                          <option key={s} value={s}>{statusLabel(s)}</option>
-                        ))}
-                      </select>
+                        {statusLabel(lead.status)}
+                      </button>
+                      {openDropdown === lead.id && (
+                        <div
+                          className="absolute left-0 right-0 top-full mt-1 z-50 rounded-md overflow-hidden shadow-lg"
+                          style={{ background: "var(--card)", border: "1px solid var(--card-border)" }}
+                        >
+                          {statusOptions.map((s) => (
+                            <button
+                              key={s}
+                              className="w-full text-left px-3 py-2 text-xs font-medium transition-colors hover:opacity-80"
+                              style={{
+                                color: stageColors[s]?.text || "var(--foreground)",
+                                background: s === lead.status ? (stageColors[s]?.bg || "var(--badge-bg)") : "transparent",
+                              }}
+                              onClick={() => {
+                                if (s !== lead.status) handleStatusChange(lead.id, s);
+                                setOpenDropdown(null);
+                              }}
+                            >
+                              {statusLabel(s)}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </td>
                     <td className="py-3 pr-4">
                       <span className={
