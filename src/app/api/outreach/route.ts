@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generateOutreachMessage } from "@/lib/ai";
 
+async function getDefaultAccountId() {
+  const account = await prisma.account.findFirst({ orderBy: { createdAt: "asc" } });
+  if (!account) throw new Error("No account found");
+  return account.id;
+}
+
 export async function GET(req: Request) {
   const sequences = await prisma.outreachSequence.findMany({
     include: { messages: true },
@@ -47,9 +53,10 @@ export async function POST(req: Request) {
     return NextResponse.json(message);
   }
 
+  const accountId = await getDefaultAccountId();
   const sequence = await prisma.outreachSequence.create({
     data: {
-      accountId: body.accountId || "default",
+      accountId,
       name: body.name,
       steps: body.steps,
     },

@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generatePostDrafts } from "@/lib/ai";
 
+async function getDefaultAccountId() {
+  const account = await prisma.account.findFirst({ orderBy: { createdAt: "asc" } });
+  if (!account) throw new Error("No account found");
+  return account.id;
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const weekLabel = searchParams.get("weekLabel");
@@ -29,11 +35,12 @@ export async function POST(req: Request) {
       count: body.count || 3,
     });
 
+    const accountId = await getDefaultAccountId();
     const posts = [];
     for (const draft of drafts.drafts || []) {
       const post = await prisma.post.create({
         data: {
-          accountId: body.accountId || "default",
+          accountId,
           content: draft.content,
           topic: body.topic,
           status: "DRAFT",
@@ -50,9 +57,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ drafts: posts }, { status: 201 });
   }
 
+  const accountId = await getDefaultAccountId();
   const post = await prisma.post.create({
     data: {
-      accountId: body.accountId || "default",
+      accountId,
       content: body.content,
       topic: body.topic,
       status: body.status || "DRAFT",

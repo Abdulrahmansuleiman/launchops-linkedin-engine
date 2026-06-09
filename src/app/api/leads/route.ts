@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { scrapeAndWait } from "@/lib/apify";
 
+async function getDefaultAccountId() {
+  const account = await prisma.account.findFirst({ orderBy: { createdAt: "asc" } });
+  if (!account) throw new Error("No account found. Create an account first.");
+  return account.id;
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
@@ -46,6 +52,7 @@ export async function POST(req: Request) {
       }, { status: 502 });
     }
 
+    const accountId = await getDefaultAccountId();
     const created = [];
 
     for (const profile of scraped) {
@@ -56,7 +63,7 @@ export async function POST(req: Request) {
 
       const lead = await prisma.lead.create({
         data: {
-          accountId: "default",
+          accountId,
           linkedinUrl: profile.profileUrl,
           name: profile.name,
           headline: profile.headline,
@@ -73,9 +80,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ imported: created.length, leads: created }, { status: 201 });
   }
 
+  const accountId = await getDefaultAccountId();
   const lead = await prisma.lead.create({
     data: {
-      accountId: body.accountId || "default",
+      accountId,
       linkedinUrl: body.linkedinUrl,
       name: body.name,
       headline: body.headline,
