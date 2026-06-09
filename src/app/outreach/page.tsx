@@ -321,8 +321,8 @@ Gotta visit [city] btw — [genuine local line]`.trim()}
                 key={i}
                 className="p-2.5 rounded-lg text-sm max-w-[80%]"
                 style={{
-                  background: msg.sender === "You" ? "#1e3a5f" : "#1f2937",
-                  color: msg.sender === "You" ? "#60a5fa" : "var(--foreground)",
+                  background: msg.sender === "You" ? "var(--badge-info-bg)" : "var(--badge-bg)",
+                  color: msg.sender === "You" ? "var(--badge-info-text)" : "var(--foreground)",
                   marginLeft: msg.sender === "You" ? "auto" : "0",
                   marginRight: msg.sender === "You" ? "0" : "auto",
                 }}

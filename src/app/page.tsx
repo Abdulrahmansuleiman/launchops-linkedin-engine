@@ -71,15 +71,11 @@ export default function Dashboard() {
                   <div
                     className="p-2 rounded-lg shrink-0"
                     style={{
-                      background: stat.color === "blue" ? "#1e3a5f" :
-                                  stat.color === "green" ? "#052e16" :
-                                  stat.color === "purple" ? "#3b0764" : "#451a03",
+                      background: `var(--stat-${stat.color}-bg)`,
                     }}
                   >
                     <Icon className="w-4 h-4" style={{
-                      color: stat.color === "blue" ? "#60a5fa" :
-                             stat.color === "green" ? "#4ade80" :
-                             stat.color === "purple" ? "#c084fc" : "#fbbf24",
+                      color: `var(--stat-${stat.color}-icon)`,
                     }} />
                   </div>
                   <div className="min-w-0">

@@ -10,11 +10,11 @@ export function Badge({
   variant?: "default" | "success" | "warning" | "danger" | "info";
 }) {
   const styles: Record<string, React.CSSProperties> = {
-    default: { background: "var(--badge-bg)", color: "var(--muted)" },
-    success: { background: "#052e16", color: "#4ade80" },
-    warning: { background: "#451a03", color: "#fbbf24" },
-    danger: { background: "#450a0a", color: "#f87171" },
-    info: { background: "#1e3a5f", color: "#60a5fa" },
+    default: { background: "var(--badge-default-bg)", color: "var(--badge-default-text)" },
+    success: { background: "var(--badge-success-bg)", color: "var(--badge-success-text)" },
+    warning: { background: "var(--badge-warning-bg)", color: "var(--badge-warning-text)" },
+    danger: { background: "var(--badge-danger-bg)", color: "var(--badge-danger-text)" },
+    info: { background: "var(--badge-info-bg)", color: "var(--badge-info-text)" },
   };
 
   return (
