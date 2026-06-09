@@ -147,5 +147,18 @@ export async function PATCH(req: Request) {
     return NextResponse.json(updated);
   }
 
+  if (body.action === "wipeAll") {
+    await prisma.outreachMessage.deleteMany({});
+    await prisma.outreachSequence.deleteMany({});
+    await prisma.leadActivity.deleteMany({});
+    await prisma.pipelineEntry.deleteMany({});
+    await prisma.post.deleteMany({});
+    await prisma.contentIdea.deleteMany({});
+    await prisma.competitorPost.deleteMany({});
+    await prisma.weeklyReport.deleteMany({});
+    await prisma.lead.deleteMany({});
+    return NextResponse.json({ wiped: true });
+  }
+
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });
 }
