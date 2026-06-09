@@ -419,7 +419,7 @@ export default function Leads() {
                               className="w-full text-left px-3 py-2 text-xs font-medium transition-colors hover:opacity-80"
                               style={{
                                 color: stageColors[s]?.text || "var(--foreground)",
-                                background: s === lead.status ? (stageColors[s]?.bg || "var(--badge-bg)") : "transparent",
+                                background: stageColors[s]?.bg || "transparent",
                               }}
                               onClick={() => {
                                 if (s !== lead.status) handleStatusChange(lead.id, s);
