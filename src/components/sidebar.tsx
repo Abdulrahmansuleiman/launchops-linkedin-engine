@@ -13,6 +13,7 @@ import {
   Moon,
   X,
   Search,
+  Briefcase,
 } from "lucide-react";
 
 const navItems = [
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/outreach", label: "Outreach", icon: Send },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/ad-intel", label: "Ad Intel", icon: Search },
+  { href: "/clients", label: "Clients", icon: Briefcase },
 ];
 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {

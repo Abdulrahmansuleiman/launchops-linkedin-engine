@@ -42,6 +42,7 @@ model Account {
   updatedAt DateTime @updatedAt
 
   leads    Lead[]
+  clients  Client[]
   posts    Post[]
   ideas    ContentIdea[]
   sequences OutreachSequence[]
@@ -78,6 +79,7 @@ model Lead {
   activities LeadActivity[]
   pipelineEntries PipelineEntry[]
   outreachMessages OutreachMessage[]
+  client Client?
 
   @@index([accountId])
   @@index([status])
@@ -213,6 +215,51 @@ model CompetitorPost {
   account Account @relation(fields: [accountId], references: [id])
 
   @@index([accountId])
+}
+
+enum OnboardingStatus {
+  PENDING_FORM
+  FORM_SENT
+  FORM_COMPLETED
+  CONTRACT_DRAFTED
+  CONTRACT_SIGNED
+  ONBOARDED
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  accountId String
+  leadId    String   @unique
+  companyName String
+  contactName  String
+  contactEmail String?
+  contactPhone String?
+  website   String?
+  industry  String?
+
+  services  String[]
+  scope     String?
+  goals     String?
+
+  monthlyRetainer   Float?
+  setupFee          Float?
+  contractDuration  Int?
+  paymentTerms      String?
+
+  onboardingStatus OnboardingStatus @default(PENDING_FORM)
+  contractContent  String?
+  contractGeneratedAt DateTime?
+  signedAt         DateTime?
+  notes            String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  account Account @relation(fields: [accountId], references: [id])
+  lead    Lead    @relation(fields: [leadId], references: [id])
+
+  @@index([accountId])
+  @@index([onboardingStatus])
 }
 
 model WeeklyReport {

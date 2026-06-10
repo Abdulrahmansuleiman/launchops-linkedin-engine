@@ -9,9 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import {
   Search, Filter, MoreHorizontal, Target,
-  Loader2, Link2, CheckCircle, Send, Plus, X
+  Loader2, Link2, CheckCircle, Send, Plus, X, Briefcase
 } from "lucide-react";
 import { getLeads, importLeads, markLeadConnected, updateLeadStatus, createLead, type Lead } from "@/lib/api";
+import { ConvertToClientModal } from "@/app/clients/components/ConvertToClientModal";
 
 const statusColor = (status: string) => {
   switch (status) {
@@ -57,6 +58,7 @@ export default function Leads() {
   const [form, setForm] = useState({ name: "", linkedinUrl: "", company: "", headline: "", location: "", profilePicture: "", followerCount: "" });
   const [importUrls, setImportUrls] = useState("");
   const [saving, setSaving] = useState(false);
+  const [convertingLead, setConvertingLead] = useState<Lead | null>(null);
   const queryClient = useQueryClient();
 
   const { data: allLeads = [] } = useQuery({
@@ -501,6 +503,17 @@ export default function Leads() {
                             <Send className="w-3.5 h-3.5" style={{ color: "#fbbf24" }} />
                           </Button>
                         )}
+                        {(lead.status === "MEETING_BOOKED" || lead.status === "DEMO_SENT" || lead.status === "CLIENT_WON") && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="!p-1.5"
+                            title="Convert to Client"
+                            onClick={() => setConvertingLead(lead)}
+                          >
+                            <Briefcase className="w-3.5 h-3.5" style={{ color: "#3b82f6" }} />
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -531,6 +544,18 @@ export default function Leads() {
           </Card>
         ))}
       </div>
+
+      {convertingLead && (
+        <ConvertToClientModal
+          leadId={convertingLead.id}
+          leadName={convertingLead.name || "Unknown"}
+          onClose={() => setConvertingLead(null)}
+          onSuccess={() => {
+            setConvertingLead(null);
+            queryClient.invalidateQueries({ queryKey: ["leads"] });
+          }}
+        />
+      )}
     </div>
   );
 }
