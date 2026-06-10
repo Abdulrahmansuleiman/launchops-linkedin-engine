@@ -12,10 +12,6 @@ const STAGE_COLORS: Record<string, string> = {
   Active: "#22c55e", Growth: "#eab308", "At Risk": "#f97316", Churned: "#ef4444",
 }
 
-const STAGE_SHORT: Record<string, string> = {
-  Discovery: "Disc", Proposal: "Prop", Onboarding: "Onbrd",
-  Active: "Active", Growth: "Growth", "At Risk": "Risk", Churned: "CH",
-}
 
 const TABS = ["Overview", "Projects & Tasks", "Contract", "Notes"]
 
@@ -194,7 +190,6 @@ export default function ClientDetailPage() {
   const ac = avatarColor(client.companyName)
   const initials = getInitials(client.companyName)
   const stageColor = STAGE_COLORS[client.pipelineStage] || "#6366f1"
-  const stageShort = STAGE_SHORT[client.pipelineStage] || "CL"
   const allTasks = client.projects.flatMap(p => p.tasks)
   const doneTasks = allTasks.filter(t => t.status === "done")
   const overdueTasks = allTasks.filter(t => t.status !== "done" && isOverdue(t.deadline))
@@ -210,7 +205,7 @@ export default function ClientDetailPage() {
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 8)
 
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 32px 40px" }}>
+    <div style={{ maxWidth: 680, margin: "0 auto", padding: 24, background: "#111", borderRadius: 16 }}>
       <button className="back-btn" onClick={() => router.push("/clients")}>
         <span>←</span> Back to Pipeline
       </button>
@@ -238,21 +233,18 @@ export default function ClientDetailPage() {
 
       <div className="action-bar">
         <div className="action-bar-left">
-          <div className="stage-pill" style={{ background: `${stageColor}18`, color: stageColor, borderColor: `${stageColor}30` }}>
-            <span style={{ fontSize: 12, fontWeight: 700 }}>{stageShort}</span>
-            <select
-              value={client.pipelineStage}
-              onChange={(e) => updatePipeline(e.target.value)}
-              className="stage-select-inline"
-              style={{ color: stageColor }}
-            >
-              {PIPELINE_STAGES.map(s => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
-          <span className={`status-badge status-${client.onboardingStatus.toLowerCase()}`}>
-            {client.onboardingStatus.replace(/_/g, " ")}
+          <select
+            value={client.pipelineStage}
+            onChange={(e) => updatePipeline(e.target.value)}
+            className="stage-select-compact"
+            style={{ color: stageColor, borderColor: `${stageColor}40` }}
+          >
+            {PIPELINE_STAGES.map(s => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+          <span className={`onboarding-badge ${client.onboardingStatus === "contract_drafted" ? "badge-contract" : "badge-onboarding"}`}>
+            {client.onboardingStatus === "contract_drafted" ? "CONTRACT DRAFTED" : client.onboardingStatus.replace(/_/g, " ")}
           </span>
         </div>
         <div className="action-bar-right">
@@ -267,59 +259,45 @@ export default function ClientDetailPage() {
       <div className="stats-mini-grid">
         <div className="mini-stat">
           <span className="mini-stat-icon">💰</span>
-          <div>
-            <span className="mini-stat-value">{client.monthlyRetainer ? `£${client.monthlyRetainer.toLocaleString()}` : "—"}</span>
-            <span className="mini-stat-label">Monthly Retainer</span>
-          </div>
+          <span className="mini-stat-value">{client.monthlyRetainer ? `£${client.monthlyRetainer.toLocaleString()}` : "—"}</span>
+          <span className="mini-stat-label">Monthly Retainer</span>
         </div>
         <div className="mini-stat">
           <span className="mini-stat-icon">📦</span>
-          <div>
-            <span className="mini-stat-value">{client.setupFee ? `£${client.setupFee.toLocaleString()}` : "—"}</span>
-            <span className="mini-stat-label">Setup Fee</span>
-          </div>
+          <span className="mini-stat-value">{client.setupFee ? `£${client.setupFee.toLocaleString()}` : "—"}</span>
+          <span className="mini-stat-label">Setup Fee</span>
         </div>
         <div className="mini-stat">
           <span className="mini-stat-icon">📅</span>
-          <div>
-            <span className="mini-stat-value">{client.contractDuration ? `${client.contractDuration}m` : "—"}</span>
-            <span className="mini-stat-label">Duration</span>
-          </div>
+          <span className="mini-stat-value">{client.contractDuration ? `${client.contractDuration}m` : "—"}</span>
+          <span className="mini-stat-label">Duration</span>
         </div>
         <div className="mini-stat">
           <span className="mini-stat-icon">💳</span>
-          <div>
-            <span className="mini-stat-value">{client.paymentTerms || "—"}</span>
-            <span className="mini-stat-label">Payment Terms</span>
-          </div>
+          <span className="mini-stat-value">{client.paymentTerms || "—"}</span>
+          <span className="mini-stat-label">Payment Terms</span>
         </div>
         <div className="mini-stat wide">
           <span className="mini-stat-icon">🛠️</span>
-          <div>
-            <span className="mini-stat-value">{client.services.length ? client.services.join(", ") : "—"}</span>
+          <div className="mini-stat-value-wrap">
+            <span className="mini-stat-value-service">{client.services.length ? client.services.join(", ") : "—"}</span>
             <span className="mini-stat-label">Services</span>
           </div>
         </div>
         <div className="mini-stat">
           <span className="mini-stat-icon">📊</span>
-          <div>
-            <span className="mini-stat-value">{client.projects.length}</span>
-            <span className="mini-stat-label">Projects</span>
-          </div>
+          <span className="mini-stat-value">{client.projects.length}</span>
+          <span className="mini-stat-label">Projects</span>
         </div>
         <div className="mini-stat">
           <span className="mini-stat-icon">✅</span>
-          <div>
-            <span className="mini-stat-value">{taskCompletion}%</span>
-            <span className="mini-stat-label">Tasks Done</span>
-          </div>
+          <span className="mini-stat-value">{taskCompletion}%</span>
+          <span className="mini-stat-label">Tasks Done</span>
         </div>
-        <div className="mini-stat accent-warning">
+        <div className="mini-stat">
           <span className="mini-stat-icon">🔥</span>
-          <div>
-            <span className="mini-stat-value">{overdueTasks.length}</span>
-            <span className="mini-stat-label">Overdue</span>
-          </div>
+          <span className="mini-stat-value">{overdueTasks.length}</span>
+          <span className="mini-stat-label">Overdue</span>
         </div>
       </div>
 
@@ -694,89 +672,84 @@ export default function ClientDetailPage() {
         .action-bar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .action-bar-right { display: flex; gap: 8px; }
 
-        .stage-pill {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 6px 14px;
-          border-radius: 20px;
-          border: 1px solid;
-          font-size: 13px;
-          font-weight: 600;
-        }
-        .stage-select-inline {
-          background: transparent;
-          border: none;
+        .stage-select-compact {
+          background: rgba(255,255,255,0.04);
+          border: 0.5px solid;
+          border-radius: 8px;
+          padding: 6px 12px;
           font-size: 13px;
           font-weight: 600;
           cursor: pointer;
           outline: none;
-          appearance: none;
-          padding-right: 4px;
+          appearance: auto;
         }
-        .status-badge {
-          padding: 4px 12px;
-          border-radius: 6px;
-          font-size: 11px;
+        .onboarding-badge {
+          border-radius: 999px;
+          padding: 5px 12px;
+          font-size: 12px;
           font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.3px;
         }
-        .status-contract_drafted { background: #6366f1; color: #fff; }
-        .status-pending_form, .status-pending { background: #f97316; color: #fff; }
-        .status-signed { background: #22c55e; color: #fff; }
+        .badge-onboarding {
+          background: rgba(55,138,221,0.15);
+          color: #7ab8f5;
+          border: 0.5px solid rgba(55,138,221,0.3);
+        }
+        .badge-contract {
+          background: #185FA5;
+          color: #fff;
+          font-size: 11px;
+          letter-spacing: 0.05em;
+        }
 
         .stats-mini-grid {
           display: grid;
-          grid-template-columns: repeat(9, 1fr);
+          grid-template-columns: repeat(4, minmax(0, 1fr));
           gap: 10px;
           margin-bottom: 28px;
         }
         .mini-stat {
           display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 14px;
-          background: var(--card);
-          border: 1px solid var(--border);
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 6px;
+          padding: 14px 16px;
+          background: #1a1a1a;
+          border: 0.5px solid #2a2a2a;
           border-radius: 12px;
-          transition: all 0.2s;
+          min-height: 0;
         }
-        .mini-stat:hover { border-color: var(--accent); }
         .mini-stat.wide { grid-column: span 2; }
-        .mini-stat.accent-warning { border-left: 3px solid #ef4444; }
-        .mini-stat-icon { font-size: 20px; }
-        .mini-stat-value { display: block; font-size: 15px; font-weight: 700; line-height: 1.2; }
-        .mini-stat-label { display: block; font-size: 11px; color: var(--text-secondary); }
+        .mini-stat-icon { font-size: 20px; line-height: 1; }
+        .mini-stat-value { display: block; font-size: 18px; font-weight: 500; color: #fff; line-height: 1.2; }
+        .mini-stat-value-wrap { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .mini-stat-value-service { display: block; font-size: 13px; color: #aaa; font-weight: 400; line-height: 1.3; }
+        .mini-stat-label { display: block; font-size: 11px; color: #666; }
 
         .tab-bar {
           display: flex;
-          gap: 4px;
+          gap: 0;
           margin-bottom: 24px;
-          background: var(--card);
-          border: 1px solid var(--border);
-          border-radius: 14px;
-          padding: 4px;
+          border-bottom: 0.5px solid #222;
           overflow-x: auto;
         }
         .tab-btn {
-          padding: 10px 20px;
+          padding: 12px 20px;
           border: none;
-          border-radius: 10px;
+          border-bottom: 2px solid transparent;
+          margin-bottom: -0.5px;
           background: transparent;
-          color: var(--text-secondary);
+          color: #666;
           font-size: 14px;
           font-weight: 500;
           cursor: pointer;
           transition: all 0.2s;
           white-space: nowrap;
         }
-        .tab-btn:hover { color: var(--text); }
+        .tab-btn:hover { color: #fff; }
         .tab-btn.active {
-          background: var(--bg);
-          color: var(--text);
+          color: #fff;
+          border-bottom-color: #2563EB;
           font-weight: 600;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
 
         .tab-content { min-height: 300px; }
@@ -1132,10 +1105,6 @@ export default function ClientDetailPage() {
         .skeleton-cover { height: 160px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; }
         .skeleton-meta { height: 70px; flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
 
-        @media (max-width: 900px) {
-          .stats-mini-grid { grid-template-columns: repeat(3, 1fr); }
-          .mini-stat.wide { grid-column: span 3; }
-        }
         @media (max-width: 768px) {
           .stats-mini-grid { grid-template-columns: repeat(2, 1fr); }
           .mini-stat.wide { grid-column: span 2; }
