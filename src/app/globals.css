@@ -3,8 +3,13 @@
 :root {
   --background: #ffffff;
   --foreground: #0a0a0a;
+  --text: #0a0a0a;
+  --text-secondary: #6b7280;
   --card: #ffffff;
   --card-border: #e5e7eb;
+  --border: #e5e7eb;
+  --bg: #ffffff;
+  --accent: #3b82f6;
   --sidebar: #f9fafb;
   --sidebar-border: #e5e7eb;
   --nav-hover: #f3f4f6;
@@ -34,13 +39,24 @@
   --stat-purple-icon: #9333ea;
   --stat-yellow-bg: #fef9c3;
   --stat-yellow-icon: #ca8a04;
+
+  --chart-1: #6366f1;
+  --chart-2: #8b5cf6;
+  --chart-3: #06b6d4;
+  --chart-4: #22c55e;
+  --chart-5: #eab308;
 }
 
 .dark {
   --background: #000000;
   --foreground: #ffffff;
+  --text: #ffffff;
+  --text-secondary: #9ca3af;
   --card: #111111;
   --card-border: #1f2937;
+  --border: #1f2937;
+  --bg: #000000;
+  --accent: #3b82f6;
   --sidebar: #030712;
   --sidebar-border: #1f2937;
   --nav-hover: #1f2937;
@@ -70,6 +86,12 @@
   --stat-purple-icon: #c084fc;
   --stat-yellow-bg: #451a03;
   --stat-yellow-icon: #fbbf24;
+
+  --chart-1: #818cf8;
+  --chart-2: #a78bfa;
+  --chart-3: #22d3ee;
+  --chart-4: #4ade80;
+  --chart-5: #facc15;
 }
 
 body {
