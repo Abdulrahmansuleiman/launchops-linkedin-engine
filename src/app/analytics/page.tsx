@@ -154,7 +154,7 @@ export default function Analytics() {
             <Badge variant="info">Client stories perform best</Badge>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               <div className="h-40 w-40 shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>

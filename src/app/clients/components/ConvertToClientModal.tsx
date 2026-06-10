@@ -79,7 +79,7 @@ export function ConvertToClientModal({ leadId, leadName, onClose, onSuccess }: C
   };
 
   const labelStyle: React.CSSProperties = { fontSize: "12px", fontWeight: 500, color: "var(--foreground)", marginBottom: "4px", display: "block" };
-  const inputStyle: React.CSSProperties = { width: "100%", height: "36px", padding: "0 10px", borderRadius: "8px", fontSize: "13px", outline: "none", background: "var(--input-bg)", border: "1px solid var(--input-border)", color: "var(--foreground)" };
+  const inputStyle: React.CSSProperties = { width: "100%", height: "36px", padding: "0 10px", borderRadius: "8px", fontSize: "13px", outline: "none", background: "var(--input-bg)", border: "1px solid var(--input-border)", color: "var(--foreground)", boxSizing: "border-box" };
   const textareaStyle: React.CSSProperties = { ...inputStyle, height: "72px", padding: "8px 10px", resize: "vertical" };
 
   return (

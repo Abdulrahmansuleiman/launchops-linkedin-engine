@@ -134,7 +134,7 @@ export default function ContentStudio() {
             Pick the best draft and publish it
           </p>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
           <input
             type="text"
             placeholder="Topic or leave blank..."

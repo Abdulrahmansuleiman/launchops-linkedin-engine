@@ -728,7 +728,7 @@ export default function ClientDetailPage() {
 
         .stats-mini-grid {
           display: grid;
-          grid-template-columns: repeat(8, 1fr);
+          grid-template-columns: repeat(9, 1fr);
           gap: 10px;
           margin-bottom: 28px;
         }
@@ -883,6 +883,7 @@ export default function ClientDetailPage() {
           justify-content: space-between;
           align-items: flex-start;
           gap: 12px;
+          flex-wrap: wrap;
         }
         .project-info { flex: 1; }
         .project-name { font-size: 16px; font-weight: 700; margin: 0 0 4px; }
@@ -1131,12 +1132,20 @@ export default function ClientDetailPage() {
         .skeleton-cover { height: 160px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; }
         .skeleton-meta { height: 70px; flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
 
+        @media (max-width: 900px) {
+          .stats-mini-grid { grid-template-columns: repeat(3, 1fr); }
+          .mini-stat.wide { grid-column: span 3; }
+        }
         @media (max-width: 768px) {
           .stats-mini-grid { grid-template-columns: repeat(2, 1fr); }
           .mini-stat.wide { grid-column: span 2; }
           .cover-content { flex-direction: column; text-align: center; }
           .cover-contact { justify-content: center; }
           .task-form-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+          .stats-mini-grid { grid-template-columns: 1fr; }
+          .mini-stat.wide { grid-column: span 1; }
         }
       `}</style>
     </div>

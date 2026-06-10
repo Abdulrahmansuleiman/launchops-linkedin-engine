@@ -67,7 +67,7 @@ export function ContractView({ client, onClose }: ContractViewProps) {
             <button onClick={onClose} className="p-1 rounded hover:opacity-70"><X className="w-5 h-5" style={{ color: "var(--muted)" }} /></button>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto bg-white">
+        <div className="flex-1 overflow-y-auto" style={{ background: "#fff", color: "#000" }}>
           <div dangerouslySetInnerHTML={{ __html: client.contractContent }} />
         </div>
       </div>

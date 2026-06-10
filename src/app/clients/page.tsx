@@ -284,7 +284,6 @@ export default function ClientsPage() {
             >
               <div className="column-header" style={{ borderTopColor: meta.color }}>
                 <div className="column-header-top">
-                  <span className="stage-icon" />
                   <span className="stage-name">{stage}</span>
                   <span className="stage-count" style={{ background: meta.color }}>{stageClients.length}</span>
                 </div>
@@ -391,16 +390,15 @@ export default function ClientsPage() {
       <style>{`
         .hero-section {
           position: relative;
-          padding: 48px 0 40px;
-          margin-bottom: 32px;
-          overflow: hidden;
-          border-radius: 20px;
+          padding: 32px 0 28px;
+          margin-bottom: 24px;
+          border-radius: 12px;
         }
         .hero-bg {
           position: absolute;
           inset: 0;
-          background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(6,182,212,0.05) 50%, rgba(34,197,94,0.03) 100%);
-          border-radius: 20px;
+          background: linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(6,182,212,0.03) 50%, rgba(34,197,94,0.02) 100%);
+          border-radius: 12px;
           pointer-events: none;
         }
         .hero-content {
@@ -410,36 +408,32 @@ export default function ClientsPage() {
         .hero-badge {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
           padding: 4px 14px;
           border-radius: 20px;
-          background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(6,182,212,0.1));
-          border: 1px solid rgba(99,102,241,0.2);
+          background: #eff6ff;
+          border: 1px solid #bfdbfe;
           font-size: 12px;
           font-weight: 600;
-          color: var(--accent);
-          margin-bottom: 16px;
+          color: #1d4ed8;
+          margin-bottom: 12px;
           letter-spacing: 0.5px;
           text-transform: uppercase;
         }
         .hero-title {
-          font-size: 40px;
-          font-weight: 800;
-          margin: 0 0 8px;
-          background: linear-gradient(135deg, var(--text) 0%, var(--text-secondary) 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+          font-size: clamp(24px, 3vw, 32px);
+          font-weight: 700;
+          margin: 0 0 6px;
+          color: #111827;
         }
         .hero-subtitle {
           display: flex;
           align-items: center;
           gap: 8px;
-          font-size: 16px;
-          color: var(--text-secondary);
+          font-size: 14px;
+          color: #6B7280;
           margin: 0;
         }
-        .hero-dot { color: var(--border); font-weight: 700; }
+        .hero-dot { color: #d1d5db; font-weight: 700; }
 
         .stats-grid {
           display: grid;
@@ -448,39 +442,38 @@ export default function ClientsPage() {
           margin-bottom: 28px;
         }
         .stat-card {
-          position: relative;
-          background: var(--card);
-          border: 1px solid var(--border);
-          border-radius: 16px;
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
           padding: 20px;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          overflow: hidden;
+          transition: all 0.2s;
           cursor: default;
+          position: relative;
+          overflow: visible;
         }
         .stat-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.06);
         }
         .stat-card::before {
           content: "";
           position: absolute;
           top: 0; left: 0; right: 0;
           height: 3px;
-          border-radius: 16px 16px 0 0;
+          border-radius: 12px 12px 0 0;
         }
         .stat-primary::before { background: linear-gradient(90deg, #6366f1, #06b6d4); }
         .stat-accent::before { background: linear-gradient(90deg, #22c55e, #06b6d4); }
         .stat-warning::before { background: linear-gradient(90deg, #f97316, #eab308); }
         .stat-danger::before { background: linear-gradient(90deg, #ef4444, #f97316); }
         .stat-info::before { background: linear-gradient(90deg, #06b6d4, #6366f1); }
-        .stat-neutral::before { background: linear-gradient(90deg, var(--border), var(--text-secondary)); }
-        .stat-icon { display: none; }
-        .stat-body { margin-bottom: 8px; }
-        .stat-value { display: block; font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
-        .stat-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
-        .stat-trend { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--bg); display: inline-block; }
-        .stat-trend.up { color: #22c55e; }
-        .stat-trend.down { color: #ef4444; }
+        .stat-neutral::before { background: linear-gradient(90deg, #d1d5db, #6b7280); }
+        .stat-body { margin-bottom: 6px; }
+        .stat-value { display: block; font-size: 30px; font-weight: 700; line-height: 1.1; margin-bottom: 4px; color: #111827; }
+        .stat-label { font-size: 13px; color: #374151; font-weight: 500; }
+        .stat-trend { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 6px; display: inline-block; }
+        .stat-trend.up { color: #16a34a; background: #f0fdf4; }
+        .stat-trend.down { color: #dc2626; background: #fef2f2; }
+        .stat-trend:not(.up):not(.down) { color: #6b7280; background: #f9fafb; }
 
         .pipeline-toolbar {
           display: flex;
@@ -493,35 +486,34 @@ export default function ClientsPage() {
           display: flex;
           align-items: center;
         }
-        .search-icon { display: none; }
         .search-input {
           width: 100%;
-          padding: 12px 40px 12px 42px;
-          border: 1px solid var(--border);
-          border-radius: 12px;
-          background: var(--card);
-          color: var(--text);
+          padding: 12px 16px;
+          border: 1px solid #e5e7eb;
+          border-radius: 10px;
+          background: #ffffff;
+          color: #111827;
           font-size: 14px;
           transition: all 0.2s;
           box-sizing: border-box;
         }
         .search-input:focus {
           outline: none;
-          border-color: var(--accent);
-          box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
         }
-        .search-input::placeholder { color: var(--text-secondary); }
+        .search-input::placeholder { color: #9ca3af; }
         .search-clear {
           position: absolute;
           right: 12px;
           background: none;
           border: none;
-          color: var(--text-secondary);
+          color: #9ca3af;
           cursor: pointer;
           font-size: 14px;
           padding: 4px;
         }
-        .search-clear:hover { color: var(--text); }
+        .search-clear:hover { color: #111827; }
         .stage-filters {
           display: flex;
           gap: 8px;
@@ -531,41 +523,55 @@ export default function ClientsPage() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 6px 14px;
+          padding: 7px 16px;
           border-radius: 20px;
-          border: 1px solid var(--border);
-          background: var(--card);
-          color: var(--text);
+          border: 1px solid #e5e7eb;
+          background: #f9fafb;
+          color: #374151;
           font-size: 13px;
+          font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.15s;
         }
-        .filter-chip:hover { border-color: var(--accent); }
-        .filter-chip.active { color: #fff; border-color: var(--accent); }
+        .filter-chip:hover { border-color: #3b82f6; color: #1d4ed8; }
+        .filter-chip.active {
+          background: #1e3a5f;
+          color: #ffffff;
+          border-color: #1e3a5f;
+        }
+        .filter-chip.active:hover {
+          background: #1e40af;
+          border-color: #1e40af;
+        }
         .filter-count {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          min-width: 18px;
-          height: 18px;
-          padding: 0 4px;
-          border-radius: 9px;
-          background: rgba(255,255,255,0.2);
+          min-width: 20px;
+          height: 20px;
+          padding: 0 6px;
+          border-radius: 10px;
+          background: rgba(0,0,0,0.08);
           font-size: 11px;
-          font-weight: 600;
+          font-weight: 700;
+          color: inherit;
+        }
+        .filter-chip.active .filter-count {
+          background: rgba(255,255,255,0.2);
+          color: #ffffff;
         }
 
         .pipeline-board {
           display: flex;
           gap: 16px;
           overflow-x: auto;
-          padding: 8px 4px 24px;
+          padding: 8px 2px 24px;
           scrollbar-width: thin;
-          scrollbar-color: var(--border) transparent;
+          scrollbar-color: #d1d5db transparent;
         }
         .pipeline-board::-webkit-scrollbar { height: 6px; }
         .pipeline-board::-webkit-scrollbar-track { background: transparent; }
-        .pipeline-board::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .pipeline-board::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
 
         .pipeline-column {
           min-width: 290px;
@@ -573,25 +579,22 @@ export default function ClientsPage() {
           flex-shrink: 0;
           transition: all 0.3s;
         }
-        .pipeline-column.drag-over {
-          transform: scale(1.01);
-        }
+        .pipeline-column.drag-over { transform: scale(1.01); }
         .column-header {
-          background: var(--card);
-          border: 1px solid var(--border);
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
           border-top: 3px solid;
-          border-radius: 14px;
-          padding: 16px;
+          border-radius: 12px;
+          padding: 14px 16px;
           margin-bottom: 12px;
         }
         .column-header-top {
           display: flex;
           align-items: center;
           gap: 8px;
-          margin-bottom: 6px;
+          margin-bottom: 4px;
         }
-        .stage-icon { display: none; }
-        .stage-name { font-weight: 700; font-size: 14px; flex: 1; }
+        .stage-name { font-weight: 700; font-size: 14px; flex: 1; color: #111827; }
         .stage-count {
           display: inline-flex;
           align-items: center;
@@ -609,8 +612,8 @@ export default function ClientsPage() {
           align-items: center;
           gap: 6px;
         }
-        .stage-mrr { font-size: 15px; font-weight: 700; }
-        .stage-mrr-label { font-size: 11px; color: var(--text-secondary); }
+        .stage-mrr { font-size: 15px; font-weight: 700; color: #111827; }
+        .stage-mrr-label { font-size: 11px; color: #6b7280; }
 
         .column-body {
           display: flex;
@@ -629,32 +632,33 @@ export default function ClientsPage() {
           align-items: center;
           justify-content: center;
           padding: 24px;
-          border: 2px dashed var(--border);
+          border: 2px dashed #d1d5db;
           border-radius: 12px;
-          color: var(--text-secondary);
+          color: #9ca3af;
           font-size: 13px;
+          font-weight: 500;
         }
         .pipeline-column.drag-over .column-empty {
-          border-color: var(--accent);
-          background: rgba(99,102,241,0.04);
-          color: var(--accent);
+          border-color: #3b82f6;
+          background: rgba(59,130,246,0.04);
+          color: #3b82f6;
         }
 
         .client-card {
           display: block;
           padding: 16px;
-          background: var(--card);
-          border: 1px solid var(--border);
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
           border-radius: 12px;
           text-decoration: none;
           color: inherit;
           cursor: grab;
           transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
-          overflow: hidden;
+          overflow: visible;
         }
         .client-card:hover {
-          border-color: var(--accent);
+          border-color: #3b82f6;
           box-shadow: 0 4px 16px rgba(0,0,0,0.06);
           transform: translateY(-2px);
         }
@@ -696,13 +700,14 @@ export default function ClientsPage() {
         .card-company {
           font-size: 14px;
           font-weight: 600;
+          color: #111827;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
         .card-contact {
           font-size: 12px;
-          color: var(--text-secondary);
+          color: #6b7280;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -710,7 +715,7 @@ export default function ClientsPage() {
         .card-retainer {
           font-size: 13px;
           font-weight: 700;
-          color: var(--accent);
+          color: #3b82f6;
           white-space: nowrap;
         }
 
@@ -723,7 +728,7 @@ export default function ClientsPage() {
         .progress-bar-bg {
           flex: 1;
           height: 4px;
-          background: var(--border);
+          background: #e5e7eb;
           border-radius: 2px;
           overflow: hidden;
         }
@@ -732,7 +737,7 @@ export default function ClientsPage() {
           border-radius: 2px;
           transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .progress-text { font-size: 11px; font-weight: 600; color: var(--text-secondary); min-width: 28px; text-align: right; }
+        .progress-text { font-size: 11px; font-weight: 600; color: #6b7280; min-width: 28px; text-align: right; }
 
         .card-meta {
           display: flex;
@@ -745,24 +750,25 @@ export default function ClientsPage() {
           font-weight: 600;
           padding: 2px 8px;
           border-radius: 6px;
-          background: var(--bg);
+          background: #f9fafb;
+          color: #374151;
         }
-        .card-deadline.overdue { color: #ef4444; background: rgba(239,68,68,0.08); }
-        .card-deadline.today { color: #f97316; background: rgba(249,115,22,0.08); }
+        .card-deadline.overdue { color: #dc2626; background: #fef2f2; }
+        .card-deadline.today { color: #ea580c; background: #fff7ed; }
         .card-overdue-badge {
           font-size: 11px;
           font-weight: 700;
           padding: 2px 8px;
           border-radius: 6px;
           color: #fff;
-          background: #ef4444;
+          background: #dc2626;
         }
         .card-industry {
           font-size: 11px;
           padding: 2px 8px;
           border-radius: 6px;
-          background: var(--bg);
-          color: var(--text-secondary);
+          background: #f9fafb;
+          color: #6b7280;
         }
 
         .card-footer {
@@ -770,13 +776,14 @@ export default function ClientsPage() {
           justify-content: space-between;
           align-items: center;
           padding-top: 10px;
-          border-top: 1px solid var(--border);
+          border-top: 1px solid #e5e7eb;
         }
         .card-footer-stats {
           display: flex;
           gap: 10px;
           font-size: 11px;
-          color: var(--text-secondary);
+          font-weight: 500;
+          color: #6b7280;
         }
         .card-footer-status {
           display: flex;
@@ -790,7 +797,8 @@ export default function ClientsPage() {
         }
         .status-text {
           font-size: 10px;
-          color: var(--text-secondary);
+          font-weight: 600;
+          color: #6b7280;
           text-transform: uppercase;
           letter-spacing: 0.3px;
         }
@@ -801,7 +809,7 @@ export default function ClientsPage() {
           gap: 8px;
           padding: 12px 28px;
           border-radius: 12px;
-          background: linear-gradient(135deg, var(--accent), #4f46e5);
+          background: linear-gradient(135deg, #3b82f6, #4f46e5);
           color: #fff;
           font-size: 15px;
           font-weight: 600;
@@ -818,27 +826,27 @@ export default function ClientsPage() {
         .btn-clear-filter {
           margin-top: 8px;
           padding: 8px 16px;
-          border: 1px solid var(--border);
+          border: 1px solid #e5e7eb;
           border-radius: 10px;
-          background: var(--card);
-          color: var(--text-secondary);
+          background: #ffffff;
+          color: #6b7280;
           cursor: pointer;
           font-size: 13px;
           transition: all 0.2s;
         }
-        .btn-clear-filter:hover { border-color: #ef4444; color: #ef4444; }
+        .btn-clear-filter:hover { border-color: #dc2626; color: #dc2626; }
 
         .empty-state {
           text-align: center;
           padding: 80px 20px;
-          background: var(--card);
-          border: 1px solid var(--border);
-          border-radius: 20px;
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-radius: 16px;
           margin-top: 24px;
         }
-        .empty-icon { font-size: 32px; font-weight: 800; margin-bottom: 8px; color: var(--text-secondary); }
-        .empty-state h3 { font-size: 22px; margin: 0 0 8px; }
-        .empty-state p { color: var(--text-secondary); margin: 0 0 24px; font-size: 15px; }
+        .empty-icon { font-size: 32px; font-weight: 800; margin-bottom: 8px; color: #9ca3af; }
+        .empty-state h3 { font-size: 22px; margin: 0 0 8px; color: #111827; }
+        .empty-state p { color: #6b7280; margin: 0 0 24px; font-size: 15px; }
 
         .skeleton-gradient {
           height: 160px;
@@ -850,22 +858,23 @@ export default function ClientsPage() {
           flex: 1;
           background: var(--card);
           border: 1px solid var(--border);
-          border-radius: 16px;
+          border-radius: 12px;
         }
         .skeleton-column {
           height: 400px;
           flex: 1;
           background: var(--card);
           border: 1px solid var(--border);
-          border-radius: 14px;
+          border-radius: 12px;
         }
 
         @media (max-width: 1200px) {
           .stats-grid { grid-template-columns: repeat(3, 1fr); }
         }
         @media (max-width: 768px) {
-          .hero-title { font-size: 28px; }
+          .hero-title { font-size: 24px; }
           .stats-grid { grid-template-columns: repeat(2, 1fr); }
+          .pipeline-board { padding: 8px 0 24px; }
           .pipeline-column { min-width: 260px; max-width: 260px; }
         }
         @media (max-width: 480px) {
