@@ -347,7 +347,7 @@ export default function Outreach() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-2" style={{ maxHeight: 320, overflowY: "auto" }}>
                 {objections.map((o, i) => (
                   <div key={i} className="p-3 rounded-lg" style={{ background: "var(--badge-bg)" }}>
                     <p className="text-xs font-medium mb-1" style={{ color: "#f87171" }}>They say: {o.them}</p>
@@ -367,7 +367,7 @@ export default function Outreach() {
                 <Badge variant="success">{activeLeads.length}</Badge>
               </div>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2" style={{ maxHeight: 480, overflowY: "auto" }}>
               {activeLeads.length > 0 ? activeLeads.map((lead) => (
                 <div
                   key={lead.id}
@@ -551,7 +551,7 @@ export default function Outreach() {
           <Badge variant="success">Muaaz &middot; Agency Owner &middot; Karachi</Badge>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
+          <div className="space-y-2" style={{ maxHeight: 400, overflowY: "auto", paddingRight: 4 }}>
             {[
               { sender: "You", text: "Hey Muaaz" },
               { sender: "You", text: "NovaReach looks interesting" },
