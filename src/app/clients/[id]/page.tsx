@@ -41,7 +41,7 @@ interface Client {
   pipelineStage: string; onboardingStatus: string
   contractContent: string | null; contractGeneratedAt: string | null
   notes: string | null; createdAt: string
-  lead: { name: string; linkedinUrl: string | null; score: number | null } | null
+  lead: { name: string; linkedinUrl: string | null; score: number | null; profilePicture: string | null } | null
   projects: Project[]
 }
 
@@ -218,9 +218,13 @@ export default function ClientDetailPage() {
       <div className="cover-section" style={{ background: `linear-gradient(135deg, ${ac}15, ${ac}05)` }}>
         <div className="cover-bg-pattern" />
         <div className="cover-content">
-          <div className="cover-avatar" style={{ background: ac, boxShadow: `0 8px 32px ${ac}40` }}>
-            {initials}
-          </div>
+          {client.lead?.profilePicture ? (
+            <img src={client.lead.profilePicture} alt="" className="cover-avatar-img" style={{ boxShadow: `0 8px 32px ${ac}40` }} />
+          ) : (
+            <div className="cover-avatar" style={{ background: ac, boxShadow: `0 8px 32px ${ac}40` }}>
+              {initials}
+            </div>
+          )}
           <div className="cover-info">
             <h1 className="cover-title">{client.companyName}</h1>
             <div className="cover-contact">
@@ -649,17 +653,20 @@ export default function ClientDetailPage() {
           position: relative;
           z-index: 1;
         }
-        .cover-avatar {
+        .cover-avatar, .cover-avatar-img {
           width: 72px;
           height: 72px;
           border-radius: 18px;
+          flex-shrink: 0;
+          object-fit: cover;
+        }
+        .cover-avatar {
           display: flex;
           align-items: center;
           justify-content: center;
           color: #fff;
           font-size: 26px;
           font-weight: 800;
-          flex-shrink: 0;
         }
         .cover-title {
           font-size: 32px;

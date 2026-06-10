@@ -236,6 +236,7 @@ model Client {
   contactPhone String?
   website   String?
   industry  String?
+  profilePicture String?
 
   services  String[]
   scope     String?

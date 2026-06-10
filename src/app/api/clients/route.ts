@@ -14,7 +14,7 @@ export async function GET() {
     where: { accountId },
     orderBy: { createdAt: "desc" },
     include: {
-      lead: { select: { name: true, linkedinUrl: true, score: true } },
+      lead: { select: { name: true, linkedinUrl: true, score: true, profilePicture: true } },
       projects: {
         include: { tasks: { select: { id: true, status: true, deadline: true } } },
       },
@@ -76,6 +76,7 @@ export async function POST(req: Request) {
       contactPhone: body.contactPhone,
       website: body.website,
       industry: body.industry,
+      profilePicture: lead.profilePicture,
       services,
       scope: contractInput.scope,
       goals: body.goals,

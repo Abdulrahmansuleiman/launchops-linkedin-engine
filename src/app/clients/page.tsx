@@ -24,7 +24,7 @@ interface Client {
   monthlyRetainer: number | null; pipelineStage: string
   onboardingStatus: string; contractGeneratedAt: string | null
   createdAt: string
-  lead: { name: string; linkedinUrl: string | null; score: number | null } | null
+  lead: { name: string; linkedinUrl: string | null; score: number | null; profilePicture: string | null } | null
   projects: { id: string; name: string; status: string; tasks: { id: string; status: string; deadline: string | null }[] }[]
   _count: { projects: number; tasks: number; overdueTasks: number }
 }
@@ -322,9 +322,13 @@ export default function ClientsPage() {
                         onClick={(e) => { if (draggingId) e.preventDefault() }}
                       >
                         <div className="card-top">
-                          <div className="card-avatar" style={{ background: avatarColor }}>
-                            {initials}
-                          </div>
+                          {client.lead?.profilePicture ? (
+                            <img src={client.lead.profilePicture} alt="" className="card-avatar-img" />
+                          ) : (
+                            <div className="card-avatar" style={{ background: avatarColor }}>
+                              {initials}
+                            </div>
+                          )}
                           <div className="card-info">
                             <div className="card-company">{client.companyName}</div>
                             <div className="card-contact">{client.contactName}</div>
@@ -673,17 +677,20 @@ export default function ClientsPage() {
           gap: 12px;
           margin-bottom: 12px;
         }
-        .card-avatar {
+        .card-avatar, .card-avatar-img {
           width: 38px;
           height: 38px;
           border-radius: 10px;
+          flex-shrink: 0;
+          object-fit: cover;
+        }
+        .card-avatar {
           display: flex;
           align-items: center;
           justify-content: center;
           color: #fff;
           font-size: 13px;
           font-weight: 700;
-          flex-shrink: 0;
         }
         .card-info { flex: 1; min-width: 0; }
         .card-company {

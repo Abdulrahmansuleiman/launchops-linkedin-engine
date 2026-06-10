@@ -6,7 +6,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const client = await prisma.client.findUnique({
     where: { id },
     include: {
-      lead: { select: { name: true, linkedinUrl: true, score: true } },
+      lead: { select: { name: true, linkedinUrl: true, score: true, profilePicture: true } },
       projects: {
         include: { tasks: { orderBy: { createdAt: "desc" } } },
         orderBy: { createdAt: "desc" },
