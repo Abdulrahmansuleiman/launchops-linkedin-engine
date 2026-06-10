@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react"
 import Link from "next/link"
+import { Download, Upload, Plus, Search as SearchIcon, X, Loader2 } from "lucide-react"
 
 const PIPELINE_STAGES = [
   "Discovery", "Proposal", "Onboarding", "Active", "Growth", "At Risk", "Churned",
@@ -62,6 +63,16 @@ export default function ClientsPage() {
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [dragOverStage, setDragOverStage] = useState<string | null>(null)
   const [animatingId, setAnimatingId] = useState<string | null>(null)
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [showAddClientModal, setShowAddClientModal] = useState(false)
+  const [importText, setImportText] = useState("")
+  const [importing, setImporting] = useState(false)
+  const [importResult, setImportResult] = useState<string | null>(null)
+  const [availableLeads, setAvailableLeads] = useState<any[]>([])
+  const [leadsLoading, setLeadsLoading] = useState(false)
+  const [leadSearch, setLeadSearch] = useState("")
+  const [selectedLead, setSelectedLead] = useState<any | null>(null)
+  const [converting, setConverting] = useState(false)
   const boardRef = useRef<HTMLDivElement>(null)
 
   const fetchClients = useCallback(async () => {
@@ -72,6 +83,129 @@ export default function ClientsPage() {
   }, [])
 
   useEffect(() => { fetchClients() }, [fetchClients])
+
+  const exportCSV = () => {
+    const headers = ["Company Name","Contact Name","Email","Phone","Industry","Services","Pipeline Stage","Monthly Retainer","Projects","Tasks","Overdue Tasks","Onboarding Status","Created Date"]
+    const rows = clients.map(c => [
+      c.companyName, c.contactName, c.contactEmail || "", c.contactPhone || "",
+      c.industry || "", c.services.join("; "), c.pipelineStage,
+      c.monthlyRetainer ? `\u00a3${c.monthlyRetainer}` : "",
+      c._count.projects, c._count.tasks, c._count.overdueTasks,
+      c.onboardingStatus.replace(/_/g, " "),
+      new Date(c.createdAt).toLocaleDateString("en-GB"),
+    ])
+    const csv = [headers.join(","), ...rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(","))].join("\n")
+    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `clients-${new Date().toISOString().split("T")[0]}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleExport = () => {
+    if (clients.length === 0) return
+    exportCSV()
+  }
+
+  const openImportModal = () => {
+    setImportText("")
+    setImportResult(null)
+    setShowImportModal(true)
+  }
+
+  const handleImport = async () => {
+    const lines = importText.trim().split("\n").filter(Boolean)
+    if (lines.length === 0) return
+    setImporting(true)
+    setImportResult(null)
+    const parsed = lines.map(line => {
+      const parts = line.split("\t").length > 1 ? line.split("\t") : line.split(",")
+      return {
+        companyName: parts[0]?.trim() || "",
+        contactName: parts[1]?.trim() || "",
+        contactEmail: parts[2]?.trim() || "",
+        contactPhone: parts[3]?.trim() || "",
+        industry: parts[4]?.trim() || "",
+        monthlyRetainer: parts[5] ? parseFloat(parts[5].trim()) || undefined : undefined,
+      }
+    }).filter(p => p.companyName && p.contactName)
+    try {
+      const res = await fetch("/api/clients/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clients: parsed }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Import failed")
+      setImportResult(`Imported ${data.imported} client${data.imported !== 1 ? "s" : ""}${data.failed > 0 ? `, ${data.failed} failed` : ""}`)
+      if (data.imported > 0) fetchClients()
+    } catch (err: any) {
+      setImportResult(`Error: ${err.message}`)
+    } finally {
+      setImporting(false)
+    }
+  }
+
+  const openAddClientModal = async () => {
+    setSelectedLead(null)
+    setLeadSearch("")
+    setShowAddClientModal(true)
+    setLeadsLoading(true)
+    try {
+      const res = await fetch("/api/leads")
+      const allLeads = await res.json()
+      const unconverted = allLeads.filter((l: any) => l.status !== "CLIENT_WON")
+      setAvailableLeads(unconverted)
+    } catch { setAvailableLeads([]) }
+    finally { setLeadsLoading(false) }
+  }
+
+  const handleConvertLead = async () => {
+    if (!selectedLead) return
+    setConverting(true)
+    try {
+      const res = await fetch("/api/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          leadId: selectedLead.id,
+          companyName: selectedLead.company || selectedLead.name,
+          contactName: selectedLead.name,
+          contactEmail: selectedLead.email || "",
+          contactPhone: selectedLead.phone || "",
+          industry: selectedLead.industry || "",
+          services: ["LinkedIn Growth Services"],
+          monthlyRetainer: "0",
+          setupFee: "0",
+        }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Conversion failed")
+      }
+      setShowAddClientModal(false)
+      fetchClients()
+    } catch (err: any) {
+      setImportResult(`Error: ${err.message}`)
+    } finally {
+      setConverting(false)
+    }
+  }
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string
+      setImportText(text || "")
+    }
+    reader.readAsText(file)
+  }
 
   const moveStage = async (id: string, stage: string) => {
     setAnimatingId(id)
@@ -167,8 +301,12 @@ export default function ClientsPage() {
         <div className="empty-state">
           <div className="empty-icon">+</div>
           <h3>No clients in the pipeline yet</h3>
-          <p>Convert a lead to a client from the Leads page to populate your pipeline</p>
-          <Link href="/leads" className="btn-primary-lg">Go to Leads</Link>
+          <p>Convert a lead to a client from the Leads page or import clients to populate your pipeline</p>
+          <div className="empty-actions">
+            <button className="btn-primary-lg" onClick={openAddClientModal}>Add Client from Database</button>
+            <button className="btn btn-ghost" onClick={openImportModal}>Import Clients</button>
+            <Link href="/leads" className="btn-link">Go to Leads →</Link>
+          </div>
         </div>
       </div>
     )
@@ -202,9 +340,22 @@ export default function ClientsPage() {
             </div>
           </div>
           <div className="pipeline-header-right">
-            <button className="header-btn">Filter</button>
-            <button className="header-btn">Export</button>
-            <button className="header-btn-primary">+ Add Client</button>
+            <button className="header-btn" onClick={() => setStageFilter(null)} title="Clear filter">
+              <SearchIcon className="header-btn-icon" />
+              Filter
+            </button>
+            <button className="header-btn" onClick={handleExport} title="Export clients as CSV">
+              <Download className="header-btn-icon" />
+              Export
+            </button>
+            <button className="header-btn" onClick={openImportModal} title="Import clients from CSV">
+              <Upload className="header-btn-icon" />
+              Import
+            </button>
+            <button className="header-btn-primary" onClick={openAddClientModal}>
+              <Plus className="header-btn-icon" />
+              Add Client
+            </button>
           </div>
         </div>
       </div>
@@ -391,6 +542,136 @@ export default function ClientsPage() {
         <button className="btn-clear-filter" onClick={() => setStageFilter(null)}>
           ✕ Clear stage filter
         </button>
+      )}
+
+      {showImportModal && (
+        <div className="modal-overlay" onClick={() => setShowImportModal(false)}>
+          <div className="modal modal-md" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header-bar" />
+            <div className="modal-body">
+              <div className="modal-title-row">
+                <h2 className="modal-title">Import Clients</h2>
+                <button className="modal-close" onClick={() => setShowImportModal(false)}>
+                  <X size={18} />
+                </button>
+              </div>
+              <p className="modal-desc">Paste tab-separated or comma-separated data. One client per row.</p>
+              <div className="import-format-hint">
+                <strong>Format:</strong> Company Name, Contact Name, Email, Phone, Industry, Monthly Retainer
+              </div>
+              <textarea
+                className="import-textarea"
+                placeholder={`Acme Ltd\tJohn Smith\tjohn@acme.com\t+44 20 1234 5678\tSaaS\t2000\nBeta Corp\tJane Doe\tjane@beta.io\t\tConsulting\t1500`}
+                value={importText}
+                onChange={(e) => setImportText(e.target.value)}
+                rows={8}
+              />
+              <div className="import-file-row">
+                <label className="file-label">
+                  <Upload size={14} />
+                  Upload CSV file
+                  <input type="file" accept=".csv,.tsv,.txt" onChange={handleFileUpload} className="file-input" />
+                </label>
+              </div>
+              {importResult && (
+                <div className="import-result" style={{ color: importResult.startsWith("Error") ? "var(--badge-danger-text)" : "var(--badge-success-text)" }}>
+                  {importResult}
+                </div>
+              )}
+              <div className="modal-actions">
+                <button className="btn btn-primary" onClick={handleImport} disabled={importing || !importText.trim()}>
+                  {importing ? <Loader2 size={14} className="spin" /> : <Upload size={14} />}
+                  {importing ? "Importing..." : `Import ${importText.trim().split("\n").filter(Boolean).length} client${importText.trim().split("\n").filter(Boolean).length !== 1 ? "s" : ""}`}
+                </button>
+                <button className="btn btn-ghost" onClick={() => setShowImportModal(false)}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAddClientModal && (
+        <div className="modal-overlay" onClick={() => setShowAddClientModal(false)}>
+          <div className="modal modal-md" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header-bar" />
+            <div className="modal-body">
+              <div className="modal-title-row">
+                <h2 className="modal-title">Add Client from Database</h2>
+                <button className="modal-close" onClick={() => setShowAddClientModal(false)}>
+                  <X size={18} />
+                </button>
+              </div>
+              <p className="modal-desc">Select a lead from the database to convert into a client.</p>
+              <div className="lead-search-wrap">
+                <SearchIcon size={14} className="lead-search-icon" />
+                <input
+                  type="text"
+                  className="lead-search-input"
+                  placeholder="Search leads by name or company..."
+                  value={leadSearch}
+                  onChange={(e) => setLeadSearch(e.target.value)}
+                />
+              </div>
+              <div className="lead-list">
+                {leadsLoading ? (
+                  <div className="lead-list-empty">Loading leads...</div>
+                ) : availableLeads.length === 0 ? (
+                  <div className="lead-list-empty">No unconverted leads found. Create leads first from the Leads page.</div>
+                ) : (
+                  availableLeads
+                    .filter((l: any) => {
+                      const q = leadSearch.toLowerCase()
+                      return !q || (l.name && l.name.toLowerCase().includes(q)) || (l.company && l.company.toLowerCase().includes(q))
+                    })
+                    .slice(0, 50)
+                    .map((lead: any) => (
+                      <div
+                        key={lead.id}
+                        className={`lead-row ${selectedLead?.id === lead.id ? "selected" : ""}`}
+                        onClick={() => setSelectedLead(lead)}
+                      >
+                        <div className="lead-row-avatar" style={{ background: lead.profilePicture ? "transparent" : "#6366f1" }}>
+                          {lead.profilePicture ? (
+                            <img src={lead.profilePicture} alt="" className="lead-row-img" />
+                          ) : (
+                            (lead.name || "?").split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2)
+                          )}
+                        </div>
+                        <div className="lead-row-info">
+                          <span className="lead-row-name">{lead.name || "Unknown"}</span>
+                          <span className="lead-row-company">{lead.company || "—"}</span>
+                        </div>
+                        <div className="lead-row-meta">
+                          <span className="lead-row-score" style={{ color: lead.score >= 70 ? "var(--badge-success-text)" : lead.score >= 40 ? "var(--badge-warning-text)" : "var(--badge-danger-text)" }}>
+                            {lead.score || "?"}
+                          </span>
+                          <span className="lead-row-status">{lead.status?.replace(/_/g, " ")}</span>
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
+              {selectedLead && (
+                <div className="selected-lead-preview">
+                  <div className="selected-lead-header">Converting: {selectedLead.name}</div>
+                  <div className="selected-lead-details">
+                    <div><strong>Company:</strong> {selectedLead.company || "—"}</div>
+                    <div><strong>Email:</strong> {selectedLead.email || "—"}</div>
+                    <div><strong>Phone:</strong> {selectedLead.phone || "—"}</div>
+                    <div><strong>Industry:</strong> {selectedLead.industry || "—"}</div>
+                  </div>
+                </div>
+              )}
+              <div className="modal-actions">
+                <button className="btn btn-primary" onClick={handleConvertLead} disabled={converting || !selectedLead}>
+                  {converting ? <Loader2 size={14} className="spin" /> : <Plus size={14} />}
+                  {converting ? "Converting..." : "Convert to Client"}
+                </button>
+                <button className="btn btn-ghost" onClick={() => setShowAddClientModal(false)}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       <style>{`
@@ -861,6 +1142,216 @@ export default function ClientsPage() {
           letter-spacing: 0.3px;
         }
 
+        .header-btn-icon { width: 14px; height: 14px; }
+
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 1000;
+          background: rgba(0,0,0,0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          backdrop-filter: blur(4px);
+        }
+        .modal {
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: 16px;
+          width: 100%;
+          max-height: 90vh;
+          overflow-y: auto;
+          animation: modalIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-md { max-width: 560px; }
+        @keyframes modalIn {
+          0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-header-bar {
+          height: 4px;
+          background: linear-gradient(90deg, var(--accent), #06b6d4);
+          border-radius: 16px 16px 0 0;
+        }
+        .modal-body { padding: 24px; }
+        .modal-title-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        }
+        .modal-title { font-size: 18px; font-weight: 700; margin: 0; color: var(--foreground); }
+        .modal-close {
+          background: none;
+          border: none;
+          color: var(--text-secondary);
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 6px;
+          transition: all 0.2s;
+        }
+        .modal-close:hover { background: var(--nav-hover); color: var(--foreground); }
+        .modal-desc { font-size: 13px; color: var(--text-secondary); margin: 0 0 16px; }
+        .modal-actions {
+          display: flex;
+          gap: 10px;
+          margin-top: 20px;
+        }
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 10px 20px;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-family: inherit;
+          border: none;
+        }
+        .btn-primary {
+          background: linear-gradient(135deg, var(--accent), #4f46e5);
+          color: #fff;
+          box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(99,102,241,0.35); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-ghost {
+          background: transparent;
+          border: 1px solid var(--border);
+          color: var(--text);
+        }
+        .btn-ghost:hover { border-color: var(--accent); }
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .import-format-hint {
+          font-size: 12px;
+          color: var(--text-secondary);
+          background: var(--nav-hover);
+          padding: 8px 12px;
+          border-radius: 8px;
+          margin-bottom: 12px;
+        }
+        .import-textarea {
+          width: 100%;
+          padding: 12px;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          background: var(--bg);
+          color: var(--foreground);
+          font-size: 13px;
+          font-family: monospace;
+          resize: vertical;
+          box-sizing: border-box;
+          margin-bottom: 10px;
+        }
+        .import-textarea:focus { outline: none; border-color: var(--accent); }
+        .import-file-row { margin-bottom: 12px; }
+        .file-label {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 14px;
+          border: 1px dashed var(--border);
+          border-radius: 8px;
+          font-size: 13px;
+          color: var(--accent);
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .file-label:hover { border-color: var(--accent); background: var(--nav-hover); }
+        .file-input { display: none; }
+        .import-result {
+          font-size: 13px;
+          font-weight: 600;
+          padding: 8px 12px;
+          border-radius: 8px;
+          background: var(--nav-hover);
+          margin-bottom: 4px;
+        }
+
+        .lead-search-wrap {
+          position: relative;
+          margin-bottom: 12px;
+        }
+        .lead-search-icon {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--text-secondary);
+          pointer-events: none;
+        }
+        .lead-search-input {
+          width: 100%;
+          padding: 10px 12px 10px 36px;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          background: var(--bg);
+          color: var(--foreground);
+          font-size: 13px;
+          box-sizing: border-box;
+        }
+        .lead-search-input:focus { outline: none; border-color: var(--accent); }
+        .lead-list {
+          max-height: 280px;
+          overflow-y: auto;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          margin-bottom: 12px;
+        }
+        .lead-list-empty {
+          padding: 24px;
+          text-align: center;
+          color: var(--text-secondary);
+          font-size: 13px;
+        }
+        .lead-row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 12px;
+          cursor: pointer;
+          transition: all 0.15s;
+          border-bottom: 1px solid var(--border);
+        }
+        .lead-row:last-child { border-bottom: none; }
+        .lead-row:hover { background: var(--nav-hover); }
+        .lead-row.selected { background: var(--nav-active); }
+        .lead-row-avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-size: 11px;
+          font-weight: 700;
+          flex-shrink: 0;
+          overflow: hidden;
+        }
+        .lead-row-img { width: 100%; height: 100%; object-fit: cover; }
+        .lead-row-info { flex: 1; min-width: 0; }
+        .lead-row-name { display: block; font-size: 13px; font-weight: 600; color: var(--foreground); }
+        .lead-row-company { display: block; font-size: 11px; color: var(--text-secondary); }
+        .lead-row-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+        .lead-row-score { font-size: 13px; font-weight: 700; }
+        .lead-row-status { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; }
+        .selected-lead-preview {
+          background: var(--nav-hover);
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          padding: 14px;
+          margin-bottom: 4px;
+        }
+        .selected-lead-header { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--foreground); }
+        .selected-lead-details { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-secondary); }
+        .selected-lead-details strong { color: var(--foreground); }
+
         .btn-primary-lg {
           display: inline-flex;
           align-items: center;
@@ -894,6 +1385,19 @@ export default function ClientsPage() {
         }
         .btn-clear-filter:hover { border-color: #dc2626; color: #dc2626; }
 
+        .empty-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .btn-link {
+          display: inline-flex;
+          align-items: center;
+          padding: 12px 20px;
+          border-radius: 12px;
+          color: var(--accent);
+          font-size: 14px;
+          font-weight: 600;
+          text-decoration: none;
+          transition: all 0.2s;
+        }
+        .btn-link:hover { opacity: 0.8; }
         .empty-state {
           text-align: center;
           padding: 80px 20px;
