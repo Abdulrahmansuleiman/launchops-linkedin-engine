@@ -247,6 +247,7 @@ model Client {
   paymentTerms      String?
 
   onboardingStatus OnboardingStatus @default(PENDING_FORM)
+  pipelineStage    String @default("Active")
   contractContent  String?
   contractGeneratedAt DateTime?
   signedAt         DateTime?
@@ -255,11 +256,50 @@ model Client {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  account Account @relation(fields: [accountId], references: [id])
-  lead    Lead    @relation(fields: [leadId], references: [id])
+  account  Account   @relation(fields: [accountId], references: [id])
+  lead     Lead      @relation(fields: [leadId], references: [id])
+  projects Project[]
 
   @@index([accountId])
   @@index([onboardingStatus])
+  @@index([pipelineStage])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  clientId    String
+  name        String
+  description String?
+  status      String   @default("active")
+  startDate   DateTime?
+  deadline    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tasks  Task[]
+
+  @@index([clientId])
+  @@index([status])
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  projectId   String
+  title       String
+  description String?
+  status      String    @default("todo")
+  priority    String    @default("medium")
+  assignee    String?
+  deadline    DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([deadline])
 }
 
 model WeeklyReport {

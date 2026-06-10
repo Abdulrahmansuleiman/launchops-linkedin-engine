@@ -13,9 +13,24 @@ export async function GET() {
   const clients = await prisma.client.findMany({
     where: { accountId },
     orderBy: { createdAt: "desc" },
-    include: { lead: { select: { name: true, linkedinUrl: true, score: true } } },
+    include: {
+      lead: { select: { name: true, linkedinUrl: true, score: true } },
+      projects: {
+        include: { tasks: { select: { id: true, status: true, deadline: true } } },
+      },
+    },
   })
-  return NextResponse.json(clients)
+
+  const enriched = clients.map((c) => {
+    const tasks = c.projects.flatMap((p) => p.tasks)
+    const overdue = tasks.filter((t) => t.status !== "done" && t.deadline && new Date(t.deadline) < new Date())
+    return {
+      ...c,
+      _count: { projects: c.projects.length, tasks: tasks.length, overdueTasks: overdue.length },
+    }
+  })
+
+  return NextResponse.json(enriched)
 }
 
 export async function POST(req: Request) {
@@ -28,14 +43,10 @@ export async function POST(req: Request) {
   const accountId = await getDefaultAccountId()
 
   const lead = await prisma.lead.findUnique({ where: { id: body.leadId } })
-  if (!lead) {
-    return NextResponse.json({ error: "Lead not found" }, { status: 404 })
-  }
+  if (!lead) return NextResponse.json({ error: "Lead not found" }, { status: 404 })
 
   const existing = await prisma.client.findUnique({ where: { leadId: body.leadId } })
-  if (existing) {
-    return NextResponse.json({ error: "Client already exists for this lead" }, { status: 409 })
-  }
+  if (existing) return NextResponse.json({ error: "Client already exists for this lead" }, { status: 409 })
 
   const services: string[] = Array.isArray(body.services) ? body.services : []
 
@@ -45,7 +56,7 @@ export async function POST(req: Request) {
     contactEmail: body.contactEmail || lead.email || undefined,
     website: body.website || undefined,
     services: services.length > 0 ? services : ["LinkedIn Growth Services"],
-    scope: body.scope || "Full LinkedIn growth management including content strategy, content creation, outreach automation, and pipeline management.",
+    scope: body.scope || "Full LinkedIn growth management.",
     monthlyRetainer: body.monthlyRetainer ? parseFloat(body.monthlyRetainer) : undefined,
     setupFee: body.setupFee ? parseFloat(body.setupFee) : undefined,
     contractDuration: body.contractDuration ? parseInt(body.contractDuration) : undefined,
@@ -73,28 +84,13 @@ export async function POST(req: Request) {
       contractDuration: contractInput.contractDuration,
       paymentTerms: body.paymentTerms,
       onboardingStatus: "CONTRACT_DRAFTED",
+      pipelineStage: "Onboarding",
       contractContent: contractHtml,
       contractGeneratedAt: new Date(),
     },
   })
 
-  await prisma.lead.update({
-    where: { id: body.leadId },
-    data: { status: "CLIENT_WON" },
-  })
+  await prisma.lead.update({ where: { id: body.leadId }, data: { status: "CLIENT_WON" } })
 
   return NextResponse.json(client, { status: 201 })
-}
-
-export async function PATCH(req: Request) {
-  const body = await req.json()
-  const { id, ...data } = body
-  if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
-
-  const updateData: any = {}
-  if (data.onboardingStatus) updateData.onboardingStatus = data.onboardingStatus
-  if (data.notes !== undefined) updateData.notes = data.notes
-
-  const updated = await prisma.client.update({ where: { id }, data: updateData })
-  return NextResponse.json(updated)
 }
