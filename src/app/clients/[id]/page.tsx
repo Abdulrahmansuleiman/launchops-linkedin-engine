@@ -12,9 +12,9 @@ const STAGE_COLORS: Record<string, string> = {
   Active: "#22c55e", Growth: "#eab308", "At Risk": "#f97316", Churned: "#ef4444",
 }
 
-const STAGE_ICONS: Record<string, string> = {
-  Discovery: "🔍", Proposal: "📄", Onboarding: "🚀",
-  Active: "⚡", Growth: "📈", "At Risk": "⚠️", Churned: "🚫",
+const STAGE_SHORT: Record<string, string> = {
+  Discovery: "Disc", Proposal: "Prop", Onboarding: "Onbrd",
+  Active: "Active", Growth: "Growth", "At Risk": "Risk", Churned: "CH",
 }
 
 const TABS = ["Overview", "Projects & Tasks", "Contract", "Notes"]
@@ -194,7 +194,7 @@ export default function ClientDetailPage() {
   const ac = avatarColor(client.companyName)
   const initials = getInitials(client.companyName)
   const stageColor = STAGE_COLORS[client.pipelineStage] || "#6366f1"
-  const stageIcon = STAGE_ICONS[client.pipelineStage] || "📋"
+  const stageShort = STAGE_SHORT[client.pipelineStage] || "CL"
   const allTasks = client.projects.flatMap(p => p.tasks)
   const doneTasks = allTasks.filter(t => t.status === "done")
   const overdueTasks = allTasks.filter(t => t.status !== "done" && isOverdue(t.deadline))
@@ -235,7 +235,7 @@ export default function ClientDetailPage() {
       <div className="action-bar">
         <div className="action-bar-left">
           <div className="stage-pill" style={{ background: `${stageColor}18`, color: stageColor, borderColor: `${stageColor}30` }}>
-            <span>{stageIcon}</span>
+            <span style={{ fontSize: 12, fontWeight: 700 }}>{stageShort}</span>
             <select
               value={client.pipelineStage}
               onChange={(e) => updatePipeline(e.target.value)}
@@ -326,10 +326,6 @@ export default function ClientDetailPage() {
             className={`tab-btn ${activeTab === tab ? "active" : ""}`}
             onClick={() => setActiveTab(tab)}
           >
-            {tab === "Overview" && "📊 "}
-            {tab === "Projects & Tasks" && "📋 "}
-            {tab === "Contract" && "📄 "}
-            {tab === "Notes" && "✏️ "}
             {tab}
           </button>
         ))}

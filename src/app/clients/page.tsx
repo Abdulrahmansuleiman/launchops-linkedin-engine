@@ -7,14 +7,14 @@ const PIPELINE_STAGES = [
   "Discovery", "Proposal", "Onboarding", "Active", "Growth", "At Risk", "Churned",
 ]
 
-const STAGE_META: Record<string, { color: string; glow: string; icon: string }> = {
-  Discovery:  { color: "#6366f1", glow: "rgba(99,102,241,0.3)", icon: "🔍" },
-  Proposal:   { color: "#8b5cf6", glow: "rgba(139,92,246,0.3)", icon: "📄" },
-  Onboarding: { color: "#06b6d4", glow: "rgba(6,182,212,0.3)", icon: "🚀" },
-  Active:     { color: "#22c55e", glow: "rgba(34,197,94,0.3)", icon: "⚡" },
-  Growth:     { color: "#eab308", glow: "rgba(234,179,8,0.3)", icon: "📈" },
-  "At Risk":  { color: "#f97316", glow: "rgba(249,115,22,0.3)", icon: "⚠️" },
-  Churned:    { color: "#ef4444", glow: "rgba(239,68,68,0.3)", icon: "🚫" },
+const STAGE_META: Record<string, { color: string; glow: string }> = {
+  Discovery:  { color: "#6366f1", glow: "rgba(99,102,241,0.3)" },
+  Proposal:   { color: "#8b5cf6", glow: "rgba(139,92,246,0.3)" },
+  Onboarding: { color: "#06b6d4", glow: "rgba(6,182,212,0.3)" },
+  Active:     { color: "#22c55e", glow: "rgba(34,197,94,0.3)" },
+  Growth:     { color: "#eab308", glow: "rgba(234,179,8,0.3)" },
+  "At Risk":  { color: "#f97316", glow: "rgba(249,115,22,0.3)" },
+  Churned:    { color: "#ef4444", glow: "rgba(239,68,68,0.3)" },
 }
 
 interface Client {
@@ -159,13 +159,13 @@ export default function ClientsPage() {
       <div style={{ maxWidth: 1400, margin: "0 auto", padding: 32 }}>
         <div className="hero-section">
           <div className="hero-content">
-            <span style={{ fontSize: 48, marginBottom: 8 }}>📋</span>
+            <span style={{ fontSize: 32, fontWeight: 800, marginBottom: 8, color: "var(--text-secondary)" }}>Pipeline</span>
             <h1 className="hero-title">Client Pipeline</h1>
             <p className="hero-subtitle">Manage your agency's client relationships from first conversation to long-term growth</p>
           </div>
         </div>
         <div className="empty-state">
-          <div className="empty-icon">🏗️</div>
+          <div className="empty-icon">+</div>
           <h3>No clients in the pipeline yet</h3>
           <p>Convert a lead to a client from the Leads page to populate your pipeline</p>
           <Link href="/leads" className="btn-primary-lg">Go to Leads</Link>
@@ -193,7 +193,6 @@ export default function ClientsPage() {
 
       <div className="stats-grid">
         <div className="stat-card stat-primary">
-          <div className="stat-icon">⚡</div>
           <div className="stat-body">
             <span className="stat-value">{stats.active}</span>
             <span className="stat-label">Active Clients</span>
@@ -201,7 +200,6 @@ export default function ClientsPage() {
           <div className="stat-trend up">+{stats.active} active</div>
         </div>
         <div className="stat-card stat-accent">
-          <div className="stat-icon">💰</div>
           <div className="stat-body">
             <span className="stat-value">£{stats.mrr.toLocaleString()}</span>
             <span className="stat-label">Monthly Revenue</span>
@@ -209,7 +207,6 @@ export default function ClientsPage() {
           <div className="stat-trend up">{stats.mrr > 0 ? "Recurring" : "No MRR yet"}</div>
         </div>
         <div className="stat-card stat-warning">
-          <div className="stat-icon">⚠️</div>
           <div className="stat-body">
             <span className="stat-value">{stats.atRisk}</span>
             <span className="stat-label">At Risk</span>
@@ -217,7 +214,6 @@ export default function ClientsPage() {
           <div className="stat-trend down">Needs attention</div>
         </div>
         <div className="stat-card stat-danger">
-          <div className="stat-icon">📋</div>
           <div className="stat-body">
             <span className="stat-value">{stats.overdueTasks}</span>
             <span className="stat-label">Overdue Tasks</span>
@@ -225,7 +221,6 @@ export default function ClientsPage() {
           <div className="stat-trend down">Requires action</div>
         </div>
         <div className="stat-card stat-info">
-          <div className="stat-icon">🚀</div>
           <div className="stat-body">
             <span className="stat-value">{stats.onboarding}</span>
             <span className="stat-label">Onboarding</span>
@@ -233,7 +228,6 @@ export default function ClientsPage() {
           <div className="stat-trend">In progress</div>
         </div>
         <div className="stat-card stat-neutral">
-          <div className="stat-icon">📊</div>
           <div className="stat-body">
             <span className="stat-value">{stats.total}</span>
             <span className="stat-label">Total Clients</span>
@@ -244,7 +238,6 @@ export default function ClientsPage() {
 
       <div className="pipeline-toolbar">
         <div className="search-box">
-          <span className="search-icon">🔍</span>
           <input
             type="text"
             placeholder="Search by company, contact, or industry..."
@@ -269,7 +262,7 @@ export default function ClientsPage() {
                 style={stageFilter === stage ? { background: STAGE_META[stage].color, borderColor: STAGE_META[stage].color } : {}}
                 onClick={() => setStageFilter(stage === stageFilter ? null : stage)}
               >
-                {STAGE_META[stage].icon} {stage}
+                {stage}
                 <span className="filter-count">{count}</span>
               </button>
             )
@@ -291,7 +284,7 @@ export default function ClientsPage() {
             >
               <div className="column-header" style={{ borderTopColor: meta.color }}>
                 <div className="column-header-top">
-                  <span className="stage-icon">{meta.icon}</span>
+                  <span className="stage-icon" />
                   <span className="stage-name">{stage}</span>
                   <span className="stage-count" style={{ background: meta.color }}>{stageClients.length}</span>
                 </div>
@@ -354,7 +347,7 @@ export default function ClientsPage() {
                         <div className="card-meta">
                           {dayLabel && (
                             <span className={`card-deadline ${dayLabel.includes("overdue") ? "overdue" : dayLabel === "Today" ? "today" : ""}`}>
-                              {dayLabel.includes("overdue") ? "🔥 " : "📅 "}{dayLabel}
+                              {dayLabel}
                             </span>
                           )}
                           {overdueCount > 0 && (
@@ -477,7 +470,7 @@ export default function ClientsPage() {
         .stat-danger::before { background: linear-gradient(90deg, #ef4444, #f97316); }
         .stat-info::before { background: linear-gradient(90deg, #06b6d4, #6366f1); }
         .stat-neutral::before { background: linear-gradient(90deg, var(--border), var(--text-secondary)); }
-        .stat-icon { font-size: 24px; margin-bottom: 12px; }
+        .stat-icon { display: none; }
         .stat-body { margin-bottom: 8px; }
         .stat-value { display: block; font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
         .stat-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
@@ -496,12 +489,7 @@ export default function ClientsPage() {
           display: flex;
           align-items: center;
         }
-        .search-icon {
-          position: absolute;
-          left: 14px;
-          font-size: 16px;
-          pointer-events: none;
-        }
+        .search-icon { display: none; }
         .search-input {
           width: 100%;
           padding: 12px 40px 12px 42px;
@@ -598,7 +586,7 @@ export default function ClientsPage() {
           gap: 8px;
           margin-bottom: 6px;
         }
-        .stage-icon { font-size: 16px; }
+        .stage-icon { display: none; }
         .stage-name { font-weight: 700; font-size: 14px; flex: 1; }
         .stage-count {
           display: inline-flex;
@@ -841,7 +829,7 @@ export default function ClientsPage() {
           border-radius: 20px;
           margin-top: 24px;
         }
-        .empty-icon { font-size: 56px; margin-bottom: 16px; }
+        .empty-icon { font-size: 32px; font-weight: 800; margin-bottom: 8px; color: var(--text-secondary); }
         .empty-state h3 { font-size: 22px; margin: 0 0 8px; }
         .empty-state p { color: var(--text-secondary); margin: 0 0 24px; font-size: 15px; }
 

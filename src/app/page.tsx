@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { TrendingUp, Users, DollarSign, Eye, ArrowRight, Sparkles, RefreshCw, ThumbsUp, ThumbsDown, Loader2 } from "lucide-react";
+import { TrendingUp, Users, DollarSign, Eye, ArrowRight, Sparkles, RefreshCw, ThumbsUp, ThumbsDown, Loader2, CheckSquare, AlertTriangle, Clock } from "lucide-react";
 import { getLeads, getPosts, generateDrafts } from "@/lib/api";
 
 const weeklyData = [
@@ -33,6 +33,31 @@ export default function Dashboard() {
     queryFn: async () => {
       const res = await fetch("/api/stats");
       return res.json();
+    },
+  });
+
+  const { data: tasks } = useQuery({
+    queryKey: ["tasks-overview"],
+    queryFn: async () => {
+      const [all, overdue, today, pipeline, client, highPriority, pending] = await Promise.all([
+        fetch("/api/tasks").then(r => r.json()),
+        fetch("/api/tasks?status=todo,waiting,in_progress").then(r => r.json()),
+        fetch("/api/tasks?status=todo,in_progress").then(r => r.json()),
+        fetch("/api/tasks?scope=pipeline").then(r => r.json()),
+        fetch("/api/tasks?scope=client").then(r => r.json()),
+        fetch("/api/tasks?priority=high&status=todo,in_progress").then(r => r.json()),
+        fetch("/api/tasks?status=todo").then(r => r.json()),
+      ])
+      const now = new Date()
+      return {
+        total: all.length,
+        overdue: all.filter((t: any) => t.status !== "done" && t.deadline && new Date(t.deadline) < now).length,
+        today: all.filter((t: any) => t.status !== "done" && t.deadline && new Date(t.deadline).toDateString() === now.toDateString()).length,
+        pipeline: pipeline.length,
+        client: client.length,
+        highPriority: highPriority.length,
+        pending: pending.length,
+      }
     },
   });
 
@@ -171,6 +196,71 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Task Overview</CardTitle>
+          <div style={{ display: "flex", gap: 4 }}>
+            <Badge variant="warning">{tasks?.overdue || 0} overdue</Badge>
+            <Badge variant="info">{tasks?.today || 0} today</Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div
+              className="p-3 rounded-lg cursor-pointer transition-colors hover:opacity-80"
+              style={{ background: "var(--badge-bg)", border: "1px solid var(--card-border)" }}
+              onClick={() => window.location.href = "/tasks?scope=pipeline"}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <CheckSquare className="w-4 h-4" style={{ color: "#6366f1" }} />
+                <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>Pipeline</p>
+              </div>
+              <p className="text-xl font-bold" style={{ color: "var(--foreground)" }}>{tasks?.pipeline || 0}</p>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>tasks across stages</p>
+            </div>
+            <div
+              className="p-3 rounded-lg cursor-pointer transition-colors hover:opacity-80"
+              style={{ background: "var(--badge-bg)", border: "1px solid var(--card-border)" }}
+              onClick={() => window.location.href = "/tasks?scope=client"}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Users className="w-4 h-4" style={{ color: "#22c55e" }} />
+                <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>Client</p>
+              </div>
+              <p className="text-xl font-bold" style={{ color: "var(--foreground)" }}>{tasks?.client || 0}</p>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>client tasks</p>
+            </div>
+            <div
+              className="p-3 rounded-lg cursor-pointer transition-colors hover:opacity-80"
+              style={{ background: "var(--badge-bg)", border: "1px solid var(--card-border)" }}
+              onClick={() => window.location.href = "/tasks?priority=high&status=todo"}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <AlertTriangle className="w-4 h-4" style={{ color: "#ef4444" }} />
+                <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>High Priority</p>
+              </div>
+              <p className="text-xl font-bold" style={{ color: "#ef4444" }}>{tasks?.highPriority || 0}</p>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>need attention now</p>
+            </div>
+            <div
+              className="p-3 rounded-lg cursor-pointer transition-colors hover:opacity-80"
+              style={{ background: "var(--badge-bg)", border: "1px solid var(--card-border)" }}
+              onClick={() => window.location.href = "/tasks?status=todo"}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Clock className="w-4 h-4" style={{ color: "#f97316" }} />
+                <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>Pending</p>
+              </div>
+              <p className="text-xl font-bold" style={{ color: "var(--foreground)" }}>{tasks?.pending || 0}</p>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>not yet started</p>
+            </div>
+          </div>
+          <Button variant="ghost" className="w-full mt-3 text-xs" onClick={() => window.location.href = "/tasks"}>
+            View All Tasks <ArrowRight className="w-3 h-3 ml-1" />
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

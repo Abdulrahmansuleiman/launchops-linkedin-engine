@@ -14,6 +14,7 @@ import {
   X,
   Search,
   Briefcase,
+  CheckSquare,
 } from "lucide-react";
 
 const navItems = [
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/outreach", label: "Outreach", icon: Send },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/ad-intel", label: "Ad Intel", icon: Search },
+  { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/clients", label: "Clients", icon: Briefcase },
 ];
 
