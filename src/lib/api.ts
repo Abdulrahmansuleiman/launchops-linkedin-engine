@@ -79,7 +79,7 @@ export interface WeeklyReport {
 
 // === Leads ===
 export async function importLeads(profileUrls: string[]) {
-  return fetchJSON<{ imported: number; leads: Lead[] }>("/api/leads", {
+  return fetchJSON<{ imported: number; merged: number; leads: Lead[] }>("/api/leads", {
     method: "POST",
     body: JSON.stringify({ action: "import", profileUrls }),
   });
@@ -145,7 +145,7 @@ export async function getSequences() {
 }
 
 export async function createLead(data: { linkedinUrl: string; name: string; company: string; headline: string; location: string; profilePicture?: string; followerCount?: number }) {
-  return fetchJSON<Lead>("/api/leads", {
+  return fetchJSON<Lead & { merged?: boolean }>("/api/leads", {
     method: "POST",
     body: JSON.stringify(data),
   });

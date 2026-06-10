@@ -83,7 +83,10 @@ export default function Leads() {
       const profileUrls = importUrls.split("\n").map((u) => u.trim()).filter(Boolean);
       if (!profileUrls.length) { setImporting(false); return; }
       const result = await importLeads(profileUrls);
-      setImportMsg(`Imported ${result.imported} new leads`);
+      const parts: string[] = [];
+      if (result.imported > 0) parts.push(`Imported ${result.imported} new`);
+      if (result.merged > 0) parts.push(`Merged ${result.merged} duplicates`);
+      setImportMsg(parts.length > 0 ? parts.join(", ") : "No new leads found");
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       setShowImportForm(false);
       setImportUrls("");
@@ -99,7 +102,7 @@ export default function Leads() {
     if (!form.name.trim()) return;
     setSaving(true);
     try {
-      await createLead({
+      const result = await createLead({
         linkedinUrl: form.linkedinUrl.trim(),
         name: form.name.trim(),
         company: form.company.trim(),
@@ -108,7 +111,11 @@ export default function Leads() {
         profilePicture: form.profilePicture.trim() || undefined,
         followerCount: form.followerCount ? parseInt(form.followerCount) : undefined,
       });
-      setImportMsg(`Added ${form.name.trim()} to leads`);
+      if (result.merged) {
+        setImportMsg(`Merged "${form.name.trim()}" into existing lead`);
+      } else {
+        setImportMsg(`Added ${form.name.trim()} to leads`);
+      }
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       setShowAddForm(false);
       setForm({ name: "", linkedinUrl: "", company: "", headline: "", location: "", profilePicture: "", followerCount: "" });

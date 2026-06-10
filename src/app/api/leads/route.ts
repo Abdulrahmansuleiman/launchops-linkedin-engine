@@ -32,6 +32,49 @@ export async function GET(req: Request) {
   return NextResponse.json(leads);
 }
 
+async function findDuplicate(body: any) {
+  const conditions: any[] = [];
+  if (body.linkedinUrl) {
+    conditions.push({ linkedinUrl: { equals: body.linkedinUrl, mode: "insensitive" } });
+  }
+  if (body.name) {
+    conditions.push({ name: { equals: body.name, mode: "insensitive" } });
+  }
+  if (body.linkedinUrl && body.name) {
+    conditions.push({
+      AND: [
+        { linkedinUrl: { equals: body.linkedinUrl, mode: "insensitive" } },
+        { name: { equals: body.name, mode: "insensitive" } },
+      ],
+    });
+  }
+  if (conditions.length === 0) return null;
+  return prisma.lead.findFirst({ where: { OR: conditions } });
+}
+
+async function mergeLead(existing: any, body: any, score: number, scoreReason: string | null, scoreComponents: any) {
+  const data: any = {};
+  if (body.linkedinUrl && !existing.linkedinUrl) data.linkedinUrl = body.linkedinUrl;
+  if (body.name && !existing.name) data.name = body.name;
+  if (body.headline && !existing.headline) data.headline = body.headline;
+  if (body.company && !existing.company) data.company = body.company;
+  if (body.location && !existing.location) data.location = body.location;
+  if (body.profilePicture && !existing.profilePicture) data.profilePicture = body.profilePicture;
+  if (body.followerCount) data.followerCount = parseInt(body.followerCount);
+  if (score > (existing.score || 0)) {
+    data.score = score;
+    if (scoreReason) data.scoreReason = scoreReason;
+    if (scoreComponents) data.scoreComponents = scoreComponents;
+  }
+  data.status = existing.status || "NEW";
+
+  const updated = await prisma.lead.update({
+    where: { id: existing.id },
+    data,
+  });
+  return updated;
+}
+
 export async function POST(req: Request) {
   const body = await req.json();
 
@@ -54,13 +97,28 @@ export async function POST(req: Request) {
     }
 
     const accountId = await getDefaultAccountId();
-    const created = [];
+    const created: any[] = [];
+    const merged: any[] = [];
 
     for (const profile of scraped) {
-      const existing = await prisma.lead.findFirst({
-        where: { linkedinUrl: profile.profileUrl },
+      const existing = await findDuplicate({
+        linkedinUrl: profile.profileUrl,
+        name: profile.name,
       });
-      if (existing) continue;
+      if (existing) {
+        const updated = await prisma.lead.update({
+          where: { id: existing.id },
+          data: {
+            name: profile.name || existing.name,
+            headline: profile.headline || existing.headline,
+            company: profile.company || existing.company,
+            location: profile.location || existing.location,
+            followerCount: profile.followerCount || existing.followerCount,
+          },
+        });
+        merged.push(updated);
+        continue;
+      }
 
       const lead = await prisma.lead.create({
         data: {
@@ -78,14 +136,18 @@ export async function POST(req: Request) {
       created.push(lead);
     }
 
-    return NextResponse.json({ imported: created.length, leads: created }, { status: 201 });
+    return NextResponse.json({
+      imported: created.length,
+      merged: merged.length,
+      leads: [...created, ...merged],
+    }, { status: 201 });
   }
 
   const accountId = await getDefaultAccountId();
 
   let score = body.score || 0;
-  let scoreReason = null;
-  let scoreComponents = null;
+  let scoreReason: string | null = null;
+  let scoreComponents: any = null;
 
   if (body.linkedinUrl || body.headline || body.company) {
     try {
@@ -110,6 +172,12 @@ export async function POST(req: Request) {
     }
   }
 
+  const existing = await findDuplicate(body);
+  if (existing) {
+    const lead = await mergeLead(existing, body, score, scoreReason, scoreComponents);
+    return NextResponse.json({ ...lead, merged: true }, { status: 200 });
+  }
+
   const lead = await prisma.lead.create({
     data: {
       accountId,
@@ -126,7 +194,7 @@ export async function POST(req: Request) {
       status: "NEW",
     },
   });
-  return NextResponse.json(lead, { status: 201 });
+  return NextResponse.json({ ...lead, merged: false }, { status: 201 });
 }
 
 export async function PATCH(req: Request) {
