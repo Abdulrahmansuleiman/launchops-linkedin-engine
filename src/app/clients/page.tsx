@@ -176,63 +176,69 @@ export default function ClientsPage() {
 
   return (
     <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 32px 40px" }}>
-      <div className="hero-section">
-        <div className="hero-bg" />
-        <div className="hero-content">
-          <div className="hero-badge">Live Pipeline</div>
-          <h1 className="hero-title">Client Pipeline</h1>
-          <p className="hero-subtitle">
-            <span>{clients.length} client{clients.length !== 1 && "s"}</span>
-            <span className="hero-dot">·</span>
-            <span>£{stats.mrr.toLocaleString()} MRR</span>
-            <span className="hero-dot">·</span>
-            <span>{stats.active} active</span>
-          </p>
+      <div className="pipeline-header-card">
+        <div className="pipeline-header-inner">
+          <div className="pipeline-header-left">
+            <div className="live-badge">
+              <span className="live-dot" />
+              LIVE PIPELINE
+            </div>
+            <h1 className="pipeline-title">Client Pipeline</h1>
+            <div className="pipeline-meta">
+              <span className="meta-item">
+                <svg className="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                {clients.length} client{clients.length !== 1 && "s"}
+              </span>
+              <span className="meta-divider" />
+              <span className="meta-item">
+                <svg className="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                £{stats.mrr.toLocaleString()} MRR
+              </span>
+              <span className="meta-divider" />
+              <span className="meta-item">
+                <svg className="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                {stats.active} active
+              </span>
+            </div>
+          </div>
+          <div className="pipeline-header-right">
+            <button className="header-btn">Filter</button>
+            <button className="header-btn">Export</button>
+            <button className="header-btn-primary">+ Add Client</button>
+          </div>
         </div>
       </div>
 
       <div className="stats-grid">
-        <div className="stat-card stat-primary">
-          <div className="stat-body">
-            <span className="stat-value">{stats.active}</span>
-            <span className="stat-label">Active Clients</span>
-          </div>
-          <div className="stat-trend up">+{stats.active} active</div>
+        <div className="pipeline-stat" style={{ borderTopColor: "var(--accent)" }}>
+          <span className="pipeline-stat-value" style={{ color: "var(--foreground)" }}>{stats.active}</span>
+          <span className="pipeline-stat-label">Active Clients</span>
+          <span className="pipeline-stat-sub" style={{ color: "var(--badge-success-text)" }}>+{stats.active} active</span>
         </div>
-        <div className="stat-card stat-accent">
-          <div className="stat-body">
-            <span className="stat-value">£{stats.mrr.toLocaleString()}</span>
-            <span className="stat-label">Monthly Revenue</span>
-          </div>
-          <div className="stat-trend up">{stats.mrr > 0 ? "Recurring" : "No MRR yet"}</div>
+        <div className="pipeline-stat" style={{ borderTopColor: "#22c55e" }}>
+          <span className="pipeline-stat-value" style={{ color: "var(--foreground)" }}>£{stats.mrr.toLocaleString()}</span>
+          <span className="pipeline-stat-label">Monthly Revenue</span>
+          <span className="pipeline-stat-sub" style={{ color: stats.mrr > 0 ? "var(--badge-success-text)" : "var(--text-secondary)" }}>{stats.mrr > 0 ? "Recurring" : "No MRR yet"}</span>
         </div>
-        <div className="stat-card stat-warning">
-          <div className="stat-body">
-            <span className="stat-value">{stats.atRisk}</span>
-            <span className="stat-label">At Risk</span>
-          </div>
-          <div className="stat-trend down">Needs attention</div>
+        <div className="pipeline-stat" style={{ borderTopColor: "#f97316" }}>
+          <span className="pipeline-stat-value" style={{ color: "var(--foreground)" }}>{stats.atRisk}</span>
+          <span className="pipeline-stat-label">At Risk</span>
+          <span className="pipeline-stat-sub" style={{ color: "var(--badge-danger-text)" }}>Needs attention</span>
         </div>
-        <div className="stat-card stat-danger">
-          <div className="stat-body">
-            <span className="stat-value">{stats.overdueTasks}</span>
-            <span className="stat-label">Overdue Tasks</span>
-          </div>
-          <div className="stat-trend down">Requires action</div>
+        <div className="pipeline-stat" style={{ borderTopColor: "#ef4444" }}>
+          <span className="pipeline-stat-value" style={{ color: "var(--foreground)" }}>{stats.overdueTasks}</span>
+          <span className="pipeline-stat-label">Overdue Tasks</span>
+          <span className="pipeline-stat-sub" style={{ color: "var(--badge-danger-text)" }}>Requires action</span>
         </div>
-        <div className="stat-card stat-info">
-          <div className="stat-body">
-            <span className="stat-value">{stats.onboarding}</span>
-            <span className="stat-label">Onboarding</span>
-          </div>
-          <div className="stat-trend">In progress</div>
+        <div className="pipeline-stat" style={{ borderTopColor: "#06b6d4" }}>
+          <span className="pipeline-stat-value" style={{ color: "var(--foreground)" }}>{stats.onboarding}</span>
+          <span className="pipeline-stat-label">Onboarding</span>
+          <span className="pipeline-stat-sub" style={{ color: "var(--badge-info-text)" }}>In progress</span>
         </div>
-        <div className="stat-card stat-neutral">
-          <div className="stat-body">
-            <span className="stat-value">{stats.total}</span>
-            <span className="stat-label">Total Clients</span>
-          </div>
-          <div className="stat-trend">{stats.churned} churned</div>
+        <div className="pipeline-stat" style={{ borderTopColor: "#6b7280" }}>
+          <span className="pipeline-stat-value" style={{ color: "var(--foreground)" }}>{stats.total}</span>
+          <span className="pipeline-stat-label">Total Clients</span>
+          <span className="pipeline-stat-sub" style={{ color: "var(--text-secondary)" }}>{stats.churned} churned</span>
         </div>
       </div>
 
@@ -388,52 +394,110 @@ export default function ClientsPage() {
       )}
 
       <style>{`
-        .hero-section {
-          position: relative;
-          padding: 32px 0 28px;
+        .pipeline-header-card {
+          background: var(--card);
+          border: 0.5px solid var(--border);
+          border-radius: 16px;
+          padding: 28px 32px;
           margin-bottom: 24px;
-          border-radius: 12px;
         }
-        .hero-bg {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(6,182,212,0.03) 50%, rgba(34,197,94,0.02) 100%);
-          border-radius: 12px;
-          pointer-events: none;
+        .pipeline-header-inner {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 24px;
         }
-        .hero-content {
-          position: relative;
-          z-index: 1;
+        .pipeline-header-left { flex: 1; min-width: 0; }
+        .pipeline-header-right {
+          display: flex;
+          gap: 8px;
+          flex-shrink: 0;
+          flex-wrap: wrap;
         }
-        .hero-badge {
+        .live-badge {
           display: inline-flex;
           align-items: center;
-          padding: 4px 14px;
+          gap: 8px;
+          padding: 5px 14px;
           border-radius: 20px;
-          background: #eff6ff;
-          border: 1px solid #bfdbfe;
-          font-size: 12px;
-          font-weight: 600;
-          color: #1d4ed8;
-          margin-bottom: 12px;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
-        }
-        .hero-title {
-          font-size: clamp(24px, 3vw, 32px);
+          background: var(--badge-info-bg);
+          border: 1px solid var(--nav-active-border);
+          font-size: 11px;
           font-weight: 700;
-          margin: 0 0 6px;
-          color: #111827;
+          color: var(--badge-info-text);
+          margin-bottom: 14px;
+          letter-spacing: 0.8px;
         }
-        .hero-subtitle {
+        .live-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: var(--badge-success-text);
+          animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.85); }
+        }
+        .pipeline-title {
+          font-size: clamp(26px, 3vw, 34px);
+          font-weight: 700;
+          margin: 0 0 14px;
+          color: var(--foreground);
+          line-height: 1.2;
+        }
+        .pipeline-meta {
           display: flex;
           align-items: center;
-          gap: 8px;
-          font-size: 14px;
-          color: #6B7280;
-          margin: 0;
+          gap: 12px;
+          flex-wrap: wrap;
         }
-        .hero-dot { color: #d1d5db; font-weight: 700; }
+        .meta-item {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 14px;
+          color: var(--text-secondary);
+        }
+        .meta-icon {
+          width: 16px;
+          height: 16px;
+          flex-shrink: 0;
+          color: var(--text-secondary);
+        }
+        .meta-divider {
+          width: 3px;
+          height: 3px;
+          border-radius: 50%;
+          background: var(--border);
+        }
+        .header-btn {
+          padding: 8px 18px;
+          border-radius: 10px;
+          border: 1px solid var(--border);
+          background: var(--card);
+          color: var(--text-secondary);
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-family: inherit;
+        }
+        .header-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .header-btn-primary {
+          padding: 8px 18px;
+          border-radius: 10px;
+          border: none;
+          background: linear-gradient(135deg, var(--accent), #4f46e5);
+          color: #fff;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+          font-family: inherit;
+        }
+        .header-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(99,102,241,0.35); }
 
         .stats-grid {
           display: grid;
@@ -441,39 +505,33 @@ export default function ClientsPage() {
           gap: 14px;
           margin-bottom: 28px;
         }
-        .stat-card {
-          background: #ffffff;
-          border: 1px solid #e5e7eb;
+        .pipeline-stat {
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-top: 3px solid var(--border);
           border-radius: 12px;
-          padding: 20px;
-          transition: all 0.2s;
-          cursor: default;
-          position: relative;
-          overflow: visible;
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          transition: box-shadow 0.2s;
         }
-        .stat-card:hover {
-          box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        .pipeline-stat:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .pipeline-stat-value {
+          font-size: 24px;
+          font-weight: 500;
+          line-height: 1.2;
+          margin-bottom: 2px;
         }
-        .stat-card::before {
-          content: "";
-          position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 3px;
-          border-radius: 12px 12px 0 0;
+        .pipeline-stat-label {
+          font-size: 12px;
+          color: var(--text-secondary);
         }
-        .stat-primary::before { background: linear-gradient(90deg, #6366f1, #06b6d4); }
-        .stat-accent::before { background: linear-gradient(90deg, #22c55e, #06b6d4); }
-        .stat-warning::before { background: linear-gradient(90deg, #f97316, #eab308); }
-        .stat-danger::before { background: linear-gradient(90deg, #ef4444, #f97316); }
-        .stat-info::before { background: linear-gradient(90deg, #06b6d4, #6366f1); }
-        .stat-neutral::before { background: linear-gradient(90deg, #d1d5db, #6b7280); }
-        .stat-body { margin-bottom: 6px; }
-        .stat-value { display: block; font-size: 30px; font-weight: 700; line-height: 1.1; margin-bottom: 4px; color: #111827; }
-        .stat-label { font-size: 13px; color: #374151; font-weight: 500; }
-        .stat-trend { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 6px; display: inline-block; }
-        .stat-trend.up { color: #16a34a; background: #f0fdf4; }
-        .stat-trend.down { color: #dc2626; background: #fef2f2; }
-        .stat-trend:not(.up):not(.down) { color: #6b7280; background: #f9fafb; }
+        .pipeline-stat-sub {
+          font-size: 12px;
+          font-weight: 500;
+          margin-top: 2px;
+        }
 
         .pipeline-toolbar {
           display: flex;
@@ -872,13 +930,20 @@ export default function ClientsPage() {
           .stats-grid { grid-template-columns: repeat(3, 1fr); }
         }
         @media (max-width: 768px) {
-          .hero-title { font-size: 24px; }
+          .pipeline-title { font-size: 24px; }
+          .pipeline-header-card { padding: 20px; }
+          .pipeline-header-inner { flex-direction: column; }
+          .pipeline-header-right { width: 100%; }
+          .header-btn, .header-btn-primary { flex: 1; text-align: center; }
           .stats-grid { grid-template-columns: repeat(2, 1fr); }
           .pipeline-board { padding: 8px 0 24px; }
           .pipeline-column { min-width: 260px; max-width: 260px; }
         }
         @media (max-width: 480px) {
           .stats-grid { grid-template-columns: 1fr; }
+          .pipeline-header-card { padding: 16px; }
+          .pipeline-meta { flex-direction: column; align-items: flex-start; gap: 6px; }
+          .meta-divider { display: none; }
         }
       `}</style>
     </div>
