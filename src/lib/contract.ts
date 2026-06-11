@@ -41,7 +41,7 @@ export function generateContractHtml(data: ContractInput): string {
     : "Net 14 days from invoice date"
 
   const servicesDotList = data.services.map((s) =>
-    `<tr><td style="padding: 2px 0 2px 20px; font-size: 13.5px; color: #1F2937; line-height: 1.8;">. ${s}</td></tr>`
+    `<tr><td style="padding: 2px 0 2px 20px; font-size: 13.5px; color: #E5E7EB !important; line-height: 1.8;">. ${s}</td></tr>`
   ).join("\n")
 
   return `<!DOCTYPE html>
@@ -63,16 +63,29 @@ export function generateContractHtml(data: ContractInput): string {
     max-width: 760px;
     width: 100%;
     padding: 64px 72px;
-    background: #FFFFFF;
+    background: #111827;
     border-radius: 4px;
-    box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.3);
+  }
+
+  #contract-document,
+  #contract-document *,
+  #contract-document p,
+  #contract-document span,
+  #contract-document h1,
+  #contract-document h2,
+  #contract-document h3,
+  #contract-document li,
+  #contract-document td,
+  #contract-document div {
+    color: #FFFFFF !important;
   }
 
   .wordmark {
     text-align: center;
     font-size: 13px;
     font-weight: 600;
-    color: #2563EB;
+    color: #60A5FA !important;
     letter-spacing: 0.05em;
     margin-bottom: 24px;
   }
@@ -82,20 +95,20 @@ export function generateContractHtml(data: ContractInput): string {
     font-size: 28px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: #0D0D0D;
+    color: #FFFFFF !important;
     margin-bottom: 8px;
   }
   .doc-sub {
     text-align: center;
     font-size: 14px;
-    color: #6B7280;
+    color: #9CA3AF !important;
     font-weight: 400;
     margin-bottom: 16px;
   }
   .status-pill {
     display: inline-block;
-    background: #EFF6FF;
-    color: #1D4ED8;
+    background: rgba(37, 99, 235, 0.15) !important;
+    color: #93C5FD !important;
     font-size: 11px;
     font-weight: 500;
     padding: 4px 12px;
@@ -103,6 +116,7 @@ export function generateContractHtml(data: ContractInput): string {
     text-align: center;
     margin: 0 auto;
     display: table;
+    border: 0.5px solid rgba(37, 99, 235, 0.3) !important;
   }
   .header-spacer { height: 48px; }
 
@@ -118,7 +132,7 @@ export function generateContractHtml(data: ContractInput): string {
   .section-accent {
     width: 3px;
     height: 20px;
-    background: #2563EB;
+    background: #60A5FA !important;
     border-radius: 2px;
     flex-shrink: 0;
   }
@@ -127,7 +141,7 @@ export function generateContractHtml(data: ContractInput): string {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: #2563EB;
+    color: #60A5FA !important;
     margin: 0;
   }
 
@@ -139,17 +153,17 @@ export function generateContractHtml(data: ContractInput): string {
   .party-name {
     font-size: 14px;
     font-weight: 600;
-    color: #0D0D0D;
+    color: #FFFFFF !important;
     margin-bottom: 6px;
   }
   .party-detail {
     font-size: 13px;
     font-weight: 400;
-    color: #4B5563;
+    color: #9CA3AF !important;
     line-height: 1.7;
   }
   .party-detail a {
-    color: #2563EB;
+    color: #60A5FA !important;
     text-decoration: none;
   }
 
@@ -157,7 +171,7 @@ export function generateContractHtml(data: ContractInput): string {
     font-size: 13.5px;
     font-weight: 400;
     line-height: 1.75;
-    color: #1F2937;
+    color: #E5E7EB !important;
     margin-bottom: 12px;
   }
   .body-text:last-child { margin-bottom: 0; }
@@ -165,7 +179,7 @@ export function generateContractHtml(data: ContractInput): string {
   .sub-heading {
     font-size: 14px;
     font-weight: 600;
-    color: #0D0D0D;
+    color: #FFFFFF !important;
     margin-top: 16px;
     margin-bottom: 6px;
   }
@@ -180,18 +194,18 @@ export function generateContractHtml(data: ContractInput): string {
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #6B7280;
+    color: #9CA3AF !important;
     margin-bottom: 4px;
   }
   .fee-value {
     font-size: 18px;
     font-weight: 600;
-    color: #0D0D0D;
+    color: #FFFFFF !important;
   }
   .fee-value-sm {
     font-size: 13.5px;
     font-weight: 400;
-    color: #1F2937;
+    color: #E5E7EB !important;
     line-height: 1.6;
   }
 
@@ -202,12 +216,12 @@ export function generateContractHtml(data: ContractInput): string {
   .clause-title {
     font-size: 13.5px;
     font-weight: 600;
-    color: #0D0D0D;
+    color: #FFFFFF !important;
   }
   .clause-body {
     font-size: 13.5px;
     font-weight: 400;
-    color: #1F2937;
+    color: #E5E7EB !important;
     line-height: 1.8;
   }
 
@@ -217,7 +231,7 @@ export function generateContractHtml(data: ContractInput): string {
   }
   .sig-intro {
     font-size: 13px;
-    color: #6B7280;
+    color: #9CA3AF !important;
     margin-bottom: 28px;
     line-height: 1.6;
   }
@@ -229,35 +243,35 @@ export function generateContractHtml(data: ContractInput): string {
   .sig-col-title {
     font-size: 13px;
     font-weight: 600;
-    color: #0D0D0D;
+    color: #FFFFFF !important;
     margin-bottom: 8px;
   }
   .sig-line {
-    border-bottom: 1.5px solid #D1D5DB;
+    border-bottom: 1.5px solid #374151 !important;
     width: 200px;
     height: 36px;
     margin-bottom: 4px;
   }
   .sig-label {
     font-size: 11px;
-    color: #9CA3AF;
+    color: #6B7280 !important;
     margin-bottom: 2px;
   }
   .sig-name {
     font-size: 12px;
     font-weight: 500;
-    color: #374151;
+    color: #D1D5DB !important;
   }
 
   .footer {
     text-align: center;
     margin-top: 48px;
     padding-top: 24px;
-    border-top: 1px solid #E5E7EB;
+    border-top: 1px solid #1F2937;
   }
   .footer-text {
     font-size: 11px;
-    color: #9CA3AF;
+    color: #6B7280 !important;
     line-height: 1.8;
   }
   .footer-text .dot {
