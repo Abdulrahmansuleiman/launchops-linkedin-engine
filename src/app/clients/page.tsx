@@ -178,7 +178,7 @@ export default function ClientsPage() {
           contactEmail: selectedLead.email || "",
           contactPhone: selectedLead.phone || "",
           industry: selectedLead.industry || "",
-          services: ["LinkedIn Growth Services"],
+          services: ["AI Sales System"],
           monthlyRetainer: "0",
           setupFee: "0",
         }),

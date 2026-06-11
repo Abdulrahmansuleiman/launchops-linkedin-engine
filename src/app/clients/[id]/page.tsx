@@ -277,13 +277,6 @@ export default function ClientDetailPage() {
           <span className="mini-stat-value">{client.paymentTerms || "—"}</span>
           <span className="mini-stat-label">Payment Terms</span>
         </div>
-        <div className="mini-stat wide">
-          <span className="mini-stat-icon">🛠️</span>
-          <div className="mini-stat-value-wrap">
-            <span className="mini-stat-value-service">{client.services.length ? client.services.join(", ") : "—"}</span>
-            <span className="mini-stat-label">Services</span>
-          </div>
-        </div>
         <div className="mini-stat">
           <span className="mini-stat-icon">📊</span>
           <span className="mini-stat-value">{client.projects.length}</span>
@@ -300,6 +293,17 @@ export default function ClientDetailPage() {
           <span className="mini-stat-label">Overdue</span>
         </div>
       </div>
+
+      {client.services.length > 0 && (
+        <div className="services-section">
+          <div className="services-label">Services</div>
+          <div className="services-row">
+            {client.services.map(service => (
+              <span key={service} className="service-tag">{service}</span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="tab-bar">
         {TABS.map(tab => (
@@ -721,9 +725,24 @@ export default function ClientDetailPage() {
         .mini-stat.wide { grid-column: span 2; }
         .mini-stat-icon { font-size: 20px; line-height: 1; }
         .mini-stat-value { display: block; font-size: 18px; font-weight: 500; color: #fff; line-height: 1.2; }
-        .mini-stat-value-wrap { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-        .mini-stat-value-service { display: block; font-size: 13px; color: #aaa; font-weight: 400; line-height: 1.3; }
         .mini-stat-label { display: block; font-size: 11px; color: #666; }
+
+        .services-section { margin-bottom: 16px; }
+        .services-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+        .services-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .service-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(37, 99, 235, 0.12);
+          color: #7ab8f5;
+          border: 0.5px solid rgba(37, 99, 235, 0.25);
+          border-radius: 999px;
+          padding: 5px 12px;
+          font-size: 12px;
+          font-weight: 500;
+          white-space: nowrap;
+        }
 
         .tab-bar {
           display: flex;
@@ -1107,14 +1126,12 @@ export default function ClientDetailPage() {
 
         @media (max-width: 768px) {
           .stats-mini-grid { grid-template-columns: repeat(2, 1fr); }
-          .mini-stat.wide { grid-column: span 2; }
           .cover-content { flex-direction: column; text-align: center; }
           .cover-contact { justify-content: center; }
           .task-form-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 480px) {
           .stats-mini-grid { grid-template-columns: 1fr; }
-          .mini-stat.wide { grid-column: span 1; }
         }
       `}</style>
     </div>
