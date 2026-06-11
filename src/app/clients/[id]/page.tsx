@@ -1148,7 +1148,43 @@ export default function ClientDetailPage() {
         }
         .modal-header h2 { margin: 0; font-size: 17px; }
         .modal-header-actions { display: flex; gap: 8px; }
-        .contract-preview { overflow: hidden; }
+        .contract-preview {
+          overflow: hidden;
+          background: #0F0F0F !important;
+        }
+        .contract-preview * {
+          color: #FFFFFF !important;
+        }
+        .contract-preview .section-label,
+        .contract-preview .wordmark {
+          color: #60A5FA !important;
+        }
+        .contract-preview .fee-label {
+          color: #9CA3AF !important;
+        }
+        .contract-preview .footer-text {
+          color: #6B7280 !important;
+        }
+        .contract-preview .sig-label {
+          color: #6B7280 !important;
+        }
+        .contract-preview .sig-name {
+          color: #D1D5DB !important;
+        }
+        .contract-preview .party-detail {
+          color: #9CA3AF !important;
+        }
+        .contract-preview .doc-sub {
+          color: #9CA3AF !important;
+        }
+        .contract-preview .status-pill {
+          background: rgba(37, 99, 235, 0.15) !important;
+          color: #93C5FD !important;
+          border: 0.5px solid rgba(37, 99, 235, 0.3) !important;
+        }
+        .contract-preview .sig-line {
+          border-bottom: 1.5px solid #374151 !important;
+        }
 
         .skeleton-cover { height: 160px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; }
         .skeleton-meta { height: 70px; flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
