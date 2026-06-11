@@ -12,11 +12,10 @@ interface ConvertModalProps {
 }
 
 const defaultServices = [
-  "LinkedIn Content Strategy & Creation",
-  "LinkedIn Outreach Automation",
-  "Lead Pipeline Management",
-  "AI-Powered DM Sequences",
-  "Performance Analytics & Reporting",
+  "Text AI Agent",
+  "Voice AI Agent",
+  "Whitelabling System",
+  "Reactivation Voice Agent",
 ];
 
 export function ConvertToClientModal({ leadId, leadName, onClose, onSuccess }: ConvertModalProps) {
@@ -34,7 +33,7 @@ export function ConvertToClientModal({ leadId, leadName, onClose, onSuccess }: C
     scope: "",
     goals: "",
   });
-  const [selectedServices, setSelectedServices] = useState<string[]>(["LinkedIn Content Strategy & Creation"]);
+  const [selectedServices, setSelectedServices] = useState<string[]>(["Text AI Agent"]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
