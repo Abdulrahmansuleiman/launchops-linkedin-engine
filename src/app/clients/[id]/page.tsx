@@ -273,6 +273,13 @@ export default function ClientDetailPage() {
               📄 View Contract
             </button>
           )}
+          <button className="btn btn-danger" onClick={async () => {
+            if (!confirm("Delete this client and all associated projects and tasks?")) return
+            await fetch(`/api/clients/${params.id}`, { method: "DELETE" })
+            router.push("/clients")
+          }}>
+            🗑️ Delete
+          </button>
         </div>
       </div>
 
@@ -1087,6 +1094,8 @@ export default function ClientDetailPage() {
         .btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .btn-sm { padding: 6px 14px; font-size: 13px; }
         .btn-primary { background: linear-gradient(135deg, var(--accent), #4f46e5); color: #fff; border: none; box-shadow: 0 2px 8px rgba(99,102,241,0.25); }
+        .btn-danger { background: #dc2626; color: #fff; border: none; }
+        .btn-danger:hover { background: #b91c1c; }
         .btn-ghost { background: transparent; border-color: var(--border); }
         .text-secondary { color: var(--text-secondary); font-size: 14px; }
 

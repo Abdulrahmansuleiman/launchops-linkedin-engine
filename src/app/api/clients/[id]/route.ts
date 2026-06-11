@@ -31,3 +31,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const updated = await prisma.client.update({ where: { id }, data: updateData })
   return NextResponse.json(updated)
 }
+
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const client = await prisma.client.findUnique({ where: { id }, select: { leadId: true } })
+  if (!client) return NextResponse.json({ error: "Client not found" }, { status: 404 })
+  await prisma.client.delete({ where: { id } })
+  if (client.leadId) {
+    await prisma.lead.update({ where: { id: client.leadId }, data: { status: "MEETING_BOOKED" } })
+  }
+  return NextResponse.json({ success: true })
+}

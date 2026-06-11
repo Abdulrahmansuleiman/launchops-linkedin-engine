@@ -207,6 +207,12 @@ export default function ClientsPage() {
     reader.readAsText(file)
   }
 
+  const handleDeleteClient = async (id: string) => {
+    if (!confirm("Delete this client and all associated projects and tasks?")) return
+    const res = await fetch(`/api/clients/${id}`, { method: "DELETE" })
+    if (res.ok) fetchClients()
+  }
+
   const moveStage = async (id: string, stage: string) => {
     setAnimatingId(id)
     setClients(prev => prev.map(c => c.id === id ? { ...c, pipelineStage: stage } : c))
@@ -492,6 +498,13 @@ export default function ClientsPage() {
                           {client.monthlyRetainer && (
                             <div className="card-retainer">£{client.monthlyRetainer.toLocaleString()}</div>
                           )}
+                          <button
+                            className="card-delete-btn"
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteClient(client.id) }}
+                            title="Delete client"
+                          >
+                            ✕
+                          </button>
                         </div>
 
                         <div className="card-progress">
@@ -1019,6 +1032,7 @@ export default function ClientsPage() {
           align-items: center;
           gap: 12px;
           margin-bottom: 12px;
+          position: relative;
         }
         .card-avatar, .card-avatar-img {
           width: 38px;
@@ -1036,6 +1050,28 @@ export default function ClientsPage() {
           font-weight: 700;
         }
         .card-info { flex: 1; min-width: 0; }
+        .card-delete-btn {
+          position: absolute;
+          top: 6px;
+          right: 6px;
+          width: 22px;
+          height: 22px;
+          border-radius: 6px;
+          border: none;
+          background: rgba(239,68,68,0.1);
+          color: #ef4444;
+          font-size: 10px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: all 0.2s;
+          z-index: 2;
+          line-height: 1;
+        }
+        .card-top:hover .card-delete-btn { opacity: 1; }
+        .card-delete-btn:hover { background: #ef4444; color: #fff; }
         .card-company {
           font-size: 14px;
           font-weight: 600;
