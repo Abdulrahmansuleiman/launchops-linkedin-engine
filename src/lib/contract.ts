@@ -16,141 +16,387 @@ function formatCurrency(n: number): string {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: 0 }).format(n)
 }
 
-export function generateContractHtml(data: ContractInput): string {
-  const date = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
-  const retainer = data.monthlyRetainer ? formatCurrency(data.monthlyRetainer) : "TBD"
-  const setup = data.setupFee ? formatCurrency(data.setupFee) : "N/A"
-  const duration = data.contractDuration ? `${data.contractDuration} months` : "Month-to-month"
-  const paymentTerms = data.paymentTerms || "Net 14 days from invoice date"
+function addMonths(date: Date, months: number): Date {
+  const d = new Date(date)
+  d.setMonth(d.getMonth() + months)
+  return d
+}
 
-  const servicesList = data.services.map((s) => `        <li>${s}</li>`).join("\n")
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+}
+
+export function generateContractHtml(data: ContractInput): string {
+  const startDate = new Date()
+  const endDate = data.contractDuration ? addMonths(startDate, data.contractDuration) : addMonths(startDate, 1)
+  const firstPaymentDate = addMonths(startDate, 1)
+  const dateStr = formatDate(startDate)
+  const endDateStr = formatDate(endDate)
+  const firstPaymentStr = formatDate(firstPaymentDate)
+  const retainer = data.monthlyRetainer ? formatCurrency(data.monthlyRetainer) : "TBD"
+  const setup = data.setupFee ? formatCurrency(data.setupFee) : "TBD"
+  const duration = data.contractDuration ? `${data.contractDuration} months` : "Month to month"
+  const paymentTermsDisplay = data.paymentTerms
+    ? data.paymentTerms
+    : "Net 14 days from invoice date"
+
+  const servicesDotList = data.services.map((s) =>
+    `<tr><td style="padding: 2px 0 2px 20px; font-size: 13.5px; color: #1F2937; line-height: 1.8;">. ${s}</td></tr>`
+  ).join("\n")
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Service Agreement — ${data.companyName}</title>
+<title>Service Agreement | ${data.companyName}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  @page { margin: 0; size: A4; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a1a; line-height: 1.6; font-size: 12px; }
-  .page { width: 210mm; min-height: 297mm; padding: 30mm 25mm; margin: 0 auto; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0F0F0F;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  #contract-document {
+    max-width: 760px;
+    width: 100%;
+    padding: 64px 72px;
+    background: #FFFFFF;
+    border-radius: 4px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+  }
 
-  .header { text-align: center; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 3px solid #2563eb; }
-  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; color: #111; margin-bottom: 4px; }
-  .header .sub { font-size: 14px; color: #666; }
-  .header .badge { display: inline-block; margin-top: 8px; background: #2563eb; color: #fff; font-size: 10px; font-weight: 600; padding: 4px 14px; border-radius: 20px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .wordmark {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2563EB;
+    letter-spacing: 0.05em;
+    margin-bottom: 24px;
+  }
 
-  .section { margin-bottom: 28px; }
-  .section h2 { font-size: 14px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; }
-  .section p, .section li { font-size: 12px; color: #333; }
+  .doc-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #0D0D0D;
+    margin-bottom: 8px;
+  }
+  .doc-sub {
+    text-align: center;
+    font-size: 14px;
+    color: #6B7280;
+    font-weight: 400;
+    margin-bottom: 16px;
+  }
+  .status-pill {
+    display: inline-block;
+    background: #EFF6FF;
+    color: #1D4ED8;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 999px;
+    text-align: center;
+    margin: 0 auto;
+    display: table;
+  }
+  .header-spacer { height: 48px; }
 
-  .two-col { display: flex; gap: 40px; }
+  .section {
+    margin-bottom: 32px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .section-accent {
+    width: 3px;
+    height: 20px;
+    background: #2563EB;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #2563EB;
+    margin: 0;
+  }
+
+  .two-col {
+    display: flex;
+    gap: 48px;
+  }
   .two-col > div { flex: 1; }
+  .party-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0D0D0D;
+    margin-bottom: 6px;
+  }
+  .party-detail {
+    font-size: 13px;
+    font-weight: 400;
+    color: #4B5563;
+    line-height: 1.7;
+  }
+  .party-detail a {
+    color: #2563EB;
+    text-decoration: none;
+  }
 
-  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 32px; }
-  .summary-grid .label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.3px; }
-  .summary-grid .value { font-size: 14px; font-weight: 600; color: #111; }
+  .body-text {
+    font-size: 13.5px;
+    font-weight: 400;
+    line-height: 1.75;
+    color: #1F2937;
+    margin-bottom: 12px;
+  }
+  .body-text:last-child { margin-bottom: 0; }
 
-  ul { padding-left: 18px; }
-  ul li { margin-bottom: 4px; }
+  .sub-heading {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0D0D0D;
+    margin-top: 16px;
+    margin-bottom: 6px;
+  }
 
-  .signatures { margin-top: 50px; padding-top: 30px; border-top: 2px solid #e5e7eb; }
-  .signatures h2 { font-size: 14px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; }
-  .sig-row { display: flex; gap: 60px; }
-  .sig-block { flex: 1; }
-  .sig-block .line { border-bottom: 1px solid #333; height: 36px; margin-bottom: 4px; }
-  .sig-block .name-label { font-size: 11px; color: #888; }
-  .sig-block .title-label { font-size: 11px; color: #888; margin-top: 24px; }
-  .sig-block .line-title { border-bottom: 1px solid #333; height: 28px; margin-bottom: 4px; }
+  .fees-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px 48px;
+  }
+  .fee-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #6B7280;
+    margin-bottom: 4px;
+  }
+  .fee-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0D0D0D;
+  }
+  .fee-value-sm {
+    font-size: 13.5px;
+    font-weight: 400;
+    color: #1F2937;
+    line-height: 1.6;
+  }
 
-  .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 10px; color: #999; }
-  .footer a { color: #2563eb; text-decoration: none; }
+  .clause {
+    margin-bottom: 24px;
+  }
+  .clause:last-child { margin-bottom: 0; }
+  .clause-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #0D0D0D;
+  }
+  .clause-body {
+    font-size: 13.5px;
+    font-weight: 400;
+    color: #1F2937;
+    line-height: 1.8;
+  }
 
-  @media print {
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .page { padding: 20mm 25mm; }
+  .signatures {
+    margin-top: 40px;
+    padding-top: 32px;
+  }
+  .sig-intro {
+    font-size: 13px;
+    color: #6B7280;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .sig-row {
+    display: flex;
+    gap: 48px;
+  }
+  .sig-col { flex: 1; }
+  .sig-col-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0D0D0D;
+    margin-bottom: 8px;
+  }
+  .sig-line {
+    border-bottom: 1.5px solid #D1D5DB;
+    width: 200px;
+    height: 36px;
+    margin-bottom: 4px;
+  }
+  .sig-label {
+    font-size: 11px;
+    color: #9CA3AF;
+    margin-bottom: 2px;
+  }
+  .sig-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid #E5E7EB;
+  }
+  .footer-text {
+    font-size: 11px;
+    color: #9CA3AF;
+    line-height: 1.8;
+  }
+  .footer-text .dot {
+    margin: 0 6px;
   }
 </style>
 </head>
 <body>
-<div class="page">
+<div id="contract-document">
 
-<div class="header">
-  <h1>Service Agreement</h1>
-  <div class="sub">Between <strong>LaunchOps AI</strong> and <strong>${data.companyName}</strong></div>
-  <div class="badge">Draft — ${date}</div>
-</div>
+  <div class="wordmark">LaunchOps</div>
 
-<div class="section">
-  <h2>Parties</h2>
-  <div class="two-col">
-    <div>
-      <p><strong>LaunchOps AI</strong></p>
-      <p style="font-size:11px;color:#666;">Raymon Suleiman<br>launchopsai.click<br>ray@launchopsai.click</p>
+  <h1 class="doc-title">Service Agreement</h1>
+  <p class="doc-sub">Between LaunchOps AI and ${data.companyName}</p>
+  <div class="status-pill">DRAFT | ${dateStr.toUpperCase()}</div>
+  <div class="header-spacer"></div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-accent"></div>
+      <h2 class="section-label">Parties</h2>
     </div>
-    <div>
-      <p><strong>${data.companyName}</strong></p>
-      <p style="font-size:11px;color:#666;">${data.contactName}${data.contactEmail ? `<br>${data.contactEmail}` : ""}${data.website ? `<br>${data.website}` : ""}</p>
-    </div>
-  </div>
-</div>
-
-<div class="section">
-  <h2>Services</h2>
-  <p>LaunchOps AI agrees to provide the following services to ${data.companyName}:</p>
-  <ul>
-${servicesList}
-  </ul>
-  ${data.scope ? `<p style="margin-top:10px;"><strong>Scope of Work:</strong> ${data.scope}</p>` : ""}
-  ${data.goals ? `<p style="margin-top:6px;"><strong>Goals &amp; Objectives:</strong> ${data.goals}</p>` : ""}
-</div>
-
-<div class="section">
-  <h2>Fees &amp; Payment</h2>
-  <div class="summary-grid">
-    <div><div class="label">Monthly Retainer</div><div class="value">${retainer}</div></div>
-    <div><div class="label">Setup Fee</div><div class="value">${setup}</div></div>
-    <div><div class="label">Contract Duration</div><div class="value">${duration}</div></div>
-    <div><div class="label">Payment Terms</div><div class="value">${paymentTerms}</div></div>
-  </div>
-</div>
-
-<div class="section">
-  <h2>Terms &amp; Conditions</h2>
-  <p><strong>1. Term.</strong> This agreement begins on ${date} and continues for ${duration}. Either party may terminate with 30 days written notice after the initial term.</p>
-  <p style="margin-top:8px;"><strong>2. Invoicing.</strong> LaunchOps AI will invoice ${data.companyName} on a monthly basis. Payment is due ${paymentTerms}.</p>
-  <p style="margin-top:8px;"><strong>3. Intellectual Property.</strong> Upon full payment, all work product delivered under this agreement becomes the property of ${data.companyName}. LaunchOps AI retains the right to display the work in its portfolio.</p>
-  <p style="margin-top:8px;"><strong>4. Confidentiality.</strong> Both parties agree to keep confidential all proprietary information shared during the course of this engagement.</p>
-  <p style="margin-top:8px;"><strong>5. Limitation of Liability.</strong> LaunchOps AI's total liability under this agreement shall not exceed the fees paid in the 12 months prior to the claim.</p>
-  <p style="margin-top:8px;"><strong>6. Governing Law.</strong> This agreement shall be governed by the laws of England and Wales.</p>
-</div>
-
-<div class="signatures">
-  <h2>Signatures</h2>
-  <p style="font-size:11px;color:#666;margin-bottom:24px;">By signing below, both parties agree to the terms of this Service Agreement.</p>
-  <div class="sig-row">
-    <div class="sig-block">
-      <p class="name-label"><strong>LaunchOps AI</strong></p>
-      <div class="line"></div>
-      <p class="name-label">Signature</p>
-      <div class="line-title"></div>
-      <p class="title-label">Raymon Suleiman — Director</p>
-    </div>
-    <div class="sig-block">
-      <p class="name-label"><strong>${data.companyName}</strong></p>
-      <div class="line"></div>
-      <p class="name-label">Signature</p>
-      <div class="line-title"></div>
-      <p class="title-label">${data.contactName}</p>
+    <div class="two-col">
+      <div>
+        <p class="party-name">LaunchOps AI</p>
+        <p class="party-detail">Raymon Suleiman<br>launchopsai.click<br>ray@launchopsai.click</p>
+      </div>
+      <div>
+        <p class="party-name">${data.companyName}</p>
+        <p class="party-detail">${data.contactName}${data.contactEmail ? `<br>${data.contactEmail}` : ""}${data.website ? `<br>${data.website}` : ""}</p>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="footer">
-  LaunchOps AI &mdash; launchopsai.click &mdash; ray@launchopsai.click<br>
-  This document was auto-generated and is a draft until signed by both parties.
-</div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-accent"></div>
+      <h2 class="section-label">Services</h2>
+    </div>
+    <p class="body-text">LaunchOps AI will deliver the following to ${data.companyName}:</p>
+    <table style="border-collapse: collapse; width: 100%;">
+      <tbody>
+${servicesDotList}
+      </tbody>
+    </table>
+    ${data.scope ? `
+    <p class="sub-heading">Scope of Work</p>
+    <p class="body-text">${data.scope}</p>
+    ` : ""}
+    ${data.goals ? `
+    <p class="sub-heading">Goals</p>
+    <p class="body-text">${data.goals}</p>
+    ` : ""}
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-accent"></div>
+      <h2 class="section-label">Fees and Payment</h2>
+    </div>
+    <div class="fees-grid">
+      <div>
+        <p class="fee-label">Monthly Retainer</p>
+        <p class="fee-value">${retainer}</p>
+      </div>
+      <div>
+        <p class="fee-label">Setup Fee</p>
+        <p class="fee-value">${setup}</p>
+      </div>
+      <div>
+        <p class="fee-label">Contract Duration</p>
+        <p class="fee-value">${duration}</p>
+      </div>
+      <div>
+        <p class="fee-label">Payment Terms</p>
+        <p class="fee-value-sm">${paymentTermsDisplay}. Payment is due on ${firstPaymentStr}. An invoice will be sent in advance.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-accent"></div>
+      <h2 class="section-label">Terms and Conditions</h2>
+    </div>
+
+    <div class="clause">
+      <p class="clause-body"><span class="clause-title">Term.</span> This agreement begins on ${dateStr} and runs for ${duration}. Either party may end it with 30 days written notice after the initial term.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-body"><span class="clause-title">Invoicing.</span> LaunchOps AI will invoice ${data.companyName} on a monthly basis. The first payment is due on ${firstPaymentStr}. An invoice will be sent no later than 6pm on that date.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-body"><span class="clause-title">Intellectual Property.</span> Upon full payment, all work product delivered under this agreement becomes the property of ${data.companyName}. LaunchOps AI retains the right to display the work in its portfolio.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-body"><span class="clause-title">Confidentiality.</span> Both parties agree to keep confidential all proprietary information shared during the course of this engagement.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-body"><span class="clause-title">Limitation of Liability.</span> LaunchOps AI total liability under this agreement will not exceed the fees paid in the 12 months prior to the claim.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-body"><span class="clause-title">Governing Law.</span> This agreement is governed by the laws of England and Wales.</p>
+    </div>
+  </div>
+
+  <div class="section signatures">
+    <div class="section-header">
+      <div class="section-accent"></div>
+      <h2 class="section-label">Signatures</h2>
+    </div>
+    <p class="sig-intro">By signing below, both parties confirm they have read and agree to the terms of this Service Agreement.</p>
+    <div class="sig-row">
+      <div class="sig-col">
+        <p class="sig-col-title">LaunchOps AI</p>
+        <div class="sig-line"></div>
+        <p class="sig-label">Signature</p>
+        <p class="sig-name">Raymon Suleiman, Director</p>
+      </div>
+      <div class="sig-col">
+        <p class="sig-col-title">${data.companyName}</p>
+        <div class="sig-line"></div>
+        <p class="sig-label">Signature</p>
+        <p class="sig-name">${data.contactName}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p class="footer-text">
+      LaunchOps AI <span class="dot">.</span> launchopsai.click <span class="dot">.</span> ray@launchopsai.click<br>
+      This document was auto-generated and is a draft until signed by both parties.
+    </p>
+  </div>
 
 </div>
 </body>

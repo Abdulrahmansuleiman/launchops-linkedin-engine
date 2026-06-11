@@ -1,7 +1,9 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
+import jsPDF from "jspdf"
+import html2canvas from "html2canvas"
 
 const PIPELINE_STAGES = [
   "Discovery", "Proposal", "Onboarding", "Active", "Growth", "At Risk", "Churned",
@@ -196,6 +198,24 @@ export default function ClientDetailPage() {
   const todoTasks = allTasks.filter(t => t.status === "todo")
   const inProgressTasks = allTasks.filter(t => t.status === "in_progress")
   const taskCompletion = allTasks.length ? Math.round((doneTasks.length / allTasks.length) * 100) : 0
+
+  const downloadContract = async () => {
+    const el = document.getElementById("contract-document")
+    if (!el) return
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      windowWidth: el.scrollWidth,
+      windowHeight: el.scrollHeight,
+    })
+    const imgData = canvas.toDataURL("image/png")
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight)
+    pdf.save(`LaunchOps_ServiceAgreement_${client.companyName.replace(/\s+/g, "_")}.pdf`)
+  }
 
   const timeline = [
     { date: client.createdAt, icon: "🎉", label: "Client created", desc: `${client.companyName} was added to the pipeline` },
@@ -529,7 +549,7 @@ export default function ClientDetailPage() {
             {client.contractContent ? (
               <div className="contract-actions">
                 <button className="btn btn-primary" onClick={() => setShowContract(true)}>👁️ View Full Contract</button>
-                <button className="btn btn-ghost" onClick={() => window.print()}>📥 Download PDF</button>
+                <button className="btn btn-ghost" onClick={downloadContract}>📥 Download PDF</button>
               </div>
             ) : (
               <p className="text-secondary" style={{ padding: "20px 0" }}>No contract has been generated for this client yet.</p>
@@ -587,13 +607,13 @@ export default function ClientDetailPage() {
         <div className="modal-overlay" onClick={() => setShowContract(false)}>
           <div className="modal modal-wide" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Contract — {client.companyName}</h2>
+              <h2>Contract  {client.companyName}</h2>
               <div className="modal-header-actions">
-                <button className="btn btn-primary btn-sm" onClick={() => window.print()}>📥 Download PDF</button>
+                <button className="btn btn-primary btn-sm" onClick={downloadContract}>📥 Download PDF</button>
                 <button className="btn btn-ghost btn-sm" onClick={() => setShowContract(false)}>✕ Close</button>
               </div>
             </div>
-            <div className="contract-preview" dangerouslySetInnerHTML={{ __html: client.contractContent }} />
+            <div className="contract-preview" style={{ background: "#0F0F0F", padding: 0 }} dangerouslySetInnerHTML={{ __html: client.contractContent }} />
           </div>
         </div>
       )}
@@ -1119,7 +1139,7 @@ export default function ClientDetailPage() {
         }
         .modal-header h2 { margin: 0; font-size: 17px; }
         .modal-header-actions { display: flex; gap: 8px; }
-        .contract-preview { padding: 24px; background: #fff; color: #000; font-size: 14px; line-height: 1.7; }
+        .contract-preview { overflow: hidden; }
 
         .skeleton-cover { height: 160px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; }
         .skeleton-meta { height: 70px; flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
