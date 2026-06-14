@@ -1,77 +1,93 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { searchLinkedinProfiles, getRunResult } from "@/lib/apify";
+import { searchLinkedinProfiles, scrapeLinkedinProfile } from "@/lib/scraper";
 import { qualifyLead } from "@/lib/ai";
-
-function apifyFetch(path: string) {
-  return fetch(`https://api.apify.com/v2${path}?token=${process.env.APIFY_API_KEY}`, {
-    headers: { "Content-Type": "application/json" },
-  }).then((r) => {
-    if (!r.ok) throw new Error(`Apify API error: ${r.status} ${r.statusText}`);
-    return r.json();
-  });
-}
 
 export async function POST(req: Request) {
   const body = await req.json();
 
   if (body.action === "search") {
     const keywords = body.keywords || "founder CEO owner entrepreneur";
-    const limit = Math.min(body.limit || 25, 50);
+    const limit = Math.min(body.limit || 20, 50);
 
-    let run: any;
+    let searchResults: { title: string; link: string; snippet: string }[];
     try {
-      run = await searchLinkedinProfiles({ keywords, limit, followerCountMin: body.followerCountMin || 0 });
+      const res = await searchLinkedinProfiles(keywords, limit);
+      searchResults = res.items;
     } catch (e: any) {
       return NextResponse.json({
-        error: "LinkedIn search failed",
-        detail: e.message || "Unknown Apify error",
-        hint: "Check APIFY_API_KEY is set and the scrapepilot actor is rented at console.apify.com"
+        error: "Lead search failed",
+        detail: e.message,
+        hint: "Make sure GOOGLE_API_KEY and GOOGLE_CX are set in .env"
       }, { status: 502 });
     }
 
-    const runId = run.data?.id;
-    if (!runId) return NextResponse.json({ error: "No run ID returned from Apify" }, { status: 502 });
-
-    const pollMs = 3000;
-    const maxWait = 180000;
-    const started = Date.now();
-
-    let results: any[] = [];
-    while (Date.now() - started < maxWait) {
-      const statusRes = await apifyFetch(`/actor-runs/${runId}`);
-      const status = statusRes.data?.status;
-      if (status === "SUCCEEDED") {
-        results = await getRunResult(runId);
-        break;
-      }
-      if (status === "FAILED" || status === "ABORTED" || status === "TIMED_OUT") {
-        return NextResponse.json({
-          error: `Apify run ${status}`,
-          detail: statusRes.data?.errorMessage || "Unknown"
-        }, { status: 502 });
-      }
-      await new Promise((r) => setTimeout(r, pollMs));
+    if (searchResults.length === 0) {
+      return NextResponse.json({ leads: [] });
     }
-    if (results.length === 0) {
-      return NextResponse.json({ error: "Search returned no results" }, { status: 404 });
+
+    // Parse basic data from Google search snippets
+    const profiles = searchResults.map((item) => ({
+      name: item.title.replace(/\s*-\s*LinkedIn.*$/, "").replace(/\s*\|\s*LinkedIn.*$/, "").trim() || "Unknown",
+      headline: item.snippet ? item.snippet.split(".")[0]?.trim() || item.snippet.slice(0, 120) : "",
+      company: "",
+      location: "",
+      profileUrl: item.link,
+      imageUrl: "",
+      followerCount: 0,
+      about: item.snippet || "",
+    }));
+
+    // Enrich top profiles with ScraperAPI (parallel, 3 at a time)
+    const scrapeBatch = Math.min(profiles.length, 15);
+    const enrichedProfiles: any[] = [];
+
+    for (let i = 0; i < scrapeBatch; i += 3) {
+      const batch = profiles.slice(i, i + 3);
+      const scraped = await Promise.allSettled(
+        batch.map(async (p) => {
+          try {
+            const detail = await scrapeLinkedinProfile(p.profileUrl);
+            return {
+              ...p,
+              name: detail.name || p.name,
+              headline: detail.headline || p.headline,
+              company: detail.company || p.company,
+              followerCount: detail.followerCount || p.followerCount,
+              about: detail.about || p.about,
+              imageUrl: detail.imageUrl || p.imageUrl,
+            };
+          } catch {
+            return p;
+          }
+        })
+      );
+      for (const s of scraped) {
+        if (s.status === "fulfilled") enrichedProfiles.push(s.value);
+        else enrichedProfiles.push(batch[enrichedProfiles.length % 3]);
+      }
+    }
+
+    // Append any remaining beyond scrape batch (using Google snippet data only)
+    for (let i = scrapeBatch; i < profiles.length; i++) {
+      enrichedProfiles.push(profiles[i]);
     }
 
     const account = await prisma.account.findFirst({ orderBy: { createdAt: "asc" } });
     const existingLeads = account ? await prisma.lead.findMany({
       where: { accountId: account.id },
-      select: { linkedinUrl: true, name: true, score: true, scoreReason: true, status: true },
+      select: { linkedinUrl: true, name: true },
     }) : [];
 
     const enriched = [];
     const batchSize = 5;
 
-    for (let i = 0; i < results.length; i += batchSize) {
-      const batch = results.slice(i, i + batchSize);
+    for (let i = 0; i < enrichedProfiles.length; i += batchSize) {
+      const batch = enrichedProfiles.slice(i, i + batchSize);
       const qualified = await Promise.all(
         batch.map(async (profile: any) => {
-          const score = profile.followerCount > 0 ? Math.min(Math.round(profile.followerCount / 200), 60) : 30;
-          let aiScore = { score, scoreReason: null as string | null, strengths: [] as string[], concerns: [] as string[], verdict: "warm" as string };
+          const defaultScore = profile.followerCount > 0 ? Math.min(Math.round(profile.followerCount / 200), 60) : 30;
+          let aiScore = { score: defaultScore, scoreReason: null as string | null, strengths: [] as string[], concerns: [] as string[], verdict: "warm" as string };
 
           try {
             const q = await qualifyLead({
@@ -110,8 +126,8 @@ export async function POST(req: Request) {
             about: profile.about || "",
             ...aiScore,
             alreadyExists: !!exists,
-            existingStatus: exists?.status || null,
-            existingScore: exists?.score || null,
+            existingStatus: null,
+            existingScore: null,
           };
         })
       );

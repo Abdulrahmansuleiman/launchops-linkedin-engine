@@ -8,5 +8,8 @@ declare namespace NodeJS {
     APIFY_API_KEY: string;
     NEXTAUTH_SECRET: string;
     NEXTAUTH_URL: string;
+    GOOGLE_API_KEY?: string;
+    GOOGLE_CX?: string;
+    SCRAPERAPI_KEY?: string;
   }
 }
