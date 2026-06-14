@@ -11,7 +11,7 @@ import {
   Search, Filter, MoreHorizontal, Target,
   Loader2, Link2, CheckCircle, Send, Plus, X, Briefcase
 } from "lucide-react";
-import { getLeads, importLeads, markLeadConnected, updateLeadStatus, createLead, type Lead } from "@/lib/api";
+import { getLeads, importLeads, markLeadConnected, updateLeadStatus, createLead, deleteLead, type Lead } from "@/lib/api";
 import { ConvertToClientModal } from "@/app/clients/components/ConvertToClientModal";
 
 const statusColor = (status: string) => {
@@ -59,6 +59,8 @@ export default function Leads() {
   const [importUrls, setImportUrls] = useState("");
   const [saving, setSaving] = useState(false);
   const [convertingLead, setConvertingLead] = useState<Lead | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<Lead | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { data: allLeads = [] } = useQuery({
@@ -150,6 +152,22 @@ export default function Leads() {
       console.error("Status update failed:", e);
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleDeleteLead = async () => {
+    const target = showDeleteConfirm;
+    if (!target) return;
+    setDeletingId(target.id);
+    try {
+      await deleteLead(target.id);
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      setShowDeleteConfirm(null);
+    } catch (e: any) {
+      setImportMsg("Delete failed: " + (e.message || "Error"));
+      setTimeout(() => setImportMsg(null), 4000);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -514,6 +532,16 @@ export default function Leads() {
                             <Briefcase className="w-3.5 h-3.5" style={{ color: "#3b82f6" }} />
                           </Button>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="!p-1.5"
+                          title="Delete lead"
+                          disabled={deletingId === lead.id}
+                          onClick={() => setShowDeleteConfirm(lead)}
+                        >
+                          <X className="w-3.5 h-3.5" style={{ color: "#f87171" }} />
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -544,6 +572,32 @@ export default function Leads() {
           </Card>
         ))}
       </div>
+
+      {showDeleteConfirm && (
+        <div style={modalOverlay} onClick={() => !deletingId && setShowDeleteConfirm(null)}>
+          <div style={modalBox} onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Delete Lead</h2>
+              <button onClick={() => !deletingId && setShowDeleteConfirm(null)} className="p-1 rounded hover:opacity-70">
+                <X className="w-5 h-5" style={{ color: "var(--muted)" }} />
+              </button>
+            </div>
+            <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>
+              Are you sure you want to delete <strong style={{ color: "var(--foreground)" }}>{showDeleteConfirm.name || "this lead"}</strong>? This action cannot be undone.
+            </p>
+            <div className="flex gap-2">
+              <Button onClick={handleDeleteLead} disabled={deletingId === showDeleteConfirm.id} style={{ background: "#dc2626", color: "#fff" }}>
+                {deletingId === showDeleteConfirm.id
+                  ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                  : <X className="w-4 h-4 mr-1.5" />
+                }
+                {deletingId === showDeleteConfirm.id ? "Deleting..." : "Delete"}
+              </Button>
+              <Button variant="secondary" onClick={() => setShowDeleteConfirm(null)} disabled={!!deletingId}>Cancel</Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {convertingLead && (
         <ConvertToClientModal

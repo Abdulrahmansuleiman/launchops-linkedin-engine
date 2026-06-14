@@ -165,6 +165,10 @@ export async function updateLeadStatus(leadId: string, status: string) {
   });
 }
 
+export async function deleteLead(leadId: string) {
+  return fetchJSON<{ success: boolean }>(`/api/leads/${leadId}`, { method: "DELETE" });
+}
+
 export async function generateMessage(params: {
   prospectName: string;
   prospectCompany?: string;
