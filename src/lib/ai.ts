@@ -466,22 +466,23 @@ export async function qualifyLead(params: {
 }) {
   const prompt = `You are a lead qualification AI for LaunchOps AI. Your job is to score a prospect on how well they fit Raymon's ICP and how likely they are to convert.
 
-## ICP Criteria
-1. Agency owners / marketing agencies — Done-for-you AI pipeline build (HIGHEST priority)
-2. Local business owners (solar, HVAC, dental, clinics, finance, mortgage, real estate) — Direct build
-3. Freelancers / consultants — White-label resell model
+## ICP Criteria (Priority Order)
+1. Business owners, founders, CEOs, managing directors, entrepreneurs (ANY industry) — HIGHEST priority. These are decision makers who can buy directly.
+2. Agency owners / marketing agency founders — Done-for-you AI pipeline build
+3. Local business owners (solar, HVAC, dental, clinics, finance, mortgage, real estate) — Direct build
+4. Freelancers / consultants — White-label resell model
 
 ## Scoring Rubric (0-100)
-- 90-100: Perfect ICP fit, clear decision maker, strong signal
-- 70-89: Good fit, likely decision maker or strong influence
-- 50-69: Moderate fit, some signals present
-- 30-49: Weak fit, unlikely decision maker or wrong industry
-- 0-29: Poor fit, not target audience
+- 90-100: Perfect ICP fit — business owner/founder/CEO with clear decision-making authority
+- 70-89: Good fit — likely decision maker or strong influence in a relevant business
+- 50-69: Moderate fit — some signals present but role or industry is uncertain
+- 30-49: Weak fit — unlikely decision maker or wrong industry
+- 0-29: Poor fit — not a business owner or decision maker
 
 ## What to evaluate
-1. Role seniority (founder, CEO, owner = high; intern, assistant = low)
-2. Industry match to ICP (agency, solar, HVAC, dental, real estate, finance = high)
-3. Company relevance
+1. Role seniority (founder, CEO, owner, managing director = HIGHEST; VP, director = good; intern, assistant = low)
+2. Industry match to ICP (any business owner = strong signal; agency, solar, HVAC, dental, real estate, finance = ideal)
+3. Company relevance and size
 4. Location (UK-based is a slight bonus)
 5. Follower count (higher = more influential, but not a primary signal)
 

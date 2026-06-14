@@ -15,11 +15,13 @@ import {
   Search,
   Briefcase,
   CheckSquare,
+  Target,
 } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/leads", label: "Leads", icon: Users },
+  { href: "/discovery", label: "Discover", icon: Target },
   { href: "/content", label: "Content Studio", icon: FileText },
   { href: "/outreach", label: "Outreach", icon: Send },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },

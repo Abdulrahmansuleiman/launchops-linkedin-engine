@@ -199,6 +199,40 @@ export async function getWeeklyReports() {
   return fetchJSON<WeeklyReport[]>("/api/content?status=PUBLISHED");
 }
 
+// === Lead Discovery ===
+export interface DiscoveredLead {
+  name: string;
+  headline: string;
+  company: string;
+  location: string;
+  linkedinUrl: string;
+  profilePicture: string;
+  followerCount: number;
+  about: string;
+  score: number;
+  scoreReason: string | null;
+  strengths: string[];
+  concerns: string[];
+  verdict: string;
+  alreadyExists: boolean;
+  existingStatus: string | null;
+  existingScore: number | null;
+}
+
+export async function discoverLeads(criteria?: { keywords?: string; limit?: number; followerCountMin?: number }) {
+  return fetchJSON<{ leads: DiscoveredLead[] }>("/api/discovery", {
+    method: "POST",
+    body: JSON.stringify({ action: "search", ...criteria }),
+  });
+}
+
+export async function importDiscoveredLeads(leads: DiscoveredLead[]) {
+  return fetchJSON<{ imported: number; skipped: number; skippedDetails: { name: string; reason: string; id: string }[]; leads: Lead[] }>("/api/discovery", {
+    method: "POST",
+    body: JSON.stringify({ action: "import", leads }),
+  });
+}
+
 export async function generateWeeklyInsights() {
   return fetchJSON<any>("/api/openai", {
     method: "POST",
