@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/input";
-import { Sparkles, Check, RefreshCw, Loader2, Star, TrendingUp, Target, MessageCircle } from "lucide-react";
-import { getPosts, generateDrafts, publishPost, submitPostFeedback, polishPost } from "@/lib/api";
+import { Sparkles, Check, RefreshCw, Loader2, Star, TrendingUp, Target, MessageCircle, Trash2 } from "lucide-react";
+import { getPosts, generateDrafts, publishPost, submitPostFeedback, polishPost, deletePost } from "@/lib/api";
 
 const CONTENT_TOPICS = [
   "Lead response speed and the cost of slow follow-up",
@@ -27,6 +27,7 @@ export default function ContentStudio() {
   const [generating, setGenerating] = useState(false);
   const [publishing, setPublishing] = useState<string | null>(null);
   const [polishing, setPolishing] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const [topic, setTopic] = useState("");
   const queryClient = useQueryClient();
@@ -88,6 +89,18 @@ export default function ContentStudio() {
       console.error("Polish failed:", e);
     } finally {
       setPolishing(null);
+    }
+  };
+
+  const handleDelete = async (postId: string) => {
+    setDeleting(postId);
+    try {
+      await deletePost(postId);
+      queryClient.invalidateQueries({ queryKey: ["content-posts"] });
+    } catch (e: any) {
+      console.error("Delete failed:", e);
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -272,6 +285,16 @@ export default function ContentStudio() {
                     >
                       {polishing === post.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1" />}
                       Polish with AI
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="!p-1.5"
+                      onClick={(e) => { e.stopPropagation(); handleDelete(post.id); }}
+                      disabled={deleting === post.id}
+                      title="Delete draft"
+                    >
+                      {deleting === post.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" style={{ color: "#f87171" }} />}
                     </Button>
                     {post.feedbackRating && (
                       <Badge variant="info" className="text-[10px]">

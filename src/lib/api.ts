@@ -132,6 +132,10 @@ export async function submitPostFeedback(id: string, feedbackRating: string, fee
   });
 }
 
+export async function deletePost(id: string) {
+  return fetchJSON<{ success: boolean }>(`/api/content/${id}`, { method: "DELETE" });
+}
+
 export async function polishPost(content: string) {
   return fetchJSON<any>("/api/openai", {
     method: "POST",
