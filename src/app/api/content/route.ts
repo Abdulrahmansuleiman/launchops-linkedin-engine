@@ -41,21 +41,23 @@ export async function POST(req: Request) {
     const day = body.day || "Monday";
     const weekLabel = body.weekLabel || `W${getWeekNumber(new Date())}-${day}`;
 
-    // Delete existing posts for this day before generating fresh ones
-    await prisma.post.deleteMany({ where: { weekLabel, status: "DRAFT", aiGenerated: true } });
-
-    const drafts = await generatePostDrafts({
-      topic: body.topic,
-      count: body.count || 3,
-      day,
-    });
-
-    if (!drafts.drafts || drafts.drafts.length === 0) {
-      return NextResponse.json({ error: "AI returned no drafts" }, { status: 502 });
+    let drafts;
+    try {
+      drafts = await generatePostDrafts({
+        topic: body.topic,
+        count: body.count || 3,
+        day,
+      });
+    } catch (e: any) {
+      return NextResponse.json({ error: e.message || "AI generation failed" }, { status: 502 });
     }
 
     const accountId = await getDefaultAccountId();
     const posts = [];
+
+    // Delete existing posts for this day after successful generation
+    await prisma.post.deleteMany({ where: { weekLabel, status: "DRAFT", aiGenerated: true } });
+
     for (const draft of drafts.drafts || []) {
       const post = await prisma.post.create({
         data: {

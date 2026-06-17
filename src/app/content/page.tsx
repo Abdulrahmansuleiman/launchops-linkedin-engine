@@ -55,6 +55,7 @@ export default function ContentStudio() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const [topic, setTopic] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { data: posts = [], isLoading } = useQuery({
@@ -70,12 +71,15 @@ export default function ContentStudio() {
 
   const handleGenerate = async () => {
     setGenerating(true);
+    setError(null);
     try {
       const chosenTopic = topic || CONTENT_TOPICS[Math.floor(Math.random() * CONTENT_TOPICS.length)];
       await generateDrafts(chosenTopic, getWeekLabel(selectedDay), selectedDay);
       queryClient.invalidateQueries({ queryKey: ["content-posts"] });
       setTopic("");
     } catch (e: any) {
+      const msg = e.message || "Unknown error";
+      setError(msg);
       console.error("Generate failed:", e);
     } finally {
       setGenerating(false);
@@ -220,6 +224,12 @@ export default function ContentStudio() {
           );
         })}
       </div>
+
+      {error && (
+        <div className="p-3 rounded-lg text-sm" style={{ background: "#3b1212", color: "#fca5a5", border: "1px solid #7f1d1d" }}>
+          {error}
+        </div>
+      )}
 
       {selectedDay && (
         <div className="flex items-center justify-between flex-wrap gap-2">

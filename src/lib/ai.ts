@@ -281,23 +281,38 @@ For each draft, provide:
 
 CRITICAL: Score each post below 70 if the hook is weak, the CTA is passive, or the post has any fluff. Only score 80+ if you genuinely believe this post will hit 5K+ impressions and 50+ likes. Be extremely strict.`;
 
-  const res = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      {
-        role: "system",
-        content: `You are LaunchOps AI's LinkedIn content strategist. You write posts that HIT 5,000 to 10,000 impressions with 50 to 100+ likes every time.
+  let model = "gpt-4o-mini";
+  let res;
+  try {
+    res = await openai.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: "system",
+          content: `You are LaunchOps AI's LinkedIn content strategist. You write posts that HIT 5,000 to 10,000 impressions with 50 to 100+ likes every time.
 
 ${CONTENT_SKILL}
 
 CRITICAL: Every post you write must have a hook that stops scroll, a body that shifts a belief, and a CTA that drives comments. If a post would not hit 5K+ impressions, score it accordingly. Never inflate scores. Be brutally honest. No AI fluff, no slop, no filler. Every word earns its place.`,
-      },
-      { role: "user", content: prompt },
-    ],
-    response_format: { type: "json_object" },
-  });
+        },
+        { role: "user", content: prompt },
+      ],
+      response_format: { type: "json_object" },
+    });
+  } catch (e: any) {
+    throw new Error(`OpenAI content generation failed: ${e.message || e}`);
+  }
 
-  return JSON.parse(res.choices[0].message.content || "{}");
+  if (!res?.choices?.[0]?.message?.content) {
+    throw new Error("OpenAI returned empty response");
+  }
+
+  const parsed = JSON.parse(res.choices[0].message.content);
+  if (!parsed.drafts || !Array.isArray(parsed.drafts) || parsed.drafts.length === 0) {
+    throw new Error("AI returned no valid drafts");
+  }
+
+  return parsed;
 }
 
 export async function analyzePost(postContent: string) {
