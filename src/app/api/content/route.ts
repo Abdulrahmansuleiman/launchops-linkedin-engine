@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generatePostDrafts } from "@/lib/ai";
 
+function getWeekNumber(date: Date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+}
+
 async function getDefaultAccountId() {
   const account = await prisma.account.findFirst({ orderBy: { createdAt: "asc" } });
   if (!account) throw new Error("No account found");
@@ -30,10 +38,21 @@ export async function POST(req: Request) {
   const body = await req.json();
 
   if (body.action === "generate") {
+    const day = body.day || "Monday";
+    const weekLabel = body.weekLabel || `W${getWeekNumber(new Date())}-${day}`;
+
+    // Delete existing posts for this day before generating fresh ones
+    await prisma.post.deleteMany({ where: { weekLabel, status: "DRAFT", aiGenerated: true } });
+
     const drafts = await generatePostDrafts({
       topic: body.topic,
       count: body.count || 3,
+      day,
     });
+
+    if (!drafts.drafts || drafts.drafts.length === 0) {
+      return NextResponse.json({ error: "AI returned no drafts" }, { status: 502 });
+    }
 
     const accountId = await getDefaultAccountId();
     const posts = [];
@@ -47,7 +66,7 @@ export async function POST(req: Request) {
           score: draft.score,
           scoreReason: draft.scoreAnalysis,
           impressionPrediction: draft.impressionPrediction,
-          weekLabel: body.weekLabel,
+          weekLabel,
           aiGenerated: true,
         },
       });

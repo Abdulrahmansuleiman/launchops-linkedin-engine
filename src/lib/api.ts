@@ -111,10 +111,10 @@ export async function getPosts(params?: { weekLabel?: string; status?: string })
   return fetchJSON<Post[]>(`/api/content${qs ? `?${qs}` : ""}`);
 }
 
-export async function generateDrafts(topic: string, weekLabel?: string) {
+export async function generateDrafts(topic: string, weekLabel?: string, day?: string) {
   return fetchJSON<{ drafts: Post[] }>("/api/content", {
     method: "POST",
-    body: JSON.stringify({ action: "generate", topic, weekLabel }),
+    body: JSON.stringify({ action: "generate", topic, weekLabel, day }),
   });
 }
 

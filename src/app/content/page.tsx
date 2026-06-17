@@ -17,10 +17,35 @@ const CONTENT_TOPICS = [
   "Why most AI hype misses what actually works in business",
   "Real client results from automated pipeline systems",
   "How business owners can implement AI systems without hiring a team",
+  "The 5 minute lead response window and why most businesses fail it",
+  "What top performing sales people do differently at follow-up",
+  "Why slow follow-up destroys more deals than bad pricing",
 ];
 
+const dayThemes: Record<string, string> = {
+  Monday: "Strategy & Vision",
+  Tuesday: "Education & How-To",
+  Wednesday: "Storytelling & Results",
+  Thursday: "Hard Truth & Opinion",
+  Friday: "Social Proof & Case Studies",
+  Saturday: "Behind the Build",
+  Sunday: "Reflection & Mindset",
+};
+
+const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+function getWeekLabel(day: string) {
+  const now = new Date();
+  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNum = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  return `W${weekNum}-${day}`;
+}
+
 export default function ContentStudio() {
-  const [selectedDay, setSelectedDay] = useState("Monday");
+  const [selectedDay, setSelectedDay] = useState(days[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1] || "Monday");
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [feedbackRating, setFeedbackRating] = useState<"great" | "average" | "flopped" | null>(null);
@@ -37,17 +62,17 @@ export default function ContentStudio() {
     queryFn: () => getPosts(),
   });
 
-  const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-  const dayPosts = posts.filter((p) => {
-    const d = new Date(p.createdAt);
-    return d.toLocaleDateString("en", { weekday: "long" }) === selectedDay;
-  }).slice(0, 3);
+  const dayPosts = posts.filter((p) => p.weekLabel === getWeekLabel(selectedDay)).slice(0, 3);
+  const draftCounts = days.reduce((acc, day) => {
+    acc[day] = posts.filter((p) => p.weekLabel === getWeekLabel(day) && p.status === "DRAFT").length;
+    return acc;
+  }, {} as Record<string, number>);
 
   const handleGenerate = async () => {
     setGenerating(true);
     try {
       const chosenTopic = topic || CONTENT_TOPICS[Math.floor(Math.random() * CONTENT_TOPICS.length)];
-      await generateDrafts(chosenTopic);
+      await generateDrafts(chosenTopic, getWeekLabel(selectedDay), selectedDay);
       queryClient.invalidateQueries({ queryKey: ["content-posts"] });
       setTopic("");
     } catch (e: any) {
@@ -104,6 +129,16 @@ export default function ContentStudio() {
     }
   };
 
+  const handleClearDay = async () => {
+    const toDelete = dayPosts;
+    for (const post of toDelete) {
+      try {
+        await deletePost(post.id);
+      } catch {}
+    }
+    queryClient.invalidateQueries({ queryKey: ["content-posts"] });
+  };
+
   const handleFeedbackSubmit = async () => {
     if (!feedbackText.trim() || !feedbackRating) return;
     setFeedbackSent(true);
@@ -131,8 +166,9 @@ export default function ContentStudio() {
 
   const getScoreLabel = (score: number | null) => {
     if (!score) return "Not scored";
-    if (score >= 80) return "Strong";
-    if (score >= 60) return "Good";
+    if (score >= 85) return "Viral potential";
+    if (score >= 70) return "Strong";
+    if (score >= 50) return "Good";
     return "Needs work";
   };
 
@@ -144,13 +180,13 @@ export default function ContentStudio() {
             Content Studio
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Pick the best draft and publish it
+            Generate 5K-10K impression posts for each day. Every post AI-scored, intentionally written.
           </p>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
           <input
             type="text"
-            placeholder="Topic or leave blank..."
+            placeholder="Topic or random..."
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             className="h-9 px-3 rounded-lg text-sm w-full sm:w-48"
@@ -158,31 +194,57 @@ export default function ContentStudio() {
           />
           <Button onClick={handleGenerate} disabled={generating} className="whitespace-nowrap !text-xs !px-3">
             {generating ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-1.5" />}
-            {generating ? "Generating..." : "Refresh"}
+            {generating ? "Generating..." : `Generate for ${selectedDay}`}
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-7 gap-1">
-        {days.map((day) => (
-          <button
-            key={day}
-            onClick={() => { setSelectedDay(day); setSelectedPost(null); }}
-            className="p-1.5 md:p-2 rounded-lg text-[11px] md:text-xs font-medium transition-all cursor-pointer"
-            style={{
-              background: selectedDay === day ? "#2563eb" : "var(--badge-bg)",
-              color: selectedDay === day ? "white" : "var(--muted)",
-              border: selectedDay === day ? "none" : "1px solid var(--card-border)",
-            }}
-          >
-            <span className="hidden md:inline">{day}</span>
-            <span className="md:hidden">{day.slice(0,3)}</span>
-            <div className="text-[10px] mt-0.5 opacity-70">
-              {posts.filter((p) => new Date(p.createdAt).toLocaleDateString("en", { weekday: "long" }) === day).length} drafts
-            </div>
-          </button>
-        ))}
+        {days.map((day) => {
+          const count = draftCounts[day] || 0;
+          return (
+            <button
+              key={day}
+              onClick={() => { setSelectedDay(day); setSelectedPost(null); }}
+              className="p-1.5 md:p-2 rounded-lg text-[11px] md:text-xs font-medium transition-all cursor-pointer"
+              style={{
+                background: selectedDay === day ? "#2563eb" : "var(--badge-bg)",
+                color: selectedDay === day ? "white" : "var(--muted)",
+                border: selectedDay === day ? "none" : "1px solid var(--card-border)",
+              }}
+            >
+              <span className="hidden md:inline">{day}</span>
+              <span className="md:hidden">{day.slice(0,3)}</span>
+              <div className="text-[10px] mt-0.5 opacity-70">{count} draft{count !== 1 ? "s" : ""}</div>
+            </button>
+          );
+        })}
       </div>
+
+      {selectedDay && (
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
+              {selectedDay} &mdash; {dayThemes[selectedDay]}
+            </span>
+            <Badge variant="info" className="text-[10px]">
+              {getWeekLabel(selectedDay)}
+            </Badge>
+          </div>
+          <div className="flex gap-2">
+            {dayPosts.length > 0 && (
+              <Button variant="ghost" size="sm" className="!text-xs !px-2" onClick={handleClearDay} title="Clear all drafts for this day">
+                <Trash2 className="w-3.5 h-3.5 mr-1" style={{ color: "#f87171" }} />
+                Clear day
+              </Button>
+            )}
+            <Button onClick={handleGenerate} disabled={generating} size="sm" className="!text-xs !px-3">
+              {generating ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 mr-1" />}
+              {generating ? "Generating..." : dayPosts.length > 0 ? "Refresh" : "Generate"}
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {isLoading ? (
@@ -193,10 +255,9 @@ export default function ContentStudio() {
           </Card>
         ) : dayPosts.length > 0 ? (
           <>
-            <div className="flex items-center gap-2 mb-1">
-              <p className="text-sm font-medium" style={{ color: "var(--foreground)" }}>3 drafts for {selectedDay}</p>
-              <Badge variant="info">Pick the best one</Badge>
-            </div>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>
+              Target: 5,000 - 10,000 impressions &bull; 50 - 100+ likes per post
+            </p>
             {dayPosts.map((post, index) => (
               <Card
                 key={post.id}
@@ -213,6 +274,9 @@ export default function ContentStudio() {
                       <CardTitle className="text-sm">
                         {post.topic || "Untitled"}
                       </CardTitle>
+                      <Badge className="text-[10px]" variant={post.topic ? "info" : "default"}>
+                        {post.topic ? "Educational" : "Opinion"}
+                      </Badge>
                     </div>
                     <div className="flex items-center gap-2">
                       {post.score && (
@@ -260,7 +324,7 @@ export default function ContentStudio() {
                     >
                       <div className="flex items-center gap-1.5 mb-1">
                         <Target className="w-3.5 h-3.5" style={{ color: "#c084fc" }} />
-                        <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>Score breakdown</span>
+                        <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>Score analysis</span>
                       </div>
                       <p className="text-xs leading-relaxed" style={{ color: "var(--foreground)" }}>
                         {post.scoreReason}
@@ -284,7 +348,7 @@ export default function ContentStudio() {
                       disabled={polishing === post.id}
                     >
                       {polishing === post.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1" />}
-                      Polish with AI
+                      Polish
                     </Button>
                     <Button
                       variant="ghost"
@@ -296,11 +360,6 @@ export default function ContentStudio() {
                     >
                       {deleting === post.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" style={{ color: "#f87171" }} />}
                     </Button>
-                    {post.feedbackRating && (
-                      <Badge variant="info" className="text-[10px]">
-                        Feedback: {post.feedbackRating}
-                      </Badge>
-                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -310,9 +369,14 @@ export default function ContentStudio() {
           <Card>
             <CardContent className="text-center py-8">
               <MessageCircle className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--muted)" }} />
-              <p className="text-sm mb-1 font-medium" style={{ color: "var(--foreground)" }}>No drafts for {selectedDay}</p>
-              <p className="text-xs mb-4" style={{ color: "var(--muted)" }}>
-                Click Refresh Drafts to generate 3 scored options
+              <p className="text-sm mb-1 font-medium" style={{ color: "var(--foreground)" }}>
+                No drafts for {selectedDay}
+              </p>
+              <p className="text-xs mb-1" style={{ color: "var(--muted)" }}>
+                Click Generate below to create 3 AI-scored posts targeting 5K-10K impressions
+              </p>
+              <p className="text-xs mb-4" style={{ color: dayThemes[selectedDay] ? "#93c5fd" : "var(--muted)" }}>
+                {selectedDay}'s theme: {dayThemes[selectedDay]}
               </p>
               <Button
                 size="sm"
@@ -320,7 +384,7 @@ export default function ContentStudio() {
                 disabled={generating}
               >
                 {generating ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1" />}
-                Generate Drafts
+                Generate 3 Posts for {selectedDay}
               </Button>
             </CardContent>
           </Card>
@@ -333,7 +397,7 @@ export default function ContentStudio() {
         </CardHeader>
         <CardContent>
           <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
-            Rate how the published post performed and the AI will adjust next week
+            Rate how a published post performed. The AI adjusts next week's content based on feedback.
           </p>
           <div className="flex gap-2 mb-3 flex-wrap">
             {(["great", "average", "flopped"] as const).map((rating) => (

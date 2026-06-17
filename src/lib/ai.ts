@@ -226,48 +226,71 @@ export async function generatePostDrafts(params: {
   competitorPosts?: string[];
   pastFeedback?: string;
   count?: number;
+  day?: string;
 }) {
-  const prompt = `You are a LinkedIn content strategist for LaunchOps AI. Your job is to write posts that hit 1,000+ impressions minimum. Target audience: business owners who want to implement AI systems into their business.
+  const dayThemes: Record<string, string> = {
+    Monday: "Strategy & Vision — kick off the week with big-picture thinking, systems, and the founder mindset",
+    Tuesday: "Education & How-To — teach something specific about pipeline automation, lead response, or sales systems",
+    Wednesday: "Storytelling & Real Results — share a client win, a real conversation, or a behind-the-scenes moment",
+    Thursday: "Hard Truth & Opinion — challenge a belief the audience holds, reframe a common mistake",
+    Friday: "Social Proof & Case Study — real numbers, real testimonials, proof that the system works",
+    Saturday: "Behind the Build — show the work in progress, screenshots of real systems, the reality of building",
+    Sunday: "Reflection & Mindset — a personal take on entrepreneurship, sales psychology, or lessons learned",
+  };
+
+  const dayTheme = params.day ? dayThemes[params.day] || "" : "";
+
+  const prompt = `You are a high-converting LinkedIn content strategist for LaunchOps AI. Your job is to write posts that HIT 5,000 to 10,000 impressions minimum with 50 to 100+ likes every single time. Target audience: business owners, founders, agency owners who want automated lead follow-up systems.
+
+${dayTheme ? `This post is for ${params.day}. Theme: ${dayTheme}` : ""}
 
 Follow this framework EXACTLY:
 1. Generate ${params.count || 3} distinct LinkedIn post drafts about "${params.topic}"
 2. Each draft must use a DIFFERENT post format (pick from: Storytelling, Opinion/reframe, Behind the build, Education, Social proof, Hard truth)
-3. Each draft must follow the SLAY structure
+3. Each draft must follow the SLAY structure: Stop scroll hook → Lead with pain → Authority proof → Your move CTA
 
-CRITICAL RULES:
-- Never lead with the word AI — use "system" or "pipeline"
-- The word "AI" can appear once max in the body, never in the hook
-- No dashes (—) anywhere in the copy. Use commas or periods instead.
-- No AI slop phrases: no "game-changer", "leverage", "innovative", "seamlessly", "utilise", "empower", "straightforward", "genuinely", "honestly"
-- Hook must be 8 words or fewer
-- Short paragraphs (1-2 lines max)
-- Arrow lists (→) for scannable breakdowns
-- CTA speaks to the reader's situation, not Raymon's desire to talk to them
-- End with a P.S. line that is intentional and human
-- POST LENGTH: Write substantial posts — 150 to 300 words. Raymon writes like he speaks: full thoughts, real detail, never abrupt. A post should have meat on it.
+THE NON-NEGOTIABLES FOR 5K-10K IMPRESSIONS:
+- The hook MUST create immediate tension, curiosity, or disbelief. It must stop a scrolling finger in under 1 second. If it doesn't, the post fails.
+- The hook must be 8 words or fewer. Count them. Exactly 8 or less.
+- The body must make the reader FEEL something — discomfort at their current situation, excitement at the possibility, or both.
+- The CTA must be intentional and drive comments. Best CTAs: "Comment PIPELINE", "Drop me a DM", "Connect if this hits home"
+- Every post must shift a belief. The reader should think differently after reading.
+- Post length: 150 to 300 words of dense value. No fluff. No filler sentences.
+- Every paragraph earns its place. Cut anything that doesn't serve the hook or the CTA.
+
+CRITICAL LANGUAGE RULES:
+- Never lead with the word "AI" — use "system", "pipeline", "automated pipeline", "follow-up system"
+- The word "AI" can appear once max in the entire body, never in the hook
+- No dashes (—) anywhere. Use commas, periods, or full stops.
+- ZERO AI slop phrases. Banned words: "game-changer", "leverage", "innovative", "seamlessly", "utilise", "empower", "straightforward", "genuinely", "honestly", "transformative", "revolutionise", "cutting-edge", "next-level", "paradigm"
+- Short paragraphs — 1 to 2 lines max. Never 3+ line paragraphs.
+- Use arrow lists (→) for scannable breakdowns — but no more than 4 items
+- Write like a human entrepreneur talking to another entrepreneur. Not a marketer. Not a writer. Not a bot.
+- Never explain the technology. Always explain the outcome.
+- Tone: direct, warm, confident, experienced. Like Raymon has been in their shoes and figured it out.
 
 ${params.pastFeedback ? `Learn from past performance: ${params.pastFeedback}` : ""}
 
 For each draft, provide:
-1. "content": Full post body (follow SLAY structure)
+1. "content": Full post body — follows SLAY structure, 150-300 words
 2. "format": Which post format you used
-3. "score": Overall quality score out of 100 (be honest and critical)
-4. "scoreAnalysis": A 2-3 sentence breakdown explaining exactly why this score was given — what works, what's weak, what could hold it back from 1k impressions
-5. "impressionPrediction": A realistic impression range for an account with 5K followers, e.g. "1,200 - 2,500"
-6. "hook": The exact hook line used
+3. "score": Overall quality score out of 100 — be brutally honest. Score reflects likelyhood of hitting 5K+ impressions
+4. "scoreAnalysis": 2-3 sentence breakdown explaining what makes this post hit 5K+ or what holds it back
+5. "impressionPrediction": A realistic impression range for this post, e.g. "5,000 - 8,000" or "8,000 - 12,000". Never below 5,000.
+6. "hook": The exact hook line used (8 words or fewer)
 
-Return as a JSON object with a "drafts" array.`;
+CRITICAL: Score each post below 70 if the hook is weak, the CTA is passive, or the post has any fluff. Only score 80+ if you genuinely believe this post will hit 5K+ impressions and 50+ likes. Be extremely strict.`;
 
   const res = await openai.chat.completions.create({
     model: "gpt-4o",
     messages: [
       {
         role: "system",
-        content: `You are LaunchOps AI's LinkedIn content strategist. You write posts that hit 1k+ impressions.
+        content: `You are LaunchOps AI's LinkedIn content strategist. You write posts that HIT 5,000 to 10,000 impressions with 50 to 100+ likes every time.
 
 ${CONTENT_SKILL}
 
-Never write AI slop. Never lead with AI. Never use dashes. Every post must have a clear reason it will reach 1k+ impressions. Score honestly and critically.`,
+CRITICAL: Every post you write must have a hook that stops scroll, a body that shifts a belief, and a CTA that drives comments. If a post would not hit 5K+ impressions, score it accordingly. Never inflate scores. Be brutally honest. No AI fluff, no slop, no filler. Every word earns its place.`,
       },
       { role: "user", content: prompt },
     ],
