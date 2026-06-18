@@ -45,6 +45,8 @@
   --chart-3: #06b6d4;
   --chart-4: #22c55e;
   --chart-5: #eab308;
+  --scrollbar-thumb: #c0c0c0;
+  --scrollbar-thumb-hover: #a0a0a0;
 }
 
 .dark {
@@ -92,6 +94,13 @@
   --chart-3: #22d3ee;
   --chart-4: #4ade80;
   --chart-5: #facc15;
+  --scrollbar-thumb: #555;
+  --scrollbar-thumb-hover: #777;
+}
+
+html, body {
+  overflow: hidden;
+  height: 100%;
 }
 
 body {
@@ -103,5 +112,5 @@ body {
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #555; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb, #555); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover, #777); }
