@@ -48,6 +48,7 @@ export default function ContentStudio() {
   const [selectedDay, setSelectedDay] = useState(days[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1] || "Monday");
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackSent, setFeedbackSent] = useState(false);
+  const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
   const [feedbackRating, setFeedbackRating] = useState<"great" | "average" | "flopped" | null>(null);
   const [generating, setGenerating] = useState(false);
   const [publishing, setPublishing] = useState<string | null>(null);
@@ -146,14 +147,18 @@ export default function ContentStudio() {
   const handleFeedbackSubmit = async () => {
     if (!feedbackText.trim() || !feedbackRating) return;
     setFeedbackSent(true);
+    setFeedbackMsg(null);
     try {
       const latestPost = dayPosts[0];
       if (latestPost) {
         await submitPostFeedback(latestPost.id, feedbackRating, feedbackText);
         queryClient.invalidateQueries({ queryKey: ["content-posts"] });
+        setFeedbackMsg("Feedback saved — AI will use this to improve next week's posts");
+      } else {
+        setFeedbackMsg("No post to attach feedback to");
       }
     } catch (e: any) {
-      console.error("Feedback submit failed:", e);
+      setFeedbackMsg("Feedback failed: " + (e.message || "Error"));
     }
   };
 
@@ -430,13 +435,18 @@ export default function ContentStudio() {
               setFeedbackSent(false);
             }}
           />
+          {feedbackMsg && (
+            <p className="text-xs mt-2" style={{ color: feedbackMsg.includes("failed") ? "#f87171" : "#4ade80" }}>
+              {feedbackMsg}
+            </p>
+          )}
           <Button
             className="mt-2"
             size="sm"
             onClick={handleFeedbackSubmit}
             disabled={!feedbackText.trim() || !feedbackRating || feedbackSent}
           >
-            {feedbackSent ? "Feedback saved" : "Submit Feedback"}
+            {feedbackSent ? "Submitted" : "Submit Feedback"}
           </Button>
         </CardContent>
       </Card>

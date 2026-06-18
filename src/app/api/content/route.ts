@@ -41,12 +41,26 @@ export async function POST(req: Request) {
     const day = body.day || "Monday";
     const weekLabel = body.weekLabel || `W${getWeekNumber(new Date())}-${day}`;
 
+    const pastFeedbackEntries = await prisma.post.findMany({
+      where: { feedbackRating: { not: null }, feedbackNotes: { not: null } },
+      orderBy: { updatedAt: "desc" },
+      take: 5,
+      select: { feedbackRating: true, feedbackNotes: true, topic: true, score: true, impressionPrediction: true },
+    });
+
+    const pastFeedback = pastFeedbackEntries.length > 0
+      ? "Past feedback from published posts (learn from this):\n" + pastFeedbackEntries.map(
+          (f) => `- Rating: ${f.feedbackRating}, Notes: "${f.feedbackNotes}", Topic: "${f.topic || "N/A"}"`
+        ).join("\n")
+      : "";
+
     let drafts;
     try {
       drafts = await generatePostDrafts({
         topic: body.topic,
         count: body.count || 3,
         day,
+        pastFeedback,
       });
     } catch (e: any) {
       return NextResponse.json({ error: e.message || "AI generation failed" }, { status: 502 });
