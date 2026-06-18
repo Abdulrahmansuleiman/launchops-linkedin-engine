@@ -289,7 +289,7 @@ CRITICAL: Score each post below 70 if the hook is weak, the CTA is passive, or t
       messages: [
         {
           role: "system",
-          content: `You are LaunchOps AI's LinkedIn content strategist. You write posts that HIT 5,000 to 10,000 impressions with 50 to 100+ likes every time.
+          content: `You are LaunchOps AI's LinkedIn content strategist. You write posts that HIT 5,000 to 10,000 impressions with 50 to 100+ likes every time. You must ALWAYS return a valid JSON object with a "drafts" array.
 
 ${CONTENT_SKILL}
 
