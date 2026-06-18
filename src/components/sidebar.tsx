@@ -16,6 +16,7 @@ import {
   Briefcase,
   CheckSquare,
   Target,
+  CalendarDays,
 } from "lucide-react";
 
 const navItems = [
@@ -27,6 +28,7 @@ const navItems = [
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/ad-intel", label: "Ad Intel", icon: Search },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
+  { href: "/weekly", label: "Weekly", icon: CalendarDays },
   { href: "/clients", label: "Clients", icon: Briefcase },
 ];
 
