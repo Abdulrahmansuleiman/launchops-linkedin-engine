@@ -278,9 +278,22 @@ NON-NEGOTIABLE RULES:
 - Tone: experienced, human, slightly informal. Like a smart friend who's been in their shoes.
 - Every reading of the post out loud — if it sounds like marketing, rewrite it.
 
-${params.pastFeedback ? `PAST PERFORMANCE DATA — Learn from what worked and what didn't:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LARA ACOSTA PRINCIPLES (Apply These):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Hook = Promise: The hook is a contract. Deliver exactly what it promises in the body.
+- One Idea Per Post: ONE belief to shift. ONE outcome. If you can't say it in one line, rewrite.
+- Earn the Scroll: Every line must pull the reader to the next. If a line doesn't pull forward, cut it.
+- PS is a Weapon: Tease, humanise, or pull comments. Never waste it on a generic sign-off.
+- Repetition Builds Reputation: Same topics, different angles, every week.
+
+${params.pastFeedback ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REAL PERFORMANCE DATA — Learn from this:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${params.pastFeedback}
-Use this to avoid repeating mistakes and double down on what works.` : ""}
+- Posts under 3K impressions: the hook was weak, lacked a re-hook, or the CTA was passive. DO NOT repeat these patterns.
+- Posts over 5K impressions: the hook stopped scroll, the re-hook held attention, the CTA drove comments. Replicate these patterns.
+Use this data to write better posts. Every metric matters. Every failure is a lesson.` : ""}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OUTPUT FORMAT (JSON):
@@ -314,8 +327,10 @@ CRITICAL RULES:
 - Hook must be ≤8 words. Count. If 9+, restart.
 - Every post needs a re-hook after the hook. Non-negotiable.
 - CTA must drive comments — "— you?" is the gold standard.
+- Posts with <3K impressions = failures. Analyze them. Learn from them.
 - Score ruthlessly. 80+ only if genuinely 5K+ capable.
-- No AI slop. No filler. Every word earns its place. Write like a human.`,
+- No AI slop. No filler. Every word earns its place. Write like a human.
+- Reference Lara Acosta framework: Hook=Promise, One Idea Per Post, Earn the Scroll, PS is a Weapon.`,
         },
         { role: "user", content: prompt },
       ],

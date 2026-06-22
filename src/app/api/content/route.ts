@@ -41,6 +41,38 @@ export async function POST(req: Request) {
     const day = body.day || "Monday";
     const weekLabel = body.weekLabel || `W${getWeekNumber(new Date())}-${day}`;
 
+    // Fetch past metrics from published posts (actual performance data)
+    const pastPosts = await prisma.post.findMany({
+      where: { status: "PUBLISHED", impressions: { not: null } },
+      orderBy: { publishedAt: "desc" },
+      take: 10,
+      select: { topic: true, impressions: true, likes: true, comments: true, content: true, score: true, impressionPrediction: true, feedbackRating: true, feedbackNotes: true },
+    });
+
+    let pastPerformance = "";
+
+    if (pastPosts.length > 0) {
+      const highPerf = pastPosts.filter(p => (p.impressions || 0) >= 5000);
+      const lowPerf = pastPosts.filter(p => (p.impressions || 0) < 3000);
+
+      if (highPerf.length > 0) {
+        pastPerformance += "POSTS THAT PERFORMED WELL (5K+ impressions — replicate these patterns):\n";
+        pastPerformance += highPerf.map(p =>
+          `- Topic: "${p.topic}", Impressions: ${p.impressions}, Likes: ${p.likes}, Comments: ${p.comments}, Score: ${p.score}`
+        ).join("\n");
+        pastPerformance += "\n\n";
+      }
+
+      if (lowPerf.length > 0) {
+        pastPerformance += "POSTS THAT UNDERPERFORMED (under 3K impressions — learn from mistakes):\n";
+        pastPerformance += lowPerf.map(p =>
+          `- Topic: "${p.topic}", Impressions: ${p.impressions}, Likes: ${p.likes}, Comments: ${p.comments}, Score: ${p.score}`
+        ).join("\n");
+        pastPerformance += "\n";
+        pastPerformance += "ANALYSIS: Posts under 3K generally have weak hooks (>8 words, no tension), no re-hook, weak CTA, or too much fluff. Avoid these patterns.\n\n";
+      }
+    }
+
     const pastFeedbackEntries = await prisma.post.findMany({
       where: { feedbackRating: { not: null }, feedbackNotes: { not: null } },
       orderBy: { updatedAt: "desc" },
@@ -48,11 +80,13 @@ export async function POST(req: Request) {
       select: { feedbackRating: true, feedbackNotes: true, topic: true, score: true, impressionPrediction: true },
     });
 
-    const pastFeedback = pastFeedbackEntries.length > 0
-      ? "Past feedback from published posts (learn from this):\n" + pastFeedbackEntries.map(
+    const feedbackText = pastFeedbackEntries.length > 0
+      ? "User feedback from published posts:\n" + pastFeedbackEntries.map(
           (f) => `- Rating: ${f.feedbackRating}, Notes: "${f.feedbackNotes}", Topic: "${f.topic || "N/A"}"`
         ).join("\n")
       : "";
+
+    const pastFeedback = [pastPerformance, feedbackText].filter(Boolean).join("\n\n");
 
     let drafts;
     try {
