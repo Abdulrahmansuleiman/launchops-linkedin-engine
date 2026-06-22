@@ -9,16 +9,6 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 import { TrendingUp, Users, DollarSign, Eye, ArrowRight, Sparkles, RefreshCw, ThumbsUp, ThumbsDown, Loader2, CheckSquare, AlertTriangle, Clock } from "lucide-react";
 import { getLeads, getPosts, generateDrafts } from "@/lib/api";
 
-const weeklyData = [
-  { day: "Mon", impressions: 1200, likes: 45 },
-  { day: "Tue", impressions: 2400, likes: 78 },
-  { day: "Wed", impressions: 1800, likes: 62 },
-  { day: "Thu", impressions: 3200, likes: 95 },
-  { day: "Fri", impressions: 1500, likes: 52 },
-  { day: "Sat", impressions: 900, likes: 28 },
-  { day: "Sun", impressions: 2100, likes: 71 },
-];
-
 const TOPICS = ["AI agents for business", "Lead follow-up automation", "Sales outreach that works"];
 
 export default function Dashboard() {
@@ -28,13 +18,24 @@ export default function Dashboard() {
 
   const { data: leads = [] } = useQuery({ queryKey: ["leads"], queryFn: () => getLeads() });
   const { data: posts = [] } = useQuery({ queryKey: ["posts"], queryFn: () => getPosts({ status: "PUBLISHED" }) });
-  const { data: stats } = useQuery({
+  const { data: statsRes } = useQuery({
     queryKey: ["stats"],
     queryFn: async () => {
       const res = await fetch("/api/stats");
       return res.json();
     },
   });
+
+  const stats = statsRes?.stats;
+  const weeklyData = statsRes?.weeklyChart || [
+    { day: "Mon", impressions: 0, likes: 0 },
+    { day: "Tue", impressions: 0, likes: 0 },
+    { day: "Wed", impressions: 0, likes: 0 },
+    { day: "Thu", impressions: 0, likes: 0 },
+    { day: "Fri", impressions: 0, likes: 0 },
+    { day: "Sat", impressions: 0, likes: 0 },
+    { day: "Sun", impressions: 0, likes: 0 },
+  ];
 
   const { data: tasks } = useQuery({
     queryKey: ["tasks-overview"],
@@ -70,10 +71,10 @@ export default function Dashboard() {
   }));
 
   const displayStats = [
-    { label: "Weekly Impressions", value: `${(stats?.stats?.weeklyImpressions || 13100).toLocaleString()}`, change: "+24% this week", icon: Eye, color: "blue" as const },
-    { label: "Engagement Rate", value: `${stats?.stats?.engagementRate || "4.8"}%`, change: "+0.6% vs last week", icon: TrendingUp, color: "green" as const },
-    { label: "Pipeline Value", value: `£${((stats?.stats?.pipelineValue || 24000) / 1000).toFixed(0)}K`, change: `${stats?.stats?.hotLeads || 3} active deals in pipeline`, icon: DollarSign, color: "purple" as const },
-    { label: "New Leads", value: `${leads.length || 18}`, change: "+5 new this week", icon: Users, color: "yellow" as const },
+    { label: "Weekly Impressions", value: `${(stats?.weeklyImpressions || 0).toLocaleString()}`, change: `${stats?.totalImpressions ? `Total: ${stats.totalImpressions.toLocaleString()}` : "No data yet"}`, icon: Eye, color: "blue" as const },
+    { label: "Engagement Rate", value: `${stats?.engagementRate || "0"}%`, change: `${stats?.totalLikes || 0} total likes`, icon: TrendingUp, color: "green" as const },
+    { label: "Pipeline Value", value: `£${((stats?.pipelineValue || 0) / 1000).toFixed(0)}K`, change: `${stats?.hotLeads || 0} active deals in pipeline`, icon: DollarSign, color: "purple" as const },
+    { label: "New Leads", value: `${stats?.newLeadsThisWeek || 0}`, change: `${leads.length} total in pipeline`, icon: Users, color: "yellow" as const },
   ];
 
   const handleGenerate = useCallback(async () => {
@@ -145,23 +146,34 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Weekly Impressions</CardTitle>
-            <Badge variant="success">+24% this week</Badge>
+            <div className="flex items-center gap-2">
+              <CardTitle>This Week</CardTitle>
+              <Badge variant="success">{stats?.totalPosts || 0} posts</Badge>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyData}>
-                  <XAxis dataKey="day" stroke="#666" fontSize={12} />
-                  <YAxis stroke="#666" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{ background: "var(--card)", border: "1px solid var(--card-border)", borderRadius: "8px" }}
-                    labelStyle={{ color: "var(--foreground)" }}
-                  />
-                  <Bar dataKey="impressions" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            {weeklyData.some((d: { impressions: number; likes: number }) => d.impressions > 0 || d.likes > 0) ? (
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={weeklyData}>
+                    <XAxis dataKey="day" stroke="var(--muted)" fontSize={12} />
+                    <YAxis stroke="var(--muted)" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{ background: "var(--card)", border: "1px solid var(--card-border)", borderRadius: "8px" }}
+                      labelStyle={{ color: "var(--foreground)" }}
+                    />
+                    <Bar dataKey="impressions" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Impressions" />
+                    <Bar dataKey="likes" fill="#4ade80" radius={[4, 4, 0, 0]} name="Likes" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="h-56 flex items-center justify-center">
+                <p className="text-sm" style={{ color: "var(--muted)" }}>
+                  No metrics yet — publish a post and update its metrics
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
