@@ -78,7 +78,7 @@ export default function Outreach() {
   const [messageContent, setMessageContent] = useState("");
   const [showCustomize, setShowCustomize] = useState(false);
   const [showProspectForm, setShowProspectForm] = useState(false);
-  const [prospectForm, setProspectForm] = useState({ name: "", linkedinUrl: "" });
+  const [prospectForm, setProspectForm] = useState({ name: "", linkedinUrl: "", location: "" });
   const [saving, setSaving] = useState(false);
   const [customTemplate, setCustomTemplate] = useState(openerTemplate.join("\n"));
   const queryClient = useQueryClient();
@@ -99,11 +99,11 @@ export default function Outreach() {
         name: prospectForm.name.trim(),
         company: "",
         headline: "",
-        location: ""
+        location: prospectForm.location.trim()
       });
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       setShowProspectForm(false);
-      setProspectForm({ name: "", linkedinUrl: "" });
+      setProspectForm({ name: "", linkedinUrl: "", location: "" });
     } catch (e: any) {
       console.error("Create lead failed:", e);
     } finally {
@@ -131,6 +131,7 @@ export default function Outreach() {
       const result = await generateMessage({
         prospectName: selectedProspect,
         prospectCompany: lead?.company || undefined,
+        prospectLocation: lead?.location || undefined,
         step: "opener",
       });
       setMessageContent(extractMessage(result));
@@ -237,6 +238,14 @@ export default function Outreach() {
                   value={prospectForm.linkedinUrl}
                   onChange={(e) => setProspectForm({ ...prospectForm, linkedinUrl: e.target.value })}
                   placeholder="https://linkedin.com/in/..."
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>Location</label>
+                <Input
+                  value={prospectForm.location}
+                  onChange={(e) => setProspectForm({ ...prospectForm, location: e.target.value })}
+                  placeholder="e.g. London, UK"
                 />
               </div>
               <div className="flex gap-2 pt-2">
@@ -400,6 +409,9 @@ export default function Outreach() {
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate" style={{ color: "var(--foreground)" }}>{lead.name}</p>
                         <p className="text-xs truncate" style={{ color: "var(--muted)" }}>{lead.company || lead.headline || ""}</p>
+                        {lead.location && (
+                          <p className="text-[10px] truncate" style={{ color: "var(--text-secondary)" }}>{lead.location}</p>
+                        )}
                       </div>
                     </div>
                     <Badge

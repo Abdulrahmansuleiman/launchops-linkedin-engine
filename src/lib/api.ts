@@ -22,6 +22,7 @@ export interface Lead {
   name: string | null;
   headline: string | null;
   company: string | null;
+  location: string | null;
   linkedinUrl: string | null;
   profilePicture: string | null;
   followerCount: number | null;
@@ -176,6 +177,7 @@ export async function deleteLead(leadId: string) {
 export async function generateMessage(params: {
   prospectName: string;
   prospectCompany?: string;
+  prospectLocation?: string;
   prospectDetail?: string;
   step: string;
   context?: string;

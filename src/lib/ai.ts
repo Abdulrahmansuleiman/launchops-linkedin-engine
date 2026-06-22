@@ -365,7 +365,7 @@ Rules:
 - Never mention AI, automation, or LaunchOps
 - Never mention their banner image
 - Local line must feel genuine
-- If UK-based, use: "London based too — always good connecting with people building something solid close to home"
+- Reference their actual city/location from what was provided, not a generic city
 
 Return as a JSON object with a "messages" array of strings, one per line.`,
 

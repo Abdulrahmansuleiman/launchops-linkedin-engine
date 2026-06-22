@@ -56,6 +56,7 @@ ${body.content}` },
         const result = await generateOutreachMessage({
           prospectName: body.prospectName,
           prospectCompany: body.prospectCompany,
+          prospectLocation: body.prospectLocation,
           prospectDetail: body.prospectDetail,
           step: body.step,
           context: body.context,
