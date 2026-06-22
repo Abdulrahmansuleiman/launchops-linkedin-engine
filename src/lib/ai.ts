@@ -352,12 +352,14 @@ export async function generateOutreachMessage(params: {
   const stepPrompts: Record<string, string> = {
     opener: `${params.context ? `The user has drafted this message and wants it rewritten/improved in the Ty Frankel style while keeping the same intent:\n\n${params.context}\n\n` : ""}Write a Ty Frankel style opener for ${params.prospectName}${params.prospectCompany ? ` at ${params.prospectCompany}` : ""}${params.prospectTitle ? ` (${params.prospectTitle})` : ""}${params.prospectLocation ? ` based in ${params.prospectLocation}` : ""}.
 
+Their niche/work: ${params.prospectDetail || "unknown — infer from their company/role"}
+
 Use the opener template format — one line per send, like real-time typing:
 1. "Hey [Name]"
 2. "[Company] looks interesting"
 3. "That's all you? Or you have a team"
-4. Ask what they do
-5. Ask how long they've been running it
+4. "your work /w [niche] goes pretty deep - i like it" (replace [niche] with their actual niche from the info provided)
+5. "How long you been running it?"
 6. A genuine local line about their city
 
 Rules:

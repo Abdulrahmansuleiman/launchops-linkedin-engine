@@ -14,7 +14,7 @@ const openerTemplate = [
   "Hey [Name]",
   "[Company] looks interesting",
   "That's all you? Or you have a team",
-  "You guys do [what they do] right?",
+  "your work /w [niche] goes pretty deep - i like it",
   "How long you been running it?",
   "Gotta visit [city] btw [genuine local line]",
 ];
@@ -128,10 +128,12 @@ export default function Outreach() {
     setGenerating(true);
     try {
       const lead = leads.find((l) => l.name === selectedProspect);
+      const niche = lead?.headline || lead?.company || "";
       const result = await generateMessage({
         prospectName: selectedProspect,
         prospectCompany: lead?.company || undefined,
         prospectLocation: lead?.location || undefined,
+        prospectDetail: niche || undefined,
         step: "opener",
       });
       setMessageContent(extractMessage(result));
