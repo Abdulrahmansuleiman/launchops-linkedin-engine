@@ -133,6 +133,13 @@ export async function submitPostFeedback(id: string, feedbackRating: string, fee
   });
 }
 
+export async function updatePostMetrics(id: string, metrics: { impressions?: number; likes?: number; comments?: number }) {
+  return fetchJSON<Post>("/api/content", {
+    method: "PATCH",
+    body: JSON.stringify({ id, ...metrics }),
+  });
+}
+
 export async function deletePost(id: string) {
   return fetchJSON<{ success: boolean }>(`/api/content/${id}`, { method: "DELETE" });
 }

@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/input";
-import { Sparkles, Check, RefreshCw, Loader2, Star, TrendingUp, Target, MessageCircle, Trash2 } from "lucide-react";
-import { getPosts, generateDrafts, publishPost, submitPostFeedback, polishPost, deletePost } from "@/lib/api";
+import { Sparkles, Check, RefreshCw, Loader2, Star, TrendingUp, Target, MessageCircle, Trash2, BarChart3, X } from "lucide-react";
+import { getPosts, generateDrafts, publishPost, submitPostFeedback, polishPost, deletePost, updatePostMetrics } from "@/lib/api";
 
 const CONTENT_TOPICS = [
   "Lead response speed and the cost of slow follow-up",
@@ -57,6 +57,8 @@ export default function ContentStudio() {
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const [topic, setTopic] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [metricsModal, setMetricsModal] = useState<{ id: string; impressions: string; likes: string; comments: string } | null>(null);
+  const [savingMetrics, setSavingMetrics] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: posts = [], isLoading } = useQuery({
@@ -347,6 +349,14 @@ export default function ContentStudio() {
                     </div>
                   )}
 
+                  {(post.impressions || post.likes || post.comments) && (
+                    <div className="flex gap-3 mb-3 text-xs" style={{ color: "var(--muted)" }}>
+                      {post.impressions != null && <span>👁 {post.impressions.toLocaleString()} impressions</span>}
+                      {post.likes != null && <span>❤️ {post.likes} likes</span>}
+                      {post.comments != null && <span>💬 {post.comments} comments</span>}
+                    </div>
+                  )}
+
                   <div className="flex gap-2 flex-wrap">
                     <Button
                       size="sm"
@@ -365,6 +375,24 @@ export default function ContentStudio() {
                       {polishing === post.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1" />}
                       Polish
                     </Button>
+                    {post.status === "PUBLISHED" && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMetricsModal({
+                            id: post.id,
+                            impressions: post.impressions?.toString() || "",
+                            likes: post.likes?.toString() || "",
+                            comments: post.comments?.toString() || "",
+                          });
+                        }}
+                      >
+                        <BarChart3 className="w-3.5 h-3.5 mr-1" />
+                        Metrics
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -450,6 +478,86 @@ export default function ContentStudio() {
           </Button>
         </CardContent>
       </Card>
+
+      {metricsModal && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 50,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
+        }} onClick={() => setMetricsModal(null)}>
+          <div style={{
+            width: "100%", maxWidth: "380px",
+            background: "var(--card)", borderRadius: "12px",
+            border: "1px solid var(--card-border)",
+            padding: "24px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+          }} onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Post Metrics</h2>
+              <button onClick={() => setMetricsModal(null)} className="p-1 rounded hover:opacity-70">
+                <X className="w-5 h-5" style={{ color: "var(--muted)" }} />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>Impressions</label>
+                <input
+                  type="number"
+                  className="w-full h-9 px-3 rounded-lg text-sm"
+                  style={{ background: "var(--input-bg)", color: "var(--foreground)", border: "1px solid var(--input-border)" }}
+                  value={metricsModal.impressions}
+                  onChange={(e) => setMetricsModal({ ...metricsModal, impressions: e.target.value })}
+                  placeholder="e.g. 7500"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>Likes</label>
+                <input
+                  type="number"
+                  className="w-full h-9 px-3 rounded-lg text-sm"
+                  style={{ background: "var(--input-bg)", color: "var(--foreground)", border: "1px solid var(--input-border)" }}
+                  value={metricsModal.likes}
+                  onChange={(e) => setMetricsModal({ ...metricsModal, likes: e.target.value })}
+                  placeholder="e.g. 85"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted)" }}>Comments</label>
+                <input
+                  type="number"
+                  className="w-full h-9 px-3 rounded-lg text-sm"
+                  style={{ background: "var(--input-bg)", color: "var(--foreground)", border: "1px solid var(--input-border)" }}
+                  value={metricsModal.comments}
+                  onChange={(e) => setMetricsModal({ ...metricsModal, comments: e.target.value })}
+                  placeholder="e.g. 12"
+                />
+              </div>
+              <Button
+                className="w-full mt-2"
+                onClick={async () => {
+                  setSavingMetrics(true);
+                  try {
+                    await updatePostMetrics(metricsModal.id, {
+                      impressions: metricsModal.impressions ? parseInt(metricsModal.impressions) : undefined,
+                      likes: metricsModal.likes ? parseInt(metricsModal.likes) : undefined,
+                      comments: metricsModal.comments ? parseInt(metricsModal.comments) : undefined,
+                    });
+                    queryClient.invalidateQueries({ queryKey: ["content-posts"] });
+                    setMetricsModal(null);
+                  } catch (e: any) {
+                    console.error("Save metrics failed:", e);
+                  } finally {
+                    setSavingMetrics(false);
+                  }
+                }}
+                disabled={savingMetrics}
+              >
+                {savingMetrics ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <TrendingUp className="w-4 h-4 mr-1.5" />}
+                Save Metrics
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
