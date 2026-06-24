@@ -48,6 +48,7 @@ model Account {
   sequences OutreachSequence[]
   competitorPosts CompetitorPost[]
   weeklyReports WeeklyReport[]
+  ads Ad[]
 }
 
 model Lead {
@@ -306,6 +307,38 @@ model Task {
   @@index([pipelineStage])
   @@index([status])
   @@index([deadline])
+}
+
+enum AdStage {
+  WRITING
+  SELECTION
+  PUBLISHED
+}
+
+model Ad {
+  id        String   @id @default(cuid())
+  accountId String
+  content   String
+  hook      String?
+  body      String?
+  cta       String?
+  angle     String?
+  score     Int?
+  scoreReason String?
+  impressionPrediction String?
+  stage     AdStage  @default(WRITING)
+  topic     String?
+  platform  String?
+  tags      String[]
+  service   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  publishedAt DateTime?
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+  @@index([stage])
 }
 
 model WeeklyReport {

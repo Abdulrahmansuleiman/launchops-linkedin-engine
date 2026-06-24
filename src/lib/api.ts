@@ -78,6 +78,56 @@ export interface WeeklyReport {
   createdAt: string;
 }
 
+export interface Ad {
+  id: string;
+  content: string;
+  hook: string | null;
+  body: string | null;
+  cta: string | null;
+  angle: string | null;
+  score: number | null;
+  scoreReason: string | null;
+  impressionPrediction: string | null;
+  stage: string;
+  topic: string | null;
+  platform: string | null;
+  tags: string[];
+  service: string | null;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+}
+
+export async function getAds(stage?: string) {
+  const qs = stage ? `?stage=${stage}` : "";
+  return fetchJSON<Ad[]>(`/api/ads${qs}`);
+}
+
+export async function generateAds(params: {
+  niche: string;
+  offer: string;
+  service: string;
+  targetAudience: string;
+  platform: string;
+  count?: number;
+}) {
+  return fetchJSON<{ ads: Ad[] }>("/api/ads", {
+    method: "POST",
+    body: JSON.stringify({ action: "generate", ...params }),
+  });
+}
+
+export async function updateAd(id: string, data: Partial<Ad>) {
+  return fetchJSON<Ad>(`/api/ads/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteAd(id: string) {
+  return fetchJSON<{ success: boolean }>(`/api/ads/${id}`, { method: "DELETE" });
+}
+
 // === Leads ===
 export async function importLeads(profileUrls: string[]) {
   return fetchJSON<{ imported: number; merged: number; leads: Lead[] }>("/api/leads", {

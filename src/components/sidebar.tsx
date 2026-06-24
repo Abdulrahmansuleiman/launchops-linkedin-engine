@@ -17,6 +17,7 @@ import {
   CheckSquare,
   Target,
   CalendarDays,
+  Megaphone,
 } from "lucide-react";
 
 const navItems = [
@@ -26,7 +27,7 @@ const navItems = [
   { href: "/content", label: "Content Studio", icon: FileText },
   { href: "/outreach", label: "Outreach", icon: Send },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/ad-intel", label: "Ad Intel", icon: Search },
+  { href: "/ads", label: "Ads", icon: Megaphone },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/weekly", label: "Weekly", icon: CalendarDays },
   { href: "/clients", label: "Clients", icon: Briefcase },

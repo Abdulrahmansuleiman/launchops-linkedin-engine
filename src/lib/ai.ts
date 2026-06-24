@@ -671,3 +671,107 @@ Return a JSON object with:
 
   return JSON.parse(res.choices[0].message.content || "{}");
 }
+
+export async function generateAdCopies(params: {
+  niche: string;
+  offer: string;
+  service: string;
+  targetAudience: string;
+  platform: string;
+  count?: number;
+  pastPerformance?: string;
+}) {
+  const platformGuidelines = params.platform === "linkedin"
+    ? "Tone: professional but direct. Body can extend to 6-8 lines. Reference business outcomes, not personal pain. Use peer benchmarking."
+    : "Primary text: max 125 characters for best display. Hook only in primary text. Body in expanded text. Use direct, no-fluff tone.";
+
+  const prompt = `You are Max-ads, a senior direct-response copywriter with 10+ years of experience. You have written ad campaigns that generated millions in revenue across LinkedIn and Meta.
+
+Your job: Write ${params.count || 5} distinct ad variations for the following:
+
+Niche: "${params.niche}"
+Offer: "${params.offer}"
+Service: "${params.service}"
+Target Audience: "${params.targetAudience}"
+Platform: ${params.platform}
+
+${platformGuidelines}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MAX-ADS RULES (Every ad, every time):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+HOOK RULES:
+- Lead with a specific result OR demo, not a pain point
+- Include a number in the hook
+- No rhetorical questions
+- No "tired of..." or "struggling with..." openings
+- Demo-first hooks outperform everything else: "We booked 47 appointments last month using one AI voice agent."
+
+BODY RULES:
+- 3-4 lines max
+- Every sentence either proves the claim or drives the CTA
+- Use specific numbers, timeframes, or comparisons
+- Never explain technology — explain the outcome
+- No fluff, no filler, no buzzwords
+
+CTA RULES:
+- One clear line
+- Direct: "Book a call", "Get started", "See if it works for you"
+
+BANNED WORDS: game-changer, leverage, innovative, seamlessly, utilise, empower, transformative, cutting-edge, next-level, synergy, revolutionise
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5 ANGLES — Each ad must use a DIFFERENT angle:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. SPEED: How fast does the client see ROI? "Our first client booked 12 calls in 3 days."
+2. PROOF: Use case studies, numbers, client results. "One agency replaced 3 SDRs with one voice agent."
+3. RISK REVERSAL: What happens if it doesn't work? "14-day trial. No contract. Cancel anytime."
+4. SIMPLICITY: How little work does the client have to do? "Set it up in 10 minutes. No training required."
+5. SPECIFICITY: Name the exact audience, exact problem, exact fix. "Solar companies losing 60% of inbound leads — here's the fix."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT FORMAT (JSON):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{
+  "ads": [
+    {
+      "content": "Full ad — hook + body (3-4 lines) + CTA",
+      "hook": "The hook line only (must include a number)",
+      "body": "The body text only",
+      "cta": "The CTA line only",
+      "angle": "One of: Speed | Proof | Risk Reversal | Simplicity | Specificity",
+      "score": 0-100,
+      "scoreAnalysis": "2-3 sentences explaining why this ad will or won't work",
+      "impressionPrediction": "e.g. 5,000 - 8,000 impressions"
+    }
+  ]
+}
+
+SCORING:
+- Score <50: Generic hook, no number, or uses banned opener
+- Score 50-69: Decent but lacks specificity or proof
+- Score 70-84: Solid — tight hook, clear proof, strong CTA
+- Score 85-100: Exceptional — would win any A/B test
+
+CRITICAL: Every ad must start with a demo-first hook that includes a specific number. No exceptions. If the hook doesn't have a number, score it below 50.`;
+
+  const systemPrompt = `You are Max-ads, an expert direct-response copywriter with 10+ years in B2B advertising. You write ads that convert. You are anti-fluff, anti-buzzword, anti-generic. Every ad you write has a specific number, a clear proof point, and a direct CTA. You always return valid JSON.`;
+
+  const res = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: prompt },
+    ],
+    response_format: { type: "json_object" },
+  });
+
+  const parsed = JSON.parse(res.choices[0].message.content || "{}");
+  if (!parsed.ads || !Array.isArray(parsed.ads)) {
+    throw new Error("Max-ads returned no valid ads");
+  }
+  return parsed.ads;
+}
