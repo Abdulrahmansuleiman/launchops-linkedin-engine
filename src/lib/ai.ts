@@ -240,13 +240,32 @@ Topic: "${params.topic}"
 
 Generate ${params.count || 3} distinct LinkedIn posts. Each must use a DIFFERENT format from: Hard Truth, Storytelling, Opinion/Reframe, Education, Social Proof, Behind the Build.
 
-IMPORTANT: Write with DEPTH. Each post must be 150-300 words of dense, original value. Not generic advice. Not surface-level. Not stuff they've read 100 times. Each post must contain at least ONE specific insight or framework they can apply. If the post doesn't teach them something new or shift how they think — rewrite it.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FINAL VERIFICATION CHECKLIST — YOU MUST PASS EVERY ITEM BEFORE SUBMITTING EACH POST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For EVERY post you write, run this checklist. If ANY item fails, FIX IT before outputting:
+
+[  ] Hook is ≤8 words (count manually right now)
+[  ] Hook does NOT start with I, We, or Our
+[  ] Hook creates tension/curiosity — not a statement, not a fact
+[  ] Re-hook exists immediately after hook (1-2 lines, maintains tension)
+[  ] Body is 150-300 words (count the words — if under 150, do not submit)
+[  ] Body contains at least ONE specific, actionable insight or framework (not generic advice)
+[  ] Body shifts ONE belief — reader thinks differently after reading
+[  ] Body has short paragraphs (1-2 lines max)
+[  ] No banned words anywhere (check: game-changer, leverage, innovative, seamlessly, utilise, empower, genuinely, honestly, transformative, cutting-edge, next-level, synergy, paradigm, dive into, landscape)
+[  ] No dashes (—) — only commas, periods, full stops
+[  ] CTA exists and is specific — "— you?" is best
+[  ] CTA is NOT "like if you agree" or "share your thoughts"
+[  ] "AI" does not appear in hook or first 3 lines, appears max once in body
+[  ] Reads like a human entrepreneur, not a marketer or bot
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 THE EXACT BLUEPRINT (Follow for EVERY post — No exceptions):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. HOOK — Exactly 8 words or fewer. Count the words right now. If it's 9+, it's rejected.
+1. HOOK — Exactly 8 words or fewer. Count the words. If 9+, restart.
    Must stop a scrolling finger in under 0.5 seconds. Creates tension, disbelief, or curiosity.
    Never starts with "I", "We", or "Our". Start with the tension or the reader's problem.
    Strong formats: Number + Outcome / Direct Challenge / Relatable Pain / "You're right" validation
@@ -255,17 +274,17 @@ THE EXACT BLUEPRINT (Follow for EVERY post — No exceptions):
 2. RE-HOOK — The next 1-2 lines. This is MANDATORY. Non-negotiable.
    Double down on the tension. Make them think "Wait, that's exactly me" or "I need to know this."
    If the energy drops after the hook, the reader leaves. Never let that happen.
-   The hook + re-hook together must create an unbreakable pull into the body.
 
-3. BODY — 150-300 words. Real depth. Real value. Real specifics.
-   Short paragraphs. 1-2 lines max on mobile. White space is your friend.
-   Make them FEEL the before (the pain, the frustration, the missed opportunity).
-   Show them the after (the solution, the result, the new reality).
+3. BODY — 150-300 words. Real depth. Real value. Real specifics. If it's under 150 words, it is TOO SHORT and you must rewrite with more substance.
+   Minimum 6-8 short paragraphs. Each paragraph is 1-2 sentences max.
+   Paint the before (pain, frustration, missed opportunity) vividly.
+   Show the after (solution, result, new reality) specifically.
    Shift ONE belief. The reader should think differently after reading.
-   Include at least ONE specific number, timeframe, or framework they can apply.
+   Include at least ONE specific number, timeframe, dollar amount, or step-by-step framework.
    Never explain technology. Always explain the outcome.
    Every sentence either: creates tension, builds authority, or drives toward the CTA.
    If a sentence doesn't serve one of those three purposes — cut it.
+   Write like you've been in their shoes. You've seen this work. You know what fails. Speak from experience.
 
 4. CTA — Must end with "— you?" or "Comment [KEYWORD]" or "Drop a DM".
    "— you?" is the gold standard for driving comments.
@@ -276,52 +295,44 @@ THE EXACT BLUEPRINT (Follow for EVERY post — No exceptions):
    Tease next post. Pull another comment. Add a human moment.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-NON-NEGOTIABLE RULES (Break any = Post is rejected):
+NON-NEGOTIABLE RULES:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-HOOK:
-- MUST be ≤8 words. Count them. If 9+, delete and restart.
-- MUST stop scroll in under 0.5 seconds. If it wouldn't make YOU stop scrolling, it's not good enough.
+HOOK (3 rules):
+- MUST be ≤8 words. Count them. If 9+, do not submit.
 - MUST never start with "I", "We", "Our". Period.
-- MUST create tension, curiosity, or disbelief. Not statement. Not fact. Tension.
+- MUST create tension, curiosity, or disbelief.
 
-RE-HOOK:
-- MUST exist in every single post. No exceptions. No "sometimes". Always.
-- MUST maintain or increase the tension from the hook. Never let it drop.
+RE-HOOK (1 rule):
+- MUST exist in every single post. No exceptions.
 
-BODY:
-- MUST be 150-300 words. If it's under 150, it's too short — rewrite with more depth.
+BODY (5 rules):
+- MUST be 150-300 words. Under 150 = SCORE 0. Do not submit.
 - MUST deliver at least ONE actionable insight or specific framework.
 - MUST shift ONE belief. The reader must think "I never thought of it that way."
-- MUST have short paragraphs. 1-2 lines. No 3+ line paragraphs.
-- MUST be written like an experienced entrepreneur talking to another. Not a writer. Not a marketer.
-- NO generic advice. No "be consistent" or "provide value" fluff. Specific or nothing.
-- NO "AI" in the hook or first 3 lines. "AI" can appear once max in entire body. Use "system", "pipeline", "follow-up system" instead.
+- MUST have short paragraphs. 1-2 lines. No 3+.
+- MUST be written like an experienced entrepreneur talking to another.
 
-LANGUAGE:
-- ZERO banned words: "game-changer", "leverage", "innovative", "seamlessly", "utilise", "empower", "straightforward", "genuinely", "honestly", "transformative", "revolutionise", "cutting-edge", "next-level", "paradigm", "synergy", "dive into", "in the world of", "landscape"
-- No dashes (—). Use commas, periods, full stops.
-- Contractions are fine: "that's" not "that is", "you're" not "you are", "don't" not "do not".
-- Write like a human. Not a bot. Not a marketer. A smart, experienced human.
-- Read every post out loud. If it sounds like marketing copy, rewrite it until it sounds like a person.
+LANGUAGE (4 rules):
+- ZERO banned words: game-changer, leverage, innovative, seamlessly, utilise, empower, genuinely, honestly, transformative, cutting-edge, next-level, synergy, paradigm, dive into, landscape, revolutionise
+- No dashes (—). Commas, periods, full stops only.
+- Contractions: that's, you're, don't, I've, it's — NOT "that is", "you are"
+- Write like a smart experienced human. Not a bot. Not a marketer.
 
-CTA:
-- MUST exist in every post. Non-negotiable.
-- MUST be specific. "— you?" is best. "Comment PIPELINE" is good. "Drop a DM" is acceptable.
+CTA (2 rules):
+- MUST exist in every post.
 - Never "like if you agree" or "share your thoughts" — too passive.
 
-PURPOSE:
-- Every post must have ONE clear job. Before writing, know: what belief am I shifting? What action am I driving?
-- If a post doesn't have a clear job, it's not intentional enough. Rewrite it.
+PURPOSE (1 rule):
+- Before writing each post, answer: what belief am I shifting? What action am I driving? If you can't answer both clearly, do not write the post yet.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 LARA ACOSTA PRINCIPLES (Apply Every Post):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Hook = Promise: The hook is a contract. Deliver exactly what it promises. Never bait-and-switch.
-- One Idea Per Post: ONE belief to shift. ONE job. If you can't finish "After reading, the reader will believe ___" in one clear sentence — rewrite the post.
-- Earn the Scroll: Every line must pull the reader to the next. Cover the post, reveal line by line. Does each one earn the next?
-- PS is a Weapon: Tease tomorrow's post. Quote a surprising stat. Make them comment. Never waste it.
-- Repetition Builds Reputation: Same core topics, different angles, every single week.
+- Hook = Promise: Deliver exactly what the hook promises. No bait-and-switch.
+- One Idea Per Post: ONE belief. If you can't finish "After reading, the reader will believe ___" in one clear sentence — rewrite.
+- Earn the Scroll: Cover the post, reveal line by line. Does each one earn the next?
+- PS is a Weapon: Tease, humanise, or pull comments. Never waste it.
 
 ${params.pastFeedback ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 REAL PERFORMANCE DATA — Learn from this (Every metric is a lesson):
@@ -347,7 +358,7 @@ Each high-performing post did something right. Common patterns:
 Replicate these patterns in the new posts.` : ""}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-OUTPUT FORMAT (JSON — Return exactly this structure):
+OUTPUT FORMAT (JSON):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 {
@@ -356,21 +367,24 @@ OUTPUT FORMAT (JSON — Return exactly this structure):
       "content": "Full post — hook ≤8 words + re-hook + body (150-300 words) + CTA + optional PS",
       "format": "One of: Storytelling | Hard Truth | Opinion/Reframe | Education | Social Proof | Behind the Build",
       "score": 0-100,
-      "scoreAnalysis": "2-3 sentences explaining exactly what makes this post work or what holds it back",
+      "scoreAnalysis": "2-3 sentences on what makes this work or holds it back",
       "impressionPrediction": "e.g. 5,000 - 8,000 or 8,000 - 12,000. Never below 5,000.",
-      "hook": "The exact hook line (≤8 words)"
+      "hook": "The exact hook (≤8 words)",
+      "wordCount": number
     }
   ]
 }
 
 SCORING RUBRIC (Be Brutally Honest):
-- Score <60: Hook >8 words, no re-hook, weak CTA, or any fluff/banter
-- Score 60-69: Decent hook but body lacks depth or specificity
-- Score 70-79: Solid post but won't hit 5K — missing something
-- Score 80-89: Will hit 5K+ — tight hook, strong re-hook, valuable body, intentional CTA
-- Score 90-100: Exceptional — will hit 8K-12K+ impressions. Rare. Only when truly outstanding.
+- Score 0: Body under 150 words. Do not submit.
+- Score <50: Hook >8 words, no re-hook, or banned words used.
+- Score 50-59: Decent hook but body lacks depth or specificity.
+- Score 60-69: Solid post but won't hit 5K — missing depth.
+- Score 70-79: Will hit 5K — tight hook, re-hook, decent body, CTA.
+- Score 80-89: Will hit 5K+ — strong hook, re-hook, valuable body, intentional CTA, real depth.
+- Score 90-100: Exceptional — 8K-12K+ caliber. Rare. Only when truly outstanding.
 
-CRITICAL: Before submitting, verify EVERY post against EVERY rule above. Check hook word count. Check for re-hook. Check for banned words. Check body length. If any rule is broken, fix it before submitting. Do not submit posts with violations.`;
+CRITICAL: Before submitting ANY post, run the FULL VERIFICATION CHECKLIST at the top of this prompt. Tick every box. If any box is unticked, fix the post. Do not submit broken posts. Do not score posts above 50 if they break rules. Be brutally honest with scores — a weak hook or short body means score 0-50, not 80+.`;
 
   let model = "gpt-4o";
   let res;
@@ -384,18 +398,18 @@ CRITICAL: Before submitting, verify EVERY post against EVERY rule above. Check h
 
 ${CONTENT_SKILL}
 
-NON-NEGOTIABLE RULES (Every single post, every single time):
-- Hook: ≤8 words. Count them. If 9+, the post is rejected. Never start with I/We/Our.
-- Re-hook: MANDATORY after every hook. Reader must feel seen. No exceptions.
-- Body: 150-300 words of dense, original value. One specific insight or framework minimum. Generic advice = rejected.
-- CTA: Every post has one. "— you?" is best. Must be specific. Passive CTAs like "like if you agree" = rejected.
-- Banned words: game-changer, leverage, innovative, seamlessly, utilise, empower, genuinely, honestly, transformative, cutting-edge, next-level, synergy — ZERO tolerance.
-- No AI in hook or first 3 lines. "AI" appears once max in entire body.
-- No dashes (—). Use commas, periods, full stops.
-- Write like an entrepreneur talking to another. Direct. Warm. Confident. No fluff. No filler.
-- Lara Acosta: Hook=Promise, One Idea Per Post, Earn the Scroll, PS is a Weapon.
-- Every post must have a clear job/purpose. If it doesn't shift a belief or drive action, it's not intentional enough.
-- Posts <3K impressions = failures. Learn from them. Never repeat those patterns.`,
+VERIFICATION CHECKLIST — Tick every item for every post before submitting:
+[  ] Hook ≤8 words, no I/We/Our, creates tension
+[  ] Re-hook exists immediately after hook
+[  ] Body 150-300 words (count now — under 150 = score 0)
+[  ] Body has specific actionable insight/framework (not generic)
+[  ] Body shifts ONE belief
+[  ] No banned words (game-changer, leverage, innovative, seamlessly, utilise, empower, genuinely, honestly, transformative, cutting-edge, next-level, synergy, paradigm, dive into)
+[  ] No dashes, no AI in hook/first 3 lines
+[  ] CTA exists, specific, not "like if you agree"
+[  ] Reads like a human entrepreneur, not a marketer
+
+If any box is unticked, fix the post. Do not submit. Score 0-50 for any broken rules.`,
         },
         { role: "user", content: prompt },
       ],
