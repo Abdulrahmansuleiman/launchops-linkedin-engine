@@ -20,17 +20,19 @@ import {
 import { getAds, generateAds, updateAd, deleteAd } from "@/lib/api";
 import type { Ad } from "@/lib/api";
 
-const STAGES = ["WRITING", "SELECTION", "PUBLISHED"];
+const STAGES = ["WRITING", "SELECTION", "REVIEW", "PUBLISHED"];
 
 const STAGE_LABELS: Record<string, string> = {
   WRITING: "Writing",
   SELECTION: "Selection",
+  REVIEW: "Review",
   PUBLISHED: "Published",
 };
 
 const STAGE_COLORS: Record<string, string> = {
   WRITING: "#6366f1",
   SELECTION: "#f59e0b",
+  REVIEW: "#06b6d4",
   PUBLISHED: "#22c55e",
 };
 
@@ -165,7 +167,7 @@ export default function AdsPage() {
             Ads
           </h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Write, select, and publish ad copy with Max-ads
+            Write, review, and publish ad copy with Max-ads
           </p>
         </div>
         <Button onClick={() => setShowGenerate(true)} disabled={generating}>
@@ -181,7 +183,7 @@ export default function AdsPage() {
       )}
 
       {/* Kanban Board */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         {grouped.map(({ stage, ads: stageAds }) => (
           <div
             key={stage}
@@ -319,6 +321,20 @@ export default function AdsPage() {
                                 {copiedId === ad.id ? "Copied" : "Copy"}
                               </Button>
                               {stage === "SELECTION" && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 text-xs"
+                                  style={{ color: "#06b6d4" }}
+                                  onClick={async () => {
+                                    await moveStage(ad.id, "REVIEW");
+                                  }}
+                                >
+                                  <Check className="w-3 h-3 mr-1" />
+                                  Send to Review
+                                </Button>
+                              )}
+                              {stage === "REVIEW" && (
                                 <Button
                                   variant="ghost"
                                   size="sm"

@@ -312,6 +312,7 @@ model Task {
 enum AdStage {
   WRITING
   SELECTION
+  REVIEW
   PUBLISHED
 }
 

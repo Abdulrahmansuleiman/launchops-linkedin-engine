@@ -302,3 +302,18 @@ export async function generateWeeklyInsights() {
     body: JSON.stringify({ action: "weeklyInsights", weekPosts: [] }),
   });
 }
+
+// === Reply Assistant ===
+export interface ReplySuggestion {
+  id: number;
+  label: string;
+  type: string;
+  reply: string;
+}
+
+export async function getReplySuggestions(conversation: string) {
+  return fetchJSON<{ replies: ReplySuggestion[] }>("/api/outreach/reply", {
+    method: "POST",
+    body: JSON.stringify({ conversation }),
+  });
+}

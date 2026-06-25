@@ -6,9 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input, Textarea } from "@/components/ui/input";
-import { Send, MessageCircle, CheckCircle, Clock, Zap, Target, Loader2, Copy, ExternalLink, Check, X } from "lucide-react";
-import { getLeads, generateMessage, sendOutreachMessage, getSequences, createLead } from "@/lib/api";
-import type { Lead } from "@/lib/api";
+import { Send, MessageCircle, CheckCircle, Clock, Zap, Target, Loader2, Copy, ExternalLink, Check, X, Bot, Brain, Lightbulb } from "lucide-react";
+import { getLeads, generateMessage, sendOutreachMessage, getSequences, createLead, getReplySuggestions } from "@/lib/api";
+import type { Lead, ReplySuggestion } from "@/lib/api";
 
 const openerTemplate = [
   "Hey [Name]",
@@ -511,7 +511,118 @@ export default function Outreach() {
             </CardContent>
           </Card>
 
-          <Card>
+            {/* Reply Assistant Card */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <CardTitle>Reply Assistant</CardTitle>
+                  <Badge variant="warning" className="text-[10px]">Ty Style</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
+                  Paste your DM conversation below. Get 3 reply options in Ty's voice.
+                </p>
+                {(() => {
+                  const [conversation, setConversation] = useState("");
+                  const [replying, setReplying] = useState(false);
+                  const [replies, setReplies] = useState<ReplySuggestion[] | null>(null);
+                  const [replyError, setReplyError] = useState<string | null>(null);
+                  const [copiedReply, setCopiedReply] = useState<number | null>(null);
+
+                  const handleGenerate = async () => {
+                    if (!conversation.trim()) return;
+                    setReplying(true);
+                    setReplyError(null);
+                    setReplies(null);
+                    try {
+                      const result = await getReplySuggestions(conversation);
+                      setReplies(result.replies);
+                    } catch (e: any) {
+                      setReplyError(e.message || "Failed to generate replies");
+                    } finally {
+                      setReplying(false);
+                    }
+                  };
+
+                  const handleCopy = async (text: string, id: number) => {
+                    await navigator.clipboard.writeText(text);
+                    setCopiedReply(id);
+                    setTimeout(() => setCopiedReply(null), 2000);
+                  };
+
+                  return (
+                    <>
+                      <Textarea
+                        value={conversation}
+                        onChange={(e) => setConversation(e.target.value)}
+                        placeholder={`Paste the conversation here...\n\nYou: Hey mate\nLead: Yo what's up\nYou: Your site looks cool — just you or you got a team?\nLead: Yeah just me atm`}
+                        rows={5}
+                      />
+                      <div className="mt-3 flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={handleGenerate}
+                          disabled={replying || !conversation.trim()}
+                        >
+                          {replying ? (
+                            <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                          ) : (
+                            <Brain className="w-3.5 h-3.5 mr-1" />
+                          )}
+                          {replying ? "Thinking..." : "Top 3 Replies"}
+                        </Button>
+                      </div>
+
+                      {replyError && (
+                        <p className="text-xs mt-2" style={{ color: "#ef4444" }}>{replyError}</p>
+                      )}
+
+                      {replies && replies.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          {replies.map((r) => (
+                            <div
+                              key={r.id}
+                              className="p-3 rounded-lg cursor-pointer transition-all hover:opacity-90"
+                              style={{
+                                background: "var(--badge-bg)",
+                                border: "1px solid var(--card-border)",
+                              }}
+                              onClick={() => handleCopy(r.reply, r.id)}
+                            >
+                              <div className="flex items-center justify-between mb-1">
+                                <span
+                                  className="text-[10px] font-medium px-1.5 py-0.5 rounded"
+                                  style={{ background: "var(--nav-active, rgba(59,130,246,0.15))", color: "#60a5fa" }}
+                                >
+                                  {r.label}
+                                </span>
+                                <span className="text-[10px]" style={{ color: "var(--muted)" }}>
+                                  {r.type}
+                                </span>
+                              </div>
+                              <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+                                {r.reply}
+                              </p>
+                              <div className="flex items-center justify-between mt-1">
+                                <span className="text-[10px]" style={{ color: "var(--muted)" }}>
+                                  {copiedReply === r.id ? "Copied!" : "Tap to copy"}
+                                </span>
+                                {copiedReply === r.id && (
+                                  <Check className="w-3 h-3" style={{ color: "#4ade80" }} />
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+
+            <Card>
             <CardHeader>
               <CardTitle>Follow-up Schedule</CardTitle>
             </CardHeader>
