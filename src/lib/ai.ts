@@ -144,72 +144,771 @@ CRITICAL RULES:
 - Never sound like a bot or template. Never "I hope this finds you well", "leverage", "synergy", "game-changer"
 - Short messages. Casual. Direct. Like a person.`;
 
-const CONTENT_SKILL = `# LaunchOps LinkedIn Content System — BULLETPROOF EDITION
+const TEMPLATES = `You have 59 proven templates below. These have generated 100K+ impressions across multiple niches. Your job is to pick the BEST template for the topic, fill the {placeholders} with authentic LaunchOps-specific content, and write a post that reads like a human wrote it by hand.
 
-## Core Mission
-Write posts that hit 5K-10K+ impressions, 50-100+ likes. Every post must stop the scroll, keep them reading, and drive comments. No exceptions. No filler. No AI slop.
+CRITICAL: The template is your STRUCTURE GUIDE. The final post must NOT read like a template. It must read like a real person wrote it naturally. Flesh out each section with specific details, real numbers, and authentic voice. Never leave a raw {placeholder} in the output.
 
-## The Anatomy of a Bulletproof LinkedIn Post
+TEMPLATE 1:
+People overcomplicate {thing}
+Listen, if you're a {experience level}:
+Avoid:
+● {thing they should avoid}
+● {thing they should avoid}
+● {thing they should avoid}
+● {thing they should avoid}
+Instead:
+● {thing they should do}
+● {thing they should do}
+● {thing they should do}
+Focus on this for the first {time frame}.
+Build from there.
 
-### 1. THE HOOK (≤8 words — this is the gatekeeper)
-- Must stop a scrolling finger in under 0.5 seconds
-- Never start with "I", "We", or "Our" — start with the tension/the reader
-- Formats that work: Number + Promise, Direct Challenge, Relatable Pain, Curiosity Gap
-- Examples: "5 leads, 0 follow-ups, same story." / "Most founders lose clients at step 2." / "You don't need more leads."
+TEMPLATE 2:
+How you think you should {action} on {social media platform}:
+● {Wrong practice}
+● {Wrong practice}
+● {Wrong practice}
+How you actually {action} on {social media platform}:
+● Educational content around {pain point}
+● Free resources to solve {pain point}
+● Consistent value and {proof}
+Strong CTA's are good but strong brands are better.
+Make people WANT to {action} from you.
+Don't force them.
 
-### 2. THE RE-HOOK (lines 2-3 — keeps them from leaving)
-- After the hook, the next 1-2 lines must double down on the tension
-- Make the reader think: "Wait, that's me" or "I need to know where this goes"
-- Never let the energy drop after the hook. The re-hook is what turns a glance into a read.
-- Example flow: Hook "You don't need more leads." → Re-hook "You need a system that catches the ones already knocking."
+TEMPLATE 3:
+{Time frame} ago, I stopped {action}.
+{Context}. And no:
+● {Misconception 1}
+● {Misconception 2}
+● {Misconception 3}
+{Context}
+In fact, since I stopped {action}:
+● {Achievement 1}
+● {Achievement 2}
+● {Achievement 3}
+{Sassy statement}
+And {time frame} later, I've never been clearer on my reasons to never {action} again.
+{Result}
 
-### 3. THE BODY (paint the picture, shift the belief)
-- One core idea per post
-- Short paragraphs — 1-2 lines max on mobile
-- Make them FEEL the before (pain) and see the after (solution)
-- Never explain the technology — always explain the outcome
-- Use real specifics: numbers, timeframes, money. Vague = dead.
-- Include a subtle shift in belief: they should think differently after reading
-- Every sentence must either: create tension, build authority, or drive the CTA
+TEMPLATE 4:
+Everyone says that {thing} changed their life
+But this one thing leveled up mine completely.
+→ [what you did]
+In 2023:
+● {things that you were doing wrong/not working}
+● {things that you were doing wrong/were not working}
+● {things that you were doing wrong/were not working}
+In 2024:
+● {things that you did right}
+● {things that you did right}
+● {things that you did right}
+Here's exactly what I did:
+1. {Step}
+2. {Step}
+3. {Step}
+4. {Step}
+5. {Step}
+People who are winning aren't better than you. They just {what do winners do}.
+There's space for all of us to win here, we're early.
 
-### 4. THE CTA (cycle back to engagement — "YOU?")
-- Must make the reader respond. Not "like if you agree" — that's lazy.
-- Best CTAs end with "— you?" or "YOU?" to pull a comment
-- Or use keyword CTAs: "Comment PIPELINE", "Drop a DM", "Connect if this hit home"
-- Never use a split audience CTA ("some of you... others of you...")
-- CTA speaks to THEIR situation, not your desire to talk to them
+TEMPLATE 5:
+My #1 {your niche} {method} tip: {your tip} (especially if you're trying to grow)
+{Platform} just hit {Metric}; if you want to reach them:
+● Remember they don't know you
+● Remember they're here to be educated
+● Remember they're here to be entertained
+It's a social media platform after all.
+If you want to reach them all, you need to:
+● {tip point 1}
+● {tip point 2}
+● {tip point 3}
+● {tip point 4}
+● {tip point 5}
+Bonus: {bonus tip}
+Don't: {Non-example of the tip}
+Do: {Example of the tip}
+CLEAR difference.
+Your post is a roadmap to your idea.
+Get the {end goal of your tip}.
+They'll reward you by consuming your content, daily.
 
-### 5. THE P.S. (optional — adds humanity)
-- Short, witty, or vulnerable
-- Teases next post, shares a personal moment, or pulls another comment
-- Never salesy. Always human.
+TEMPLATE 6:
+Yesterday, I did {crazy thing for work}.
+That same action lead to:
+● {Result 1}
+● {Result 2}
+● {Result 3}
+{Context}
+Here's {number} reason's it worked:
+● {Reason 1}
+● {Reason 2}
+● {Reason 3}
+The best part? I didn't have to do {Hard thing}
+I simply did {simple thing thing}
+PS:...
 
-## Language Rules (Non-Negotiable)
-- NEVER lead with "AI" — use "system", "pipeline", "follow-up system"
-- "AI" can appear once max in the body — never in the hook or first 3 lines
-- ZERO banned phrases: "game-changer", "leverage", "innovative", "seamlessly", "utilise", "empower", "straightforward", "genuinely", "honestly", "transformative", "revolutionise", "cutting-edge", "next-level", "paradigm", "synergy"
-- No dashes (—) anywhere. Use commas, periods, full stops.
-- Contractions are fine. "That's" not "that is". "You're" not "you are".
-- Write like a human entrepreneur talking to another. Not a marketer. Not a writer. Not a bot.
-- Every word earns its place. If a sentence can be removed without losing meaning, delete it.
+TEMPLATE 7:
+Success looks different for everyone.
+For me, it's about {your definition of success}.
+{What you did to achieve your success}
+Success? Check.
+We made it, {person involved in your definition of success, if any}.
 
-## Post Formats That Work
-| Format | Hook Angle | Best For |
-|--------|-----------|----------|
-| Hard Truth | "Most [audience] stay broke because..." | Challenge beliefs |
-| Storytelling | "Last week a founder told me..." | Real moments, relatability |
-| Opinion/Reframe | "Everything you know about X is wrong" | Debate, engagement |
-| Education | "The 3-step system I use for X" | Value, saves |
-| Social Proof | "Client went from X to Y in Z days" | Proof, desire |
-| Behind the Build | "Here's what actually building X looks like" | Authenticity |
+TEMPLATE 8:
+Harsh {thing} truth:
+{Doing thing} is only half the job done on {platform}
+● You need to {action}
+● You need to {action}
+● You need to {action}
+● You need to {action}
+STOP doing {bad practice}
+START doing {new and improved practice}
 
-## CTA Cheat Sheet
-- "— you?" → Drives comment (best for storytelling/hard truth)
-- "Comment PIPELINE" → Floods comments with keyword
-- "Drop me a DM" → Direct lead generation
-- "Connect if this hits home" → Network growth
-- "Save this for later" → Saves for algorithm
-- "Tag someone who needs to hear this" → Viral spread`;
+TEMPLATE 9:
+I lasted {duration} in my {previous job}.
+● It was {negative thing}.
+● I wasn't {thing}
+● It was {negative thing}
+{context}
+{timeframe} later, I did {life-changing thing}
+● I had {challenge or limitation}
+● I had {challenge or limitation}
+● I had {challenge or limitation}
+Today:
+● I'm {positive adjective}
+● I'm {positive adjective}
+● I'm {positive adjective}
+{positive reflection}
+
+TEMPLATE 10:
+This 1 mindset shift changed everything.
+When I started {thing} I focused on:
+{things you did wrong}
+{things you did wrong}
+{things you did wrong}
+I burned out, but not because I was working hard..
+It was because my goals didn't align with my purpose.
+I was chasing {wrong goals}, not {right goals}.
+I was chasing {wrong goals}, not {right goals}.
+I was chasing {wrong goals}, not {right goals}.
+The reason? My {external factor} made me think that was the goal.
+"Woah, everyone has that, so I should too"
+A slippery slope.
+And an endless chase for {unreal result}.
+Because no matter how many success stories we read.
+There are 10x failure ones underneath.
+Remember that next time you want to quit.
+Or feel burned out. Rest and reassess.
+Flip the narrative to focus on growing you.
+
+TEMPLATE 11:
+Actual hack that works:
+{The hack}
+{Context}
+● Desired outcome 1
+● Desired outcome 2
+● Desired outcome 3
+Anyone can do {thing}
+You're the only one that can do {thing}
+
+TEMPLATE 12:
+There's too many "I made {success}"
+But not enough "I struggled doing xyz"
+This year I've:
+● {fail}
+● {fail}
+● {fail}
+That's the reality of being {who you are}...
+{Describe the failure}
+{Describe the failure}
+{Describe the failure}
+It's not all black and white...
+Remind people that not everything's perfect.
+
+TEMPLATE 13:
+I grew my {your project} and personal brand in record time.
+(without a fancy {conventional fancy thing in your industry} or {another fancy thing})
+Here's how you can do the same:
+1. {action}
+2. {action}
+3. {action}
+4. {action}
+5. {action}
+Then, market yourself shamelessly.
+You don't need more advice.
+You don't need another motivational post.
+Honestly, you don't even need {what you sell}.
+You just need to start.
+
+TEMPLATE 14:
+{time period} years ago, I made the decision that changed my life.
+"[your positive self-affirmation]"
+I said to myself {in a situation}.
+Tears on my face, tired and fed up.
+I turned my pain into power.
+All the {your hardships}...
+● {action you took overcome it}
+● {action you took overcome it}
+● {action you took overcome it}
+● {action you took overcome it}
+● {action you took overcome it}
+Destroyed my old 'self' to become my new one.
+Stopped waiting for the right {situation}.
+I {what final action you took} made my first online dollar.
+I haven't stopped since.
+Be better or stay bitter.
+
+TEMPLATE 15:
+{Time when} I had no {your niche} experience.
+Today I {your work achievements}.
+Here's how I mastered {your niche}:
+● action you took
+● action you took
+● action you took
+● action you took
+Learn Do Learn Do.
+Get ahead of 99% of people just by being consistent.
+
+TEMPLATE 16:
+99% of my followers don't know this about me...
+[What thing you failed at but you never mentioned online]
+But it wasn't because I couldn't do it:
+● {reason you failed}
+● {reason you failed}
+● {reason you failed}
+So I failed and/or quit them all.
+Then I found {thing you succeeded at} and stuck to it for {time period}.
+I liked it, I committed to it and eventually found success
+For months, nothing was happening. But I persisted.
+Then {thing that happened}. It changed my life.
+Stop quitting so soon.
+
+TEMPLATE 17:
+How you think you should (do something)
+● wrong action
+● wrong action
+● wrong action
+How you actually (do something)
+● action
+● action
+● action
+Make people WANT to (work with you/buy from you)
+Don't force them.
+
+TEMPLATE 18:
+Please STOP (doing something)
+I see too many people (doing that something and failing)
+Do this instead:
+● (action)
+● action
+● action
+● action
+● action
+The main reason why the failure happened.
+Save you money, do (as above) and solve a problem.
+
+TEMPLATE 19:
+I hacked ChatGPT and now It {a task} like me.
+Here's exactly how it does it (and faster)
+Look, most people think AI is {conventional opinion about AI}.
+Personally, it makes mine 100x easier.
+So to save myself 100s of hours, I created this prompt.
+Designed to {task} like me (copy and paste it)
+"[your unique prompt]"
+This prompt paired with these 2 bonus ones.
+Just saved you hours of {task}.
+I've been testing this for months, and it works.
+Master AI before it masters you.
+
+TEMPLATE 20:
+There are too many {your niche} guides on {thing}.
+But not enough simple step-by-step checklists to follow.
+So, I built one for you to follow daily.
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
+4. [Step 4]
+5. [Step 5]
+You don't need fluffy guides, you need actionable steps.
+
+TEMPLATE 21:
+My (year) work strategy:
+● list
+● list
+Too (simple/complicated)? Let's break it down:
+Weekly I'm (doing)...
+● (action)
+● (action)
+● (action)
+In addition:
+● (explained action)
+● (explained action)
+● (explained action)
+Explain what worked for you. Explain what wouldn't work for you. Explain why.
+
+TEMPLATE 22:
+Just crossed {milestone} on {thing}.
+{time period} years ago, I had 0 {metrics}.
+Over the last several months I've:
+● [Your accomplishments...]
+But I didn't do it alone.
+Out of the many perks of building personal brand...
+My network will always be the greatest one.
+Today, I want to celebrate the {# of people} people that made all of this happen for me.
+{Name-of-person}: {1-liner about them}
+{Name-of-person}: {1-liner about them}
+I came to {thing} for the limitless possibilities.
+But I stayed because of its community.
+
+TEMPLATE 23:
+Everyone on/in {thing} should be telling stories.
+If you want to grow your {venture} fast, use this:
+I call it the '{Your Unique Term} {skill}' framework.
+1. {Your Step-1}
+2. {Your Step-2}
+3. {Your Step-3}
+4. {Your Step-4}
+To top it all up, each {deliverable} then has:
+● A {unique element} to {its outcome}
+● A {unique element} to {its outcome}
+● A {unique element} to {its outcome}
+This is exactly how my {deliverable} is {ideal outcome}.
+Be specific enough to show authority, but generic enough to reach more people.
+
+TEMPLATE 24:
+99% of people never reach their lifetime goals.
+(Did you hit yours? When?)
+● (goal 1)
+● (goal 2)
+● (goal 3)
+(When did you set these goals?)
+(How did you feel in that time?)
+(Action you took.)
+(Motivation that led you, and that can lead them.)
+
+TEMPLATE 25:
+How I go viral every week (you can too)
+Stop {what everybody does} and start testing.
+1. Choose a topic for your post
+2. Use a proven viral hook format
+3. Use a proven writing framework
+Test it and see how it performs.
+And if the post doesn't perform:
+→ Test a different {unique lever}
+→ Test a different {unique lever}
+→ Test a different {unique lever}
+It's not WHAT you say. It's HOW you say it.
+
+TEMPLATE 26:
+What people think {your expertise} is:
+● {Generic advice on your niche}
+● {Generic advice on your niche}
+● {Generic advice on your niche}
+What it actually is:
+● {Specific niche advice/insight}
+● {Specific niche advice/insight}
+● {Specific niche advice/insight}
+A {generic advice} won't build a {your expertise outcome}.
+{specific advice} will.
+
+TEMPLATE 27:
+My {year} {your expertise} strategy:
+● {frequency} to do X
+● {frequency} to do Y
+Too simple? Let's break it down:
+Weekly, I'm...
+● [your output]
+● [your output]
+● [your output]
+● [your output]
+In addition:
+● I'm spending {time} making each post
+● I spend [another task]
+● I'm [another task]
+● I [metric] {task}
+I rather have 2 {what success looks like} than 5 poor {what success looks like}.
+It's chess, not checkers.
+
+TEMPLATE 28:
+I've read many books, but this one changed my life:
+(And it's not cliche)
+→ name of the book
+Here is (how it affected you, what you learned)
+1.
+2.
+3.
+4.
+This book taught me more than my (degree?)
+I re-read it every 3 months. Its lessons are timeless.
+
+TEMPLATE 30:
+The best (your niche) lesson you'll receive today:
+(From someone who's worked hard to be able to write this?)
+(The advice.)
+→ (explanation of the advice)
+→ (explanation of the advice)
+→ (explanation of the advice)
+In the world where everyone wants to take. Give.
+Become an alchemist of your life.
+
+TEMPLATE 31:
+Too many people overcomplicate {your niche}.
+● {common mistakes}
+● {common mistakes}
+● {common mistakes}
+Truth is they only need:
+● {best practices}
+● {best practices}
+● {best practices}
+Your audience doesn't care about your {common mistake #1}, they care about {best practice}.
+Don't let your overcomplication turn into procrastination
+
+TEMPLATE 32:
+x years ago I was (in a worse position)
+y years ago I was (in a worse position)
+z year ago I started (taking action)
+In last (period) (things changed, how?)
+Now I have:
+● opposite of year x
+● opposite of year y
+x things would've dreamed of x years ago.
+I'm happy.
+
+TEMPLATE 33:
+My honest advice for everyone on LinkedIn:
+(after achievement connected to your advice)
+Your advice.
+→ Something that no one can do.
+→ Something that you can always do.
+→ Something that can always be done.
+Be (3 things related to your advice)
+(Positive conclusion)
+Not (opposite of the above)
+
+TEMPLATE 34:
+My secret (your niche) hack (steal this):
+Whenever you're (doing something), (do this)
+I call it (name your advice, use the word "Effect")
+It works because when you're (doing it), you:
+● positive result
+● positive result
+● positive result
+
+TEMPLATE 35:
+Yesterday, I was up till 2am {your niche task}.
+That same {task} generated:
+● {your metrics}
+● {your metrics}
+● {your metrics}
+{what worked for you} is unmatched.
+Here's {number} reason's it worked:
+● {reason}
+● {reason}
+● {reason}
+The best part? I didn't have to do any {norm}.
+I simply {your niche task} and got {successful outcome} as a result.
+
+TEMPLATE 36:
+Worried your [deliverable] aren't getting [success metric]?
+Here's why:
+You're too focused on the output, not the process.
+Try this instead:
+● [What works in your niche]
+● [What works in your niche]
+● [What works in your niche]
+Do this consistently.
+Become obsessed with the process and applying it.
+No matter the industry, the lesson remains the same.
+Provide value in your own way, traction will follow.
+
+TEMPLATE 37:
+{thing} growth tip:
+Cut the fluff.
+This includes (but not limited to):
+● {wrong practice}
+● {wrong practice}
+● {wrong practice}
+Engagement might be good...
+But is your {deliverable}?
+Focus on creating high-value {thing} instead.
+● {Tip #1}
+● {Tip #2}
+● {Tip #3}
+See how much your {thing} improves.
+
+TEMPLATE 38:
+[Platform/Niche] has changed. A lot.
+(Read this if you [giving up on your niche])
+My [metric] has dropped by [percentage]%
+My [metric] also decreased by [percentage]%
+If you're experiencing the same, here's 1 simple way to [desired outcome]:
+→ Focus on {#1 tip to achieve success}
+1. [Action Item #1]
+2. [Action Item #2]
+3. [Action Item #3]
+4. [Action Item #4]
+5. [Action Item #5]
+Don't just [what everyone is doing], build a [Your Tip] instead.
+{Daily action item/desire outcomes} every single day.
+Outlast your competition this way.
+
+TEMPLATE 39:
+The best (your niche) lesson you'll receive today:
+You don't need something. You need something else.
+Stop:
+● negative action
+● negative action
+● negative action
+Start:
+● positive action
+● positive action
+● positive action
+This is how you build (Conclusion.)
+Let everyone else drown in tactics.
+
+TEMPLATE 40:
+This will be my first {accomplishment} year.
+I didn't need:
+● (passive state)
+● (passive state)
+● (passive state)
+I needed:
+● (action)
+● (action)
+● (action)
+Today, I'm slowing down.
+Like all athletes, this is my off-season.
+● (doing thing)
+● (doing thing)
+● (doing thing)
+
+TEMPLATE 41:
+Harsh truth:
+You can take all the online courses
+You can use all the {thing} 'hacks'
+You can read all the [your niche] books
+But if you aren't:
+Showing up consistently
+[Basics of your niche]
+and repeating...
+You won't get the {success in your niche}.
+Nail down the basics and repeat every day.
+That's how you do the how.
+
+TEMPLATE 42:
+I wrote my first [deliverable] [time period] months ago.
+I started from scratch just to [your initial motivation to start].
+I would never have thought that today I'd have:
+● [Your Current Metrics]
+● [Your Current Metrics]
+● [Your Current Metrics]
+It's crazy how much of a difference [time period] of dedication can make.
+Imagine if you started today...
+
+TEMPLATE 43:
+Last month I had [metrics] for my [your venture]
+● I don't {common mistake #1}
+● I don't {common mistake #2}
+● I don't {common mistake #3}
+My biggest takeaway?
+Your {venture outcome} is the only label worth your time.
+Invest in it accordingly.
+
+TEMPLATE 44:
+What you see: {success in your niche}.
+What you SHOULD see: {[effort put behind-the-scene] + good outcome}.
+Comparison is easy on this app.
+Don't let it get to you.
+
+TEMPLATE 45:
+Doing something is hard.
+You're expected to:
+● complicated action
+● complicated action
+● complicated action
+But it's (actually) really simple:
+● simplified action
+● simplified action
+● simplified action
+
+TEMPLATE 46:
+What people think (work in your niche) is:
+● basic expectation
+● basic expectation
+● basic expectation
+What it usually is:
+● pro requirement
+● pro requirement
+● pro requirement
+● pro requirement
+● pro requirement
+
+TEMPLATE 47:
+Harsh truth:
+Someone who is {less eligible} than you is doing what {ideal scenario} because they took action.
+Stop spending time procrastinating your success when you could simply just start.
+● [Clear steps towards success in your niche]
+● [Clear steps towards success in your niche]
+● [Clear steps towards success in your niche]
+That's it.
+
+TEMPLATE 48:
+Quick [thing] engagement tip:
+Go to your favourite [expert in your thing]'s profile
+Look at their recent activity
+Engage with {in capacity your thing/niche allows}.
+Repeat 3/5x with different [expert].
+Hand-selected, targeted and quality {deliverable} for you.
+Freshly delivered by your top {experts}.
+Work smart, not hard.
+
+TEMPLATE 49:
+What you think {your niche deliverables} should be:
+● {ridiculous outcomes}
+● {ridiculous outcomes}
+● {ridiculous outcomes}
+What it should be:
+● {sustainable outcomes}
+● {sustainable outcomes}
+● {sustainable outcomes}
+Stop trying to copy experienced [niche expert] strategies.
+Focus on your {basic tip #1}
+Focus on {basic tip #2}
+Focus on {basic tip #3}
+Build the skill.
+Create the habit.
+Grow your {thing}.
+Then upgrade.
+
+TEMPLATE 50:
+My best piece of advice when creating [thing]?
+Ask yourself: "How can I best help/serve my {your niche audience}?"
+[process of creation] with one specific person in mind.
+If you speak to everyone, you speak to no one.
+Focus on one person, one problem.
+
+TEMPLATE 51:
+The number 1 reason {thing} fail:
+They focus on {not useful outcome}, not {useful outcome}.
+● {usual wanna-be tasks}
+● {usual wanna-be tasks}
+● {usual wanna-be tasks}
+The result? Lack of {outcome}.
+Here's what I did instead:
+1. {action-items that work}
+2. {action-items that work}
+3. {action-items that work}
+Stop trying to {not useful outcome} before you {useful outcome}.
+Start {not useful outcome} while you're {useful outcome}.
+Repetitive {something that works} is how you get ahead of 99% of people.
+
+TEMPLATE 52:
+If I had to start from 0 on/for {thing} here's what I'd do:
+(how to actually {desired outcome})
+→ {unfair advantage in that domain}
+[add an example of unfair advantages]
+[add an example of unfair advantages]
+[add an example of unfair advantages]
+You'll stick to it longer.
+1. {tip #1}
+2. {tip #2}
+3. {tip #3}
+This is exactly how I {what you achieved}.
+Pick a problem, solve it and sell the implementation.
+
+TEMPLATE 53:
+How I managed to build a {thing} in under {time frame}:
+(100% of {target group} I know agree with this tip)
+{your tip/unique insight}
+1. {Tip pointer #1}
+2. {Tip pointer #2}
+3. {Tip pointer #3}
+Stop {what does not work}, start {what works}.
+Because no one cares about your story until you start winning.
+Earn your dopamine release, do the thing first.
+
+TEMPLATE 54:
+Want to build a powerful [goal/objective]?
+(Proven tip I used to build my [achievement] from [starting point])
+{one-liner}
+Every time I [action], I focus on:
+● {tip #1}
+● {tip #2}
+● {tip #3}
+● [Action] consistently for [duration]
+Here's a quick [platform/niche] framework:
+{Add your framework here}
+People love the process, but also the journey.
+They want to see the problem and how you fixed it.
+Learn, Implement, Teach through [content/work]
+
+TEMPLATE 55:
+How to stop overcomplicating your {desired outcome}:
+(and create the {ideal process})
+Turn your {negative perspective} into {something positive}.
+Here's how I did it:
+1. {Tip #1}
+2. {Tip #2}
+3. {Tip #3}
+4. {Tip #4}
+Swap from "Why them?" to "How can I."
+Real growth happens when you stop {not useful thing}
+And start {useful thing}.
+It's always you vs you, not someone else.
+
+TEMPLATE 56:
+60-second {Your Expertise} Masterclass
+(From someone who's {your credibility})
+1. Cut the fluff, focus on {what works}
+2. {What works}, not {common misconception}
+3. {Your actionable tip #1}
+4. {Your actionable tip #2}
+5. {Your actionable tip #3}
+6. {Your actionable tip #4}
+7. {Your actionable tip #5}
+Take the {end user} from point A to B {ideal way}.
+Focus on one bullet point per category.
+
+TEMPLATE 57:
+I failed [number] [attempts/ventures] before landing on [platform/niche].
+Here's my [timeframe] "overnight success":
+● [Year]: I failed at [first attempt].
+● [Year]: I failed at [second attempt].
+● [Year]: I failed at [third attempt].
+● [Year]: I found success in [current venture].
+● [Year]: Building my [goal/dream].
+I picked {your thing} and refused to quit.
+Showed up [frequency], {action item}, and learned.
+There were no hacks, just [key trait].
+Lesson? {your lesson in one-liner}.
+
+TEMPLATE 58:
+I used AI to create [desired result] for [clients/end-user].
+(In under [timeframe])
+Here's how to beat [challenge/block]:
+Every time I [action] for [clients/end-users], I:
+1. Open the [AI tool].
+2. Select "[mode/setting]."
+3. Pull out [inspiration source/account].
+4. Start prompting with my all-time favorite prompt:
+Prompt: {Add your prompt}
+It will give you [number] near-perfect options.
+Select the one you like the most.
+The result? A near-[expert/professional] level {outcome}.
+Save time by using [method/strategy].
+Save money by not [outsourcing/task].
+Save effort by cutting down [process time].
+It has never been easier.
+
+TEMPLATE 59:
+[Add an image]
+This is my [old place/start point] where it all began.
+[What did you had at that time], [challenge/hardships], late nights, and obsessing over [focus area].
+I was [context/situation] at the time.
+That same year, I made my first [milestone].
+One year of [action you took] can put you decades ahead.
+You just have to make the choice to go all in on [your goal].`;
 
 export async function generatePostDrafts(params: {
   topic: string;
@@ -230,132 +929,63 @@ export async function generatePostDrafts(params: {
 
   const dayTheme = params.day ? dayThemes[params.day] || "" : "";
 
-  const prompt = `You are a world-class LinkedIn copywriter with 10+ years of direct-response experience. You have written for founders, agency owners, and local business owners. Your posts consistently hit 5K-10K+ impressions with 50-100+ likes. You are ruthless about quality. Every post you write could be published by a top personal brand on LinkedIn.
+  const prompt = `You are a world-class LinkedIn copywriter. You write for Raymon, founder of LaunchOps AI. He builds automated lead follow-up systems. Your posts hit 5K-10K+ impressions. Every post looks like a human wrote it by hand. Nothing reads like a template or AI.
 
-Target audience: business owners, founders, agency owners. They're busy, skeptical, and have seen every sales pitch. You earn their attention with every single line. Nothing is wasted.
+Target audience: business owners, founders, agency owners. Busy, skeptical, seen it all.
 
 ${dayTheme ? `Day: ${params.day}. Theme: ${dayTheme}` : ""}
 
 Topic: "${params.topic}"
 
-Generate ${params.count || 3} distinct LinkedIn posts. Each must use a DIFFERENT format from: Hard Truth, Storytelling, Opinion/Reframe, Education, Social Proof, Behind the Build.
+Generate ${params.count || 3} LinkedIn posts. Each must use a DIFFERENT template from the 59 provided below.
+
+HERE IS THE CRITICAL RULE: The templates are your STRUCTURAL GUIDE only. Fill every {placeholder} with authentic LaunchOps-specific content. Then write the post in a natural, hand-written voice. The final output must NOT read like it followed a template. It must read like a real founder typing on their phone.
+
+About LaunchOps (use these specifics):
+- Raymon builds automated lead follow-up pipelines (text + voice AI agents)
+- Responds in under 60 seconds, qualifies conversationally, books calls
+- Based in UK. $50K+/month businesses. Cold calling background.
+- Services: Text AI Agent, Voice AI Agent, Whitelabling System, Reactivation Voice Agent
+- Target clients: service-based businesses, agency owners, local biz owners, real estate, solar, HVAC, dental, clinics
+- Client result example: went from 5 calls booked/month to 25+ with automated follow-up
+- Key pain point: 80% of leads never get followed up within 5 minutes — 78% of deals go to the first responder
+
+${TEMPLATES}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-FINAL VERIFICATION CHECKLIST — YOU MUST PASS EVERY ITEM BEFORE SUBMITTING EACH POST
+VERIFICATION CHECKLIST — PASS EVERY ITEM BEFORE SUBMITTING
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-For EVERY post you write, run this checklist. If ANY item fails, FIX IT before outputting:
 
 [  ] Hook is ≤8 words (count manually right now)
 [  ] Hook does NOT start with I, We, or Our
-[  ] Hook creates tension/curiosity — not a statement, not a fact
+[  ] Hook creates tension/curiosity
 [  ] Re-hook exists immediately after hook (1-2 lines, maintains tension)
-[  ] Body is 150-300 words (count the words — if under 150, do not submit)
-[  ] Body contains at least ONE specific, actionable insight or framework (not generic advice)
-[  ] Body shifts ONE belief — reader thinks differently after reading
+[  ] Body is 150-300 words. Under 150 = SCORE 0.
+[  ] Body reads hand-written, not like it followed a template
 [  ] Body has short paragraphs (1-2 lines max)
-[  ] No banned words anywhere (check: game-changer, leverage, innovative, seamlessly, utilise, empower, genuinely, honestly, transformative, cutting-edge, next-level, synergy, paradigm, dive into, landscape)
+[  ] No banned words: game-changer, leverage, innovative, seamlessly, utilise, empower, genuinely, honestly, transformative, cutting-edge, next-level, synergy, paradigm, dive into, landscape, revolutionise
 [  ] No dashes (—) — only commas, periods, full stops
-[  ] CTA exists and is specific — "— you?" is best
+[  ] CTA exists and is specific — ends with "— you?" or "Comment [KEYWORD]" or "Drop a DM"
 [  ] CTA is NOT "like if you agree" or "share your thoughts"
-[  ] "AI" does not appear in hook or first 3 lines, appears max once in body
-[  ] Reads like a human entrepreneur, not a marketer or bot
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-THE EXACT BLUEPRINT (Follow for EVERY post — No exceptions):
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-1. HOOK — Exactly 8 words or fewer. Count the words. If 9+, restart.
-   Must stop a scrolling finger in under 0.5 seconds. Creates tension, disbelief, or curiosity.
-   Never starts with "I", "We", or "Our". Start with the tension or the reader's problem.
-   Strong formats: Number + Outcome / Direct Challenge / Relatable Pain / "You're right" validation
-   Examples: "You don't need more leads." / "5 calls to 25 booked in 60 days." / "Speed is not the problem."
-
-2. RE-HOOK — The next 1-2 lines. This is MANDATORY. Non-negotiable.
-   Double down on the tension. Make them think "Wait, that's exactly me" or "I need to know this."
-   If the energy drops after the hook, the reader leaves. Never let that happen.
-
-3. BODY — 150-300 words. Real depth. Real value. Real specifics. If it's under 150 words, it is TOO SHORT and you must rewrite with more substance.
-   Minimum 6-8 short paragraphs. Each paragraph is 1-2 sentences max.
-   Paint the before (pain, frustration, missed opportunity) vividly.
-   Show the after (solution, result, new reality) specifically.
-   Shift ONE belief. The reader should think differently after reading.
-   Include at least ONE specific number, timeframe, dollar amount, or step-by-step framework.
-   Never explain technology. Always explain the outcome.
-   Every sentence either: creates tension, builds authority, or drives toward the CTA.
-   If a sentence doesn't serve one of those three purposes — cut it.
-   Write like you've been in their shoes. You've seen this work. You know what fails. Speak from experience.
-
-4. CTA — Must end with "— you?" or "Comment [KEYWORD]" or "Drop a DM".
-   "— you?" is the gold standard for driving comments.
-   Make them respond. Not "like if you agree" — that's lazy. Make them type.
-   CTA speaks to THEIR situation, not your desire to talk to them.
-
-5. P.S. (optional but recommended) — A weapon, not an afterthought.
-   Tease next post. Pull another comment. Add a human moment.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-NON-NEGOTIABLE RULES:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-HOOK (3 rules):
-- MUST be ≤8 words. Count them. If 9+, do not submit.
-- MUST never start with "I", "We", "Our". Period.
-- MUST create tension, curiosity, or disbelief.
-
-RE-HOOK (1 rule):
-- MUST exist in every single post. No exceptions.
-
-BODY (5 rules):
-- MUST be 150-300 words. Under 150 = SCORE 0. Do not submit.
-- MUST deliver at least ONE actionable insight or specific framework.
-- MUST shift ONE belief. The reader must think "I never thought of it that way."
-- MUST have short paragraphs. 1-2 lines. No 3+.
-- MUST be written like an experienced entrepreneur talking to another.
-
-LANGUAGE (4 rules):
-- ZERO banned words: game-changer, leverage, innovative, seamlessly, utilise, empower, genuinely, honestly, transformative, cutting-edge, next-level, synergy, paradigm, dive into, landscape, revolutionise
-- No dashes (—). Commas, periods, full stops only.
-- Contractions: that's, you're, don't, I've, it's — NOT "that is", "you are"
-- Write like a smart experienced human. Not a bot. Not a marketer.
-
-CTA (2 rules):
-- MUST exist in every post.
-- Never "like if you agree" or "share your thoughts" — too passive.
-
-PURPOSE (1 rule):
-- Before writing each post, answer: what belief am I shifting? What action am I driving? If you can't answer both clearly, do not write the post yet.
+[  ] "AI" does not appear in hook or first 3 lines, appears max once in body. Use "system", "pipeline", "follow-up" instead.
+[  ] Reads like a human entrepreneur wrote it by hand. Not a template. Not a bot. Not a marketer.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 LARA ACOSTA PRINCIPLES (Apply Every Post):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - Hook = Promise: Deliver exactly what the hook promises. No bait-and-switch.
-- One Idea Per Post: ONE belief. If you can't finish "After reading, the reader will believe ___" in one clear sentence — rewrite.
+- One Idea Per Post: ONE belief shift only.
 - Earn the Scroll: Cover the post, reveal line by line. Does each one earn the next?
 - PS is a Weapon: Tease, humanise, or pull comments. Never waste it.
 
 ${params.pastFeedback ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-REAL PERFORMANCE DATA — Learn from this (Every metric is a lesson):
+REAL PERFORMANCE DATA — Learn from this:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${params.pastFeedback}
 
-FAILURE ANALYSIS (Posts under 3K impressions):
-Each underperforming post means something was weak. Common causes:
-- Hook >8 words or lacked tension
-- No re-hook (reader left after the hook)
-- CTA was passive or missing
-- Body was generic — no specific insight or framework
-- Too short — under 150 words
-- Started with "I" or was self-focused instead of reader-focused
-DO NOT repeat any of these patterns in the new posts.
+FAILURE ANALYSIS (<3K impressions): Hook too long, no re-hook, passive CTA, generic body, too short, self-focused. DO NOT REPEAT.
 
-SUCCESS ANALYSIS (Posts over 5K impressions):
-Each high-performing post did something right. Common patterns:
-- Hook was tight ≤8 words with real tension
-- Re-hook made them feel seen
-- Body delivered a specific, actionable framework
-- CTA made them want to respond
-Replicate these patterns in the new posts.` : ""}
+SUCCESS ANALYSIS (>5K impressions): Tight hook ≤8 words, re-hook made them feel seen, specific actionable framework, CTA drove response. REPLICATE.` : ""}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OUTPUT FORMAT (JSON):
@@ -364,8 +994,8 @@ OUTPUT FORMAT (JSON):
 {
   "drafts": [
     {
-      "content": "Full post — hook ≤8 words + re-hook + body (150-300 words) + CTA + optional PS",
-      "format": "One of: Storytelling | Hard Truth | Opinion/Reframe | Education | Social Proof | Behind the Build",
+      "content": "Full post — hook + re-hook + body (150-300 words) + CTA + optional PS",
+      "templateUsed": "Number of the template used (e.g. 1, 14, 37)",
       "score": 0-100,
       "scoreAnalysis": "2-3 sentences on what makes this work or holds it back",
       "impressionPrediction": "e.g. 5,000 - 8,000 or 8,000 - 12,000. Never below 5,000.",
@@ -375,16 +1005,16 @@ OUTPUT FORMAT (JSON):
   ]
 }
 
-SCORING RUBRIC (Be Brutally Honest):
+SCORING RUBRIC:
 - Score 0: Body under 150 words. Do not submit.
 - Score <50: Hook >8 words, no re-hook, or banned words used.
 - Score 50-59: Decent hook but body lacks depth or specificity.
-- Score 60-69: Solid post but won't hit 5K — missing depth.
+- Score 60-69: Solid post but won't hit 5K.
 - Score 70-79: Will hit 5K — tight hook, re-hook, decent body, CTA.
-- Score 80-89: Will hit 5K+ — strong hook, re-hook, valuable body, intentional CTA, real depth.
-- Score 90-100: Exceptional — 8K-12K+ caliber. Rare. Only when truly outstanding.
+- Score 80-89: Will hit 5K+ — strong hook, re-hook, valuable body, real depth.
+- Score 90-100: Exceptional — 8K-12K+ caliber. Rare.
 
-CRITICAL: Before submitting ANY post, run the FULL VERIFICATION CHECKLIST at the top of this prompt. Tick every box. If any box is unticked, fix the post. Do not submit broken posts. Do not score posts above 50 if they break rules. Be brutally honest with scores — a weak hook or short body means score 0-50, not 80+.`;
+CRITICAL RULE: The final post must NOT read like a template. It must read like a real person typed it by hand. Fill the template variables completely, then write naturally. No {placeholder} survives in the final output.`;
 
   let model = "gpt-4o";
   let res;
@@ -394,22 +1024,17 @@ CRITICAL: Before submitting ANY post, run the FULL VERIFICATION CHECKLIST at the
       messages: [
         {
           role: "system",
-          content: `You are a senior LinkedIn copywriter with 10+ years of direct-response experience. You write for Raymon, a founder and agency owner. Every post you write hits 5K-10K+ impressions with 50-100+ likes. You are ruthlessly anti-fluff. Your posts make people stop, read, and comment. You always return a valid JSON object with a "drafts" array.
+          content: `You are a senior LinkedIn copywriter writing for Raymon, founder of LaunchOps AI. Every post hits 5K-10K+ impressions. You use proven templates as structural guides but the final output reads like a hand-written post by a real founder. Anti-fluff. Anti-template-feel. Always valid JSON with a "drafts" array.
 
-${CONTENT_SKILL}
-
-VERIFICATION CHECKLIST — Tick every item for every post before submitting:
+VERIFICATION CHECKLIST — Tick every item for every post:
 [  ] Hook ≤8 words, no I/We/Our, creates tension
 [  ] Re-hook exists immediately after hook
-[  ] Body 150-300 words (count now — under 150 = score 0)
-[  ] Body has specific actionable insight/framework (not generic)
-[  ] Body shifts ONE belief
-[  ] No banned words (game-changer, leverage, innovative, seamlessly, utilise, empower, genuinely, honestly, transformative, cutting-edge, next-level, synergy, paradigm, dive into)
-[  ] No dashes, no AI in hook/first 3 lines
-[  ] CTA exists, specific, not "like if you agree"
-[  ] Reads like a human entrepreneur, not a marketer
-
-If any box is unticked, fix the post. Do not submit. Score 0-50 for any broken rules.`,
+[  ] Body 150-300 words (under 150 = score 0)
+[  ] Body reads hand-written, not templated
+[  ] No banned words, no dashes
+[  ] CTA specific, not "like if you agree"
+[  ] AI max once in body, never in hook/first 3 lines
+[  ] No {placeholder} remains — all filled naturally`,
         },
         { role: "user", content: prompt },
       ],
