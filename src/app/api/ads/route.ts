@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generateAdCopies } from "@/lib/ai";
+import { notifyTelegram } from "@/lib/telegram";
 
 async function getDefaultAccountId() {
   const account = await prisma.account.findFirst({ orderBy: { createdAt: "asc" } });
@@ -67,6 +68,10 @@ export async function POST(req: Request) {
         },
       });
       created.push(createdAd);
+    }
+
+    if (created.length > 0) {
+      notifyTelegram(`📢 <b>AI Generated ${created.length} ad copies</b>\n\nReady for review in Writing stage.`).catch(() => {});
     }
 
     return NextResponse.json({ ads: created }, { status: 201 });

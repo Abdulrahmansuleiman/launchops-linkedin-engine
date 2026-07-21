@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generatePostDrafts } from "@/lib/ai";
+import { notifyTelegram } from "@/lib/telegram";
 
 function getWeekNumber(date: Date) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -126,6 +127,13 @@ export async function POST(req: Request) {
       posts.push(post);
     }
 
+    // Notify about generated posts
+    if (posts.length > 0) {
+      notifyTelegram(
+        `✨ <b>AI Generated ${posts.length} posts</b>\n\nReady for review in Scripting stage.`
+      ).catch(() => {});
+    }
+
     return NextResponse.json({ drafts: posts }, { status: 201 });
   }
 
@@ -144,14 +152,33 @@ export async function POST(req: Request) {
   return NextResponse.json(post, { status: 201 });
 }
 
+const STAGE_LABELS: Record<string, string> = {
+  IDEAS: "💡 Ideas",
+  SCRIPTING: "✍️ Scripting",
+  EDITING: "✏️ Editing",
+  QA: "👁 Quality Assurance",
+  POSTED: "✅ Posted",
+};
+
 export async function PATCH(req: Request) {
   const body = await req.json();
   const { id, ...data } = body;
+
+  // Fetch old post to detect stage change
+  const oldPost = await prisma.post.findUnique({ where: { id } });
 
   const post = await prisma.post.update({
     where: { id },
     data,
   });
+
+  // Notify on stage change
+  if (data.stage && oldPost && oldPost.stage !== data.stage) {
+    const topic = post.topic || post.content.slice(0, 50);
+    notifyTelegram(
+      `📋 <b>Pipeline Update</b>\n\nPost moved: <b>${topic}</b>\n${STAGE_LABELS[oldPost.stage]} → ${STAGE_LABELS[data.stage]}`
+    ).catch(() => {});
+  }
 
   return NextResponse.json(post);
 }
