@@ -43,6 +43,7 @@ export interface Post {
   score: number | null;
   scoreReason: string | null;
   impressionPrediction: string | null;
+  stage: string;
   status: string;
   impressions: number | null;
   likes: number | null;
@@ -50,6 +51,7 @@ export interface Post {
   shares: number | null;
   saves: number | null;
   weekLabel: string | null;
+  aiGenerated: boolean;
   createdAt: string;
   feedbackRating: string | null;
   feedbackNotes: string | null;
@@ -154,10 +156,11 @@ export async function getLeadStats() {
 }
 
 // === Content ===
-export async function getPosts(params?: { weekLabel?: string; status?: string }) {
+export async function getPosts(params?: { weekLabel?: string; status?: string; stage?: string }) {
   const query = new URLSearchParams();
   if (params?.weekLabel) query.set("weekLabel", params.weekLabel);
   if (params?.status) query.set("status", params.status);
+  if (params?.stage) query.set("stage", params.stage);
   const qs = query.toString();
   return fetchJSON<Post[]>(`/api/content${qs ? `?${qs}` : ""}`);
 }
@@ -166,6 +169,13 @@ export async function generateDrafts(topic: string, weekLabel?: string, day?: st
   return fetchJSON<{ drafts: Post[] }>("/api/content", {
     method: "POST",
     body: JSON.stringify({ action: "generate", topic, weekLabel, day }),
+  });
+}
+
+export async function updatePost(id: string, data: Record<string, any>) {
+  return fetchJSON<Post>("/api/content", {
+    method: "PATCH",
+    body: JSON.stringify({ id, ...data }),
   });
 }
 

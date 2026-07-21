@@ -20,15 +20,17 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const weekLabel = searchParams.get("weekLabel");
   const status = searchParams.get("status");
+  const stage = searchParams.get("stage");
 
   const where: any = {};
   if (weekLabel) where.weekLabel = weekLabel;
   if (status) where.status = status;
+  if (stage) where.stage = stage;
 
   const posts = await prisma.post.findMany({
     where,
     orderBy: { createdAt: "desc" },
-    take: 50,
+    take: 200,
   });
 
   return NextResponse.json(posts);
@@ -112,6 +114,7 @@ export async function POST(req: Request) {
           accountId,
           content: draft.content,
           topic: body.topic,
+          stage: "SCRIPTING",
           status: "DRAFT",
           score: draft.score,
           scoreReason: draft.scoreAnalysis,

@@ -18,6 +18,7 @@ import {
   Target,
   CalendarDays,
   Megaphone,
+  LayoutGrid,
 } from "lucide-react";
 
 const navItems = [
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/leads", label: "Leads", icon: Users },
   { href: "/discovery", label: "Discover", icon: Target },
   { href: "/content", label: "Content Studio", icon: FileText },
+  { href: "/content/pipeline", label: "Pipeline", icon: LayoutGrid },
   { href: "/outreach", label: "Outreach", icon: Send },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/ads", label: "Ads", icon: Megaphone },

@@ -25,6 +25,14 @@ enum PostStatus {
   SCHEDULED
 }
 
+enum ContentStage {
+  IDEAS
+  SCRIPTING
+  EDITING
+  QA
+  POSTED
+}
+
 enum FeedbackRating {
   GREAT
   GOOD
@@ -122,6 +130,7 @@ model Post {
   content   String
   topic     String?
   tone      String?
+  stage     ContentStage @default(IDEAS)
   status    PostStatus @default(DRAFT)
   score     Int?
   scoreReason String?

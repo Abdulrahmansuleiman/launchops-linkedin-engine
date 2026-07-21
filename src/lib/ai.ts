@@ -929,92 +929,61 @@ export async function generatePostDrafts(params: {
 
   const dayTheme = params.day ? dayThemes[params.day] || "" : "";
 
-  const prompt = `You are a world-class LinkedIn copywriter. You write for Raymon, founder of LaunchOps AI. He builds automated lead follow-up systems. Your posts hit 5K-10K+ impressions. Every post looks like a human wrote it by hand. Nothing reads like a template or AI.
-
-Target audience: business owners, founders, agency owners. Busy, skeptical, seen it all.
-
+  const prompt = `Topic: "${params.topic}"
 ${dayTheme ? `Day: ${params.day}. Theme: ${dayTheme}` : ""}
+Generate ${params.count || 3} posts.
 
-Topic: "${params.topic}"
-
-Generate ${params.count || 3} LinkedIn posts. Each must use a DIFFERENT template from the 59 provided below.
-
-HERE IS THE CRITICAL RULE: The templates are your STRUCTURAL GUIDE only. Fill every {placeholder} with authentic LaunchOps-specific content. Then write the post in a natural, hand-written voice. The final output must NOT read like it followed a template. It must read like a real founder typing on their phone.
-
-About LaunchOps (use these specifics):
-- Raymon builds automated lead follow-up pipelines (text + voice AI agents)
-- Responds in under 60 seconds, qualifies conversationally, books calls
-- Based in UK. $50K+/month businesses. Cold calling background.
-- Services: Text AI Agent, Voice AI Agent, Whitelabling System, Reactivation Voice Agent
-- Target clients: service-based businesses, agency owners, local biz owners, real estate, solar, HVAC, dental, clinics
-- Client result example: went from 5 calls booked/month to 25+ with automated follow-up
-- Key pain point: 80% of leads never get followed up within 5 minutes — 78% of deals go to the first responder
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⛔ YOU MUST PICK A TEMPLATE FROM THE LIST BELOW. EVERY POST USES A DIFFERENT TEMPLATE.
+⛔ YOUR FIRST OUTPUT LINE MUST BE: "Using Template [NUMBER] for this post"
+⛔ DO NOT WRITE A FREE-FORM POST. PICK. FILL. REWRITE.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ${TEMPLATES}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-VERIFICATION CHECKLIST — PASS EVERY ITEM BEFORE SUBMITTING
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HOW TO USE A TEMPLATE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. PICK a template number that fits the topic
+2. FILL every {placeholder} with real LaunchOps specifics
+3. REWRITE so it reads like a founder texting — no trace of the template remains
 
-[  ] Hook is ≤8 words (count manually right now)
-[  ] Hook does NOT start with I, We, or Our
-[  ] Hook creates tension/curiosity
-[  ] Re-hook exists immediately after hook (1-2 lines, maintains tension)
-[  ] Body is 150-300 words. Under 150 = SCORE 0.
-[  ] Body reads hand-written, not like it followed a template
-[  ] Body has short paragraphs (1-2 lines max)
-[  ] No banned words: game-changer, leverage, innovative, seamlessly, utilise, empower, genuinely, honestly, transformative, cutting-edge, next-level, synergy, paradigm, dive into, landscape, revolutionise
-[  ] No dashes (—) — only commas, periods, full stops
-[  ] CTA exists and is specific — ends with "— you?" or "Comment [KEYWORD]" or "Drop a DM"
-[  ] CTA is NOT "like if you agree" or "share your thoughts"
-[  ] "AI" does not appear in hook or first 3 lines, appears max once in body. Use "system", "pipeline", "follow-up" instead.
-[  ] Reads like a human entrepreneur wrote it by hand. Not a template. Not a bot. Not a marketer.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NICHE CONTEXT (fill {placeholders} with this):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- LaunchOps AI builds lead follow-up pipelines (text + voice agents)
+- Responds <60 seconds, qualifies, books calls automatically
+- Founder is Raymon. Based UK. Cold calling background. $50K+/mo businesses.
+- Services: Text AI Agent, Voice AI Agent, Whitelabling System, Reactivation Voice Agent
+- Target: service biz, agency owners, solar, HVAC, dental, real estate
+- Client example: 5 calls/mo to 25+ calls/mo with automated follow-up
+- Pain point: 80% of leads never followed up within 5 min. 78% of deals go to first responder.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-LARA ACOSTA PRINCIPLES (Apply Every Post):
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Hook = Promise: Deliver exactly what the hook promises. No bait-and-switch.
-- One Idea Per Post: ONE belief shift only.
-- Earn the Scroll: Cover the post, reveal line by line. Does each one earn the next?
-- PS is a Weapon: Tease, humanise, or pull comments. Never waste it.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VOICE: THE POST MUST SOUND LIKE A REAL PERSON (NOT COPYWRITER, NOT AI)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Short sentences. One thought per line. Like texting.
+- No numbered lists (1. 2. 3.) ever
+- No "let me tell you", "here's the thing", "the truth is", "in fact"
+- No "streamline", "leverage", "optimize", "game-changer", "revolutionize"
+- No dashes. Use commas or periods.
+- Say "system" not "AI" in hook/first 3 lines
+- CTA ends with "you?" or "Comment [WORD]" or "Drop a DM"
+- Read it aloud. If it sounds professional or polished, WRITE IT FRESH. Should sound raw.
 
-${params.pastFeedback ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-REAL PERFORMANCE DATA — Learn from this:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${params.pastFeedback ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LEARN FROM PAST DATA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${params.pastFeedback}
+FAILURES (<3K): hook too long, no re-hook, passive CTA, generic body.
+SUCCESSES (>5K): tight hook, re-hook landed, specific value, CTA pulled comment.` : ""}
 
-FAILURE ANALYSIS (<3K impressions): Hook too long, no re-hook, passive CTA, generic body, too short, self-focused. DO NOT REPEAT.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT JSON:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{ "drafts": [ { "content": "full post", "templateUsed": "template number", "hook": "≤8 words", "score": 0-100, "scoreAnalysis": "2-3 sentences", "impressionPrediction": "5K-10K range", "wordCount": number } ] }
 
-SUCCESS ANALYSIS (>5K impressions): Tight hook ≤8 words, re-hook made them feel seen, specific actionable framework, CTA drove response. REPLICATE.` : ""}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-OUTPUT FORMAT (JSON):
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-{
-  "drafts": [
-    {
-      "content": "Full post — hook + re-hook + body (150-300 words) + CTA + optional PS",
-      "templateUsed": "Number of the template used (e.g. 1, 14, 37)",
-      "score": 0-100,
-      "scoreAnalysis": "2-3 sentences on what makes this work or holds it back",
-      "impressionPrediction": "e.g. 5,000 - 8,000 or 8,000 - 12,000. Never below 5,000.",
-      "hook": "The exact hook (≤8 words)",
-      "wordCount": number
-    }
-  ]
-}
-
-SCORING RUBRIC:
-- Score 0: Body under 150 words. Do not submit.
-- Score <50: Hook >8 words, no re-hook, or banned words used.
-- Score 50-59: Decent hook but body lacks depth or specificity.
-- Score 60-69: Solid post but won't hit 5K.
-- Score 70-79: Will hit 5K — tight hook, re-hook, decent body, CTA.
-- Score 80-89: Will hit 5K+ — strong hook, re-hook, valuable body, real depth.
-- Score 90-100: Exceptional — 8K-12K+ caliber. Rare.
-
-CRITICAL RULE: The final post must NOT read like a template. It must read like a real person typed it by hand. Fill the template variables completely, then write naturally. No {placeholder} survives in the final output.`;
+SCORE 0 IF: body <150 words, hook >8 words, no re-hook, banned words used, or post sounds like AI wrote it.`;
 
   let model = "gpt-4o";
   let res;
@@ -1024,17 +993,19 @@ CRITICAL RULE: The final post must NOT read like a template. It must read like a
       messages: [
         {
           role: "system",
-          content: `You are a senior LinkedIn copywriter writing for Raymon, founder of LaunchOps AI. Every post hits 5K-10K+ impressions. You use proven templates as structural guides but the final output reads like a hand-written post by a real founder. Anti-fluff. Anti-template-feel. Always valid JSON with a "drafts" array.
+          content: `You write LinkedIn posts for Raymon, founder of LaunchOps AI. Every post MUST follow a template from the list. The final output reads like a real founder typed it on their phone — not like a copywriter, not like AI, not like a blog post.
 
-VERIFICATION CHECKLIST — Tick every item for every post:
-[  ] Hook ≤8 words, no I/We/Our, creates tension
-[  ] Re-hook exists immediately after hook
-[  ] Body 150-300 words (under 150 = score 0)
-[  ] Body reads hand-written, not templated
-[  ] No banned words, no dashes
-[  ] CTA specific, not "like if you agree"
-[  ] AI max once in body, never in hook/first 3 lines
-[  ] No {placeholder} remains — all filled naturally`,
+CRITICAL RULES:
+- ALWAYS start by stating "Using Template [NUMBER]"
+- Hook ≤8 words, no I/We/Our, creates tension
+- Re-hook immediately after hook
+- Body 150-300 words (0 if under)
+- No numbered lists. No blog formatting. Ever.
+- No banned words: game-changer, leverage, streamline, optimize, utilize, empower
+- No dashes. Commas and periods only.
+- CTA specific, not "like if you agree"
+- "AI" max once in body, never in hook
+- Read aloud. If it sounds professional, DELETE AND REWRITE.`,
         },
         { role: "user", content: prompt },
       ],

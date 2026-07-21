@@ -83,17 +83,28 @@ If writing multiple posts for the week — use tabbed navigation (Post 1 Mon, Po
 
 ---
 
-## Post Formats & When to Use Each
+## Post Templates (59 Proven Formats — 100K+ Impressions Each)
 
-| Format | When to use | Impression driver |
-|--------|------------|-------------------|
-| Storytelling | Personal journey, client result, real moment | Saves + comments |
-| Opinion/reframe | Challenge a belief the audience holds | Debate comments = reach |
-| Behind the build | Show work in progress, screenshot, dual screens | Saves |
-| Education | Insider tip, how-to, named framework | Saves + shares |
-| Social proof | Testimonial, client message, before/after numbers | DMs + profile views |
-| Personality | Tennis, personal life, human moment | Likes + reach outside ICP |
-| Hard truth | "Most [audience] stay broke because..." | Controversy = comments |
+The full template library is in: /references/templates-labeled.txt
+
+These 59 templates have generated 100K+ impressions across multiple niches. Every post MUST be built on one of these templates. Pick the template that best fits the topic, fill the {placeholders} with LaunchOps-specific content, and write the final post in a natural hand-written voice.
+
+### How to Use Templates
+1. Read the topic and identify which template structure fits best
+2. Fill every {placeholder} with specific LaunchOps details (services, client results, pain points, real numbers)
+3. Write the post in a natural human voice — the template is structural guidance only
+4. The final output must NOT read like a template or AI wrote it
+5. Hook ≤8 words, body 150-300 words, CTA drives comments
+
+Common template picks by content pillar:
+- Lead response speed → Template 1 (overcomplicate), Template 8 (harsh truth), Template 51 (number 1 reason)
+- Pipeline automation → Template 23 (everyone should be), Template 20 (checklist), Template 36 (worried your)
+- Cold lead reactivation → Template 3 (stopped), Template 6 (yesterday I did), Template 35 (up till 2am)
+- Freelancer resell → Template 13 (grew in record time), Template 52 (start from 0), Template 15 (no experience)
+- Founder time problem → Template 10 (1 mindset shift), Template 41 (harsh truth), Template 45 (doing something is hard)
+- Industry gets it wrong → Template 2 (how you think), Template 26 (what people think), Template 46 (what people think work is)
+- Social proof / case study → Template 4 (this one thing), Template 22 (just crossed milestone), Template 42 (first deliverable)
+- Practising what I preach → Template 14 (decision that changed my life), Template 16 (99% don't know), Template 57 (failed X times)
 
 ---
 
@@ -180,9 +191,9 @@ Weekly calendar in: /references/weekly-calendar.md
 ## Post Creation Workflow
 
 1. Receive input — image, template, topic, client result, or open brief
-2. Identify format — which post type fits
+2. Pick template — scan /references/templates-labeled.txt for the best fit
 3. Identify audience — which segment is being spoken to
 4. Write 3 hooks — present to Raymon first, wait for selection
-5. Write full post — SLAY structure, chosen hook, correct CTA style
+5. Write full post — use chosen template as structural guide, fill {placeholders} with real LaunchOps content, write in hand-written human voice
 6. Build dashboard widget — hooks, copy button, seed comment, algo tip
 7. Never skip the seed comment — it is not optional
