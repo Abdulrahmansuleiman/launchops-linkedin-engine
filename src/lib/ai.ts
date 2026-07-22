@@ -949,6 +949,14 @@ HOW TO USE A TEMPLATE:
 3. REWRITE so it reads like a founder texting — no trace of the template remains
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+THE OFFER (use this exact language, never invent):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"We install a system that answers, qualifies, and books your leads within 60 seconds of them reaching out — live in 14 days, or you don't pay the setup fee."
+- One-time setup fee + monthly retainer (3-month minimum)
+- Guarantee: live in 14 days or setup fee refunded
+- Includes: done-for-you scripts/knowledge base, a live client dashboard, first-30-days optimization
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 NICHE CONTEXT (fill {placeholders} with this):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - LaunchOps AI builds lead follow-up pipelines (text + voice agents)
@@ -958,6 +966,7 @@ NICHE CONTEXT (fill {placeholders} with this):
 - Target: service biz, agency owners, solar, HVAC, dental, real estate
 - Client example: 5 calls/mo to 25+ calls/mo with automated follow-up
 - Pain point: 80% of leads never followed up within 5 min. 78% of deals go to first responder.
+- Tools (never mention to prospects): GoHighLevel (CRM), Retell AI (voice agent), Client Dashboard (what clients see)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 VOICE: THE POST MUST SOUND LIKE A REAL PERSON (NOT COPYWRITER, NOT AI)
@@ -979,11 +988,22 @@ FAILURES (<3K): hook too long, no re-hook, passive CTA, generic body.
 SUCCESSES (>5K): tight hook, re-hook landed, specific value, CTA pulled comment.` : ""}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HEADLINE RULES (3 per post, for image overlays):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Each post MUST have 3 headlines. Each is 2 lines max (first line plain statement, second line punch).
+The 3 must be GENUINELY different angles:
+  - headline1: number/proof angle (stats, specific results, concrete data)
+  - headline2: belief-challenge angle (challenges what reader thinks they know)
+  - headline3: before/after angle (paints the transformation)
+Headlines double as image overlays — must make sense as standalone text on a post graphic.
+Rate uniqueness of all 3 before outputting. If two sound too similar, rewrite one.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OUTPUT JSON:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-{ "drafts": [ { "content": "full post", "templateUsed": "template number", "hook": "≤8 words", "score": 0-100, "scoreAnalysis": "2-3 sentences", "impressionPrediction": "5K-10K range", "wordCount": number } ] }
+{ "drafts": [ { "content": "full post", "templateUsed": "template number", "hook": "≤8 words", "headlines": [ { "text": "2-line headline", "angle": "number/proof|belief-challenge|before/after" }, ... ], "score": 0-100, "scoreAnalysis": "2-3 sentences", "impressionPrediction": "5K-10K range", "wordCount": number } ] }
 
-SCORE 0 IF: body <150 words, hook >8 words, no re-hook, banned words used, or post sounds like AI wrote it.`;
+SCORE 0 IF: body <150 words, hook >8 words, no re-hook, banned words used, no headlines, or post sounds like AI wrote it.`;
 
   let model = "gpt-4o";
   let res;
@@ -995,6 +1015,11 @@ SCORE 0 IF: body <150 words, hook >8 words, no re-hook, banned words used, or po
           role: "system",
           content: `You write LinkedIn posts for Raymon, founder of LaunchOps AI. Every post MUST follow a template from the list. The final output reads like a real founder typed it on their phone — not like a copywriter, not like AI, not like a blog post.
 
+THE OFFER (never invent, use this exact language):
+"We install a system that answers, qualifies, and books your leads within 60 seconds of them reaching out — live in 14 days, or you don't pay the setup fee."
+- One-time setup fee + monthly retainer (3-month minimum)
+- Guarantee: live in 14 days or setup fee refunded
+
 CRITICAL RULES:
 - ALWAYS start by stating "Using Template [NUMBER]"
 - Hook ≤8 words, no I/We/Our, creates tension
@@ -1005,7 +1030,16 @@ CRITICAL RULES:
 - No dashes. Commas and periods only.
 - CTA specific, not "like if you agree"
 - "AI" max once in body, never in hook
-- Read aloud. If it sounds professional, DELETE AND REWRITE.`,
+- Read aloud. If it sounds professional, DELETE AND REWRITE.
+
+HEADLINE RULES (3 per post, for image overlays):
+- Every post MUST have 3 headlines, each 2 lines max
+- Each headline: first line plain statement, second line the punch
+- Angle 1: number/proof (stats, results, data)
+- Angle 2: belief-challenge (challenges what reader thinks they know)
+- Angle 3: before/after (transformation or contrast)
+- Headlines double as image overlays — must work as standalone text on a graphic
+- Rate uniqueness of all 3 before outputting — if two are too similar, rewrite one`,
         },
         { role: "user", content: prompt },
       ],

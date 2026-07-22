@@ -120,6 +120,7 @@ export async function POST(req: Request) {
           score: draft.score,
           scoreReason: draft.scoreAnalysis,
           impressionPrediction: draft.impressionPrediction,
+          headlines: draft.headlines || null,
           weekLabel,
           aiGenerated: true,
         },

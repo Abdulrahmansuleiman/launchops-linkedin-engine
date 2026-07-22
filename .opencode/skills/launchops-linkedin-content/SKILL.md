@@ -22,6 +22,21 @@ Sells done-for-you automated pipeline systems to agencies, local businesses (sol
 LinkedIn goal: 2–5 booked calls/week. Growing from 1,632 to 7,000 followers by end of 2026.
 Target audience: US, UK, Canada, Australia — founders, agency owners, local biz owners, freelancers.
 
+## The Offer (Never Invent or Alter This)
+
+"We install a system that answers, qualifies, and books your leads within 60 seconds of them reaching out — live in 14 days, or you don't pay the setup fee."
+
+- One-time setup fee + monthly retainer (3-month minimum)
+- Guarantee: live in 14 days or setup fee refunded
+- Includes: done-for-you scripts/knowledge base, a live client dashboard, first-30-days optimization
+
+## The Tools (Reference Correctly, Never Expose to Prospects)
+
+- **GoHighLevel (GHL)** — CRM, pipeline, calendar. Home base for lead data and booked calls.
+- **Retell AI** — powers the voice agent (the actual calls: answering, qualifying, booking)
+- **Claude Code / OpenCode** — internal build/dev tool Raymon uses to configure and maintain agents. Never mentioned to clients.
+- **Client dashboard** — custom-built view showing conversations handled, leads qualified, appointments booked, response time. This is what clients see as "the result," not the tools behind it.
+
 ---
 
 ## The Non-Negotiables (Never Break These)
@@ -39,6 +54,17 @@ Target audience: US, UK, Canada, Australia — founders, agency owners, local bi
 - Never start with "I" — start with the tension
 - Always give Raymon **3 hook options** before writing the full post
 - He picks one, then the full post is written
+
+### Headline Rules (Every Post Needs 3 Options)
+- Every post MUST have 3 distinct headline options — not 3 versions of the same sentence
+- Each headline: 2 lines max (first line plain statement, second line the punch)
+- Different angles per headline:
+  - **Number/proof angle** — stats, specific results, concrete data
+  - **Belief-challenge angle** — challenges what the reader thinks they know
+  - **Before/after angle** — paints the transformation or contrast
+- Headlines are also used for image overlays — they must work as standalone text on a post image
+- Rate uniqueness of the 3 before giving them — if two are too similar, rewrite one
+- Headlines must fit the offer: lead response speed, pipeline automation, 14-day guarantee, booked calls
 
 ### Post Structure (SLAY Framework)
 - **S** — Stop scroll: Hook that creates instant tension
@@ -72,12 +98,15 @@ Target audience: US, UK, Canada, Australia — founders, agency owners, local bi
 ## Output Format (ALWAYS Use This — No Exceptions)
 
 Every single post must be delivered inside the **interactive dashboard widget** with:
-1. 3 hook options (buttons) — Raymon picks one
-2. Full post body (updates when hook is selected)
-3. Copy button
-4. Seed comment (Raymon posts this himself 5 min after publishing)
-5. Algorithm tip explaining why the post is structured the way it is
-6. Day/time pill (e.g. "Monday · 8:00 AM EST")
+1. **3 headline options** (for image overlays) — each a different angle (number/proof, belief-challenge, before/after). 2 lines max each.
+2. 3 hook options (buttons) — Raymon picks one
+3. Full post body (updates when hook is selected)
+4. Copy button
+5. Seed comment (Raymon posts this himself 5 min after publishing)
+6. Algorithm tip explaining why the post is structured the way it is
+7. Day/time pill (e.g. "Monday · 8:00 AM EST")
+
+Headlines work double duty: they're the hook for the post AND the text overlay on the post image. They must make sense on their own when someone sees them on a graphic.
 
 If writing multiple posts for the week — use tabbed navigation (Post 1 Mon, Post 2 Tue, etc.)
 

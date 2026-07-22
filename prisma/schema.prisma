@@ -137,6 +137,7 @@ model Post {
   scoreReason String?
   impressionPrediction String?
   scoreAnalysis String?
+  headlines Json?
   scheduledFor DateTime?
   publishedAt DateTime?
   linkedinUrl String?

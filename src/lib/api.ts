@@ -43,6 +43,7 @@ export interface Post {
   score: number | null;
   scoreReason: string | null;
   impressionPrediction: string | null;
+  headlines: Array<{ text: string; angle: string }> | null;
   stage: string;
   status: string;
   impressions: number | null;
